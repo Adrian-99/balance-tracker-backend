@@ -1,20 +1,21 @@
-using balance_tracker_backend;
-using Microsoft.EntityFrameworkCore;
+using API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<DatabaseContext>(
-    options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"))
-    );
+Infrastructure.DependencyInjection.AddServices(builder.Services, builder.Configuration);
+Application.DependencyInjection.AddServices(builder.Services);
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -28,7 +29,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.Seed();
 
 app.Run();
