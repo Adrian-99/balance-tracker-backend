@@ -6,17 +6,17 @@ namespace Application.Mappers
 {
     public class UserMapper : IUserMapper
     {
-        private IUserService userService;
+        private IPasswordService passwordService;
 
-        public UserMapper(IUserService userService)
+        public UserMapper(IPasswordService passwordService)
         {
-            this.userService = userService;
+            this.passwordService = passwordService;
         }
 
         public User FromUserRegisterDtoToUser(UserRegisterDto userRegisterDto)
         {
             byte[] passwordSalt, passwordHash;
-            userService.CreatePasswordHash(userRegisterDto.Password, out passwordHash, out passwordSalt);
+            passwordService.CreatePasswordHash(userRegisterDto.Password, out passwordHash, out passwordSalt);
 
             var user = new User();
             user.Username = userRegisterDto.Username;

@@ -1,13 +1,17 @@
-﻿using Application.Interfaces;
+﻿using Application.Exceptions;
+using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Application.Services
 {
     public class UserService : IUserService
     {
+        private const string ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
+
         private IUserRepository userRepository;
 
         public UserService(IUserRepository userRepository)
@@ -15,33 +19,40 @@ namespace Application.Services
             this.userRepository = userRepository;
         }
 
-        public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        public async Task ValidateUsernameAndEmail(string username, string email)
         {
-            using (var hmac = new HMACSHA512())
+            if (await userRepository.GetByUsernameIgnoreCase(username) != null)
             {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+                throw new DataValidationException(
+                    "Username is already taken"
+                    // TODO: Add translation key
+                    );
             }
-        }
-
-        public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-        {
-            using (var hmac = new HMACSHA512(passwordSalt))
+            else if (username.Any(c => !ALLOWED_CHARS.Contains(c)))
             {
-                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return computedHash.SequenceEqual(passwordHash);
+                throw new DataValidationException(
+                    "Username may contain only letters, digits, minus (-) and underscore (_)"
+                    // TODO: Add translation key
+                    );
+            }
+            else if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase))
+            {
+                throw new DataValidationException(
+                    "Invalid email address"
+                    // TODO: Add translation key
+                    );
             }
         }
 
         public async Task<User> Register(User user)
         {
-            string activationCode;
+            string emailVerificationCode;
             do
             {
-                activationCode = GenerateRandomString(30);
+                emailVerificationCode = GenerateRandomString(30);
             }
-            while (await userRepository.GetByActivationCode(activationCode) != null);
-            user.EmailVerificationCode = activationCode;
+            while (await userRepository.GetByEmailVerificationCode(emailVerificationCode) != null);
+            user.EmailVerificationCode = emailVerificationCode;
             var addedUser = await userRepository.Add(user);
 
             // TODO: Send activation email
@@ -51,12 +62,10 @@ namespace Application.Services
 
         private string GenerateRandomString(int length)
         {
-            const string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
-
             var randomBytes = RandomNumberGenerator.GetBytes(length);
             var randomStringBuilder = new StringBuilder();
             randomBytes.ToList()
-                .ForEach(randomByte => randomStringBuilder.Append(allowedChars[randomByte % allowedChars.Length]));
+                .ForEach(randomByte => randomStringBuilder.Append(ALLOWED_CHARS[randomByte % ALLOWED_CHARS.Length]));
 
             return randomStringBuilder.ToString();
         }

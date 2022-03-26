@@ -26,10 +26,17 @@ namespace Infrastructure.Repositories
                           select user).FirstOrDefaultAsync();
         }
 
-        public async Task<User?> GetByActivationCode(string activationCode)
+        public async Task<User?> GetByUsernameIgnoreCase(string username)
         {
             return await (from user in databaseContext.Users
-                          where user.EmailVerificationCode == activationCode
+                          where user.Username.ToLower() == username.ToLower()
+                          select user).FirstOrDefaultAsync();
+        }
+
+        public async Task<User?> GetByEmailVerificationCode(string emailVerificationCode)
+        {
+            return await (from user in databaseContext.Users
+                          where user.EmailVerificationCode == emailVerificationCode
                           select user).FirstOrDefaultAsync();
         }
 

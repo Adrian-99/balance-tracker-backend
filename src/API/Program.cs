@@ -8,7 +8,15 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Version = "v1",
+        Title = "balance-tracker-backed",
+        Description = "An ASP.NET Core Web API for managing user balance"
+    });
+});
 
 Infrastructure.DependencyInjection.AddServices(builder.Services, builder.Configuration);
 Application.DependencyInjection.AddServices(builder.Services);

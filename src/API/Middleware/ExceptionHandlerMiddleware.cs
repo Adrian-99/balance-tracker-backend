@@ -1,6 +1,5 @@
 ﻿using Application.Dtos;
 using Newtonsoft.Json;
-using System.Net;
 
 namespace API.Middleware
 {
@@ -31,13 +30,12 @@ namespace API.Middleware
         {
             logger.LogError($"{exception.Message}\n{exception.StackTrace}");
 
-            int statusCode = (int)HttpStatusCode.InternalServerError;
-            var result = JsonConvert.SerializeObject(new ActionErrorDto
-            {
-                StatusCode = statusCode,
-                Message = "Internal server error"
+            int statusCode = StatusCodes.Status500InternalServerError;
+            var result = JsonConvert.SerializeObject(new ActionErrorDto(
+                statusCode,
+                "Internal server error"
                 // TODO: Add translation key
-            });
+            ));
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = statusCode;
 

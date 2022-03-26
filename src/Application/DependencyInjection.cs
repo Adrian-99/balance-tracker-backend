@@ -15,6 +15,8 @@ namespace Application
         public static void AddServices(IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IPasswordService, PasswordService>();
+
             services.AddScoped<IUserMapper, UserMapper>();
         }
     }
