@@ -1,24 +1,30 @@
-﻿using Domain.Entities;
+﻿using Application.Services;
+using Domain.Entities;
 
 namespace Infrastructure.Data
 {
     public static class DataSeeder
     {
-        public static void Seed(DatabaseContext databaseContext)
+        public static void SeedAll(DatabaseContext databaseContext)
         {
-            databaseContext.Database.EnsureCreated();
-            AddUsers(databaseContext);
+            SeedUsers(databaseContext);
         }
 
-        private static void AddUsers(DatabaseContext context)
+        public static void SeedUsers(DatabaseContext databaseContext)
         {
-            var user = context.Users.FirstOrDefault();
+            databaseContext.Database.EnsureCreated();
+            if (databaseContext.Users.Count() == 0)
+            {
+                var passwordService = new PasswordService();
 
-            if (user != null) return;
+                byte[] passwordHash, passwordSalt;
 
-            //context.Users.Add(new User { Username = "User1", Email = "user1@gmail.com", PasswordHash = "somehash" });
+                passwordService.CreatePasswordHash("User1", out passwordHash, out passwordSalt);
 
-            context.SaveChanges();
+                databaseContext.Users.Add(new User { Username = "User1", Email = "user1@gmail.com", PasswordHash = passwordHash, PasswordSalt = passwordSalt });
+
+                databaseContext.SaveChanges();
+            }
         }
     }
 }

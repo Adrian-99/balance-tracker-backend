@@ -1,8 +1,6 @@
 ﻿using Application.Dtos;
 using Application.Exceptions;
 using Application.Interfaces;
-using Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace balance_tracker_backend.Controllers
