@@ -19,9 +19,33 @@ namespace Infrastructure.Data
 
                 byte[] passwordHash, passwordSalt;
 
-                passwordService.CreatePasswordHash("User1", out passwordHash, out passwordSalt);
+                passwordService.CreatePasswordHash("User1!@#", out passwordHash, out passwordSalt);
+                databaseContext.Users.Add(new User {
+                    Username = "User1",
+                    Email = "user1@gmail.com",
+                    PasswordHash = passwordHash,
+                    PasswordSalt = passwordSalt
+                });
 
-                databaseContext.Users.Add(new User { Username = "User1", Email = "user1@gmail.com", PasswordHash = passwordHash, PasswordSalt = passwordSalt });
+                passwordService.CreatePasswordHash("J@n_Kowal$ki123", out passwordHash, out passwordSalt);
+                databaseContext.Users.Add(new User {
+                    Username = "jan_kowalski",
+                    Email = "jankowalski@gmail.com",
+                    FirstName = "Jan",
+                    LastName = "Kowalski",
+                    PasswordHash = passwordHash,
+                    PasswordSalt = passwordSalt
+                });
+
+                passwordService.CreatePasswordHash("Qwerty1@", out passwordHash, out passwordSalt);
+                databaseContext.Users.Add(new User
+                {
+                    Username = "randomUser",
+                    Email = "random@gmail.com",
+                    PasswordHash = passwordHash,
+                    PasswordSalt = passwordSalt,
+                    EmailVerificationCode = "iwFCfh9skMQSCikWjHzLbAojbIG_NT"
+                });
 
                 databaseContext.SaveChanges();
             }

@@ -9,16 +9,11 @@ namespace APITest.UserController
 {
     public class RegisterTest : AbstractControllerTest
     {
-        [SetUp]
-        public void Setup()
+        private const string URL = "/api/user/register";
+
+        protected override void PrepareDatabase()
         {
             DataSeeder.SeedUsers(databaseContext);
-        }
-
-        [TearDown]
-        public void Clean()
-        {
-            ClearDatabaseContext();
         }
 
         [Test]
@@ -31,7 +26,7 @@ namespace APITest.UserController
 
             var usersCountBefore = databaseContext.Users.Count();
 
-            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, "/api/user/register", userRegisterDto);
+            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, URL, userRegisterDto);
             var lastUser = databaseContext.Users.LastOrDefault();
 
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
@@ -60,7 +55,7 @@ namespace APITest.UserController
 
             var usersCountBefore = databaseContext.Users.Count();
 
-            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, "/api/user/register", userRegisterDto);
+            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, URL, userRegisterDto);
             var lastUser = databaseContext.Users.LastOrDefault();
 
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
@@ -180,7 +175,7 @@ namespace APITest.UserController
         {
             var usersCountBefore = databaseContext.Users.Count();
 
-            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, "/api/user/register", userRegisterDto);
+            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, URL, userRegisterDto);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.AreEqual(usersCountBefore, databaseContext.Users.Count());

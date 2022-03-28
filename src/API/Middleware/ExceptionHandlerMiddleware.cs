@@ -31,7 +31,7 @@ namespace API.Middleware
             logger.LogError($"{exception.Message}\n{exception.StackTrace}");
 
             int statusCode = StatusCodes.Status500InternalServerError;
-            var result = JsonConvert.SerializeObject(new ActionErrorDto(
+            var result = JsonConvert.SerializeObject(new ActionResultDto(
                 statusCode,
                 "Internal server error"
                 // TODO: Add translation key

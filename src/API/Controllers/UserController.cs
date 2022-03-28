@@ -24,8 +24,8 @@ namespace balance_tracker_backend.Controllers
         [HttpPost("register")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesErrorResponseType(typeof(ActionErrorDto))]
-        public async Task<ActionResult<ActionInfoDto>> Register([FromBody] UserRegisterDto userRegisterDto)
+        [ProducesErrorResponseType(typeof(ActionResultDto))]
+        public async Task<ActionResult<ActionResultDto>> Register([FromBody] UserRegisterDto userRegisterDto)
         {
             try
             {
@@ -36,18 +36,40 @@ namespace balance_tracker_backend.Controllers
             }
             catch (DataValidationException ex)
             {
-                var errorDto = new ActionErrorDto(
+                var errorDto = new ActionResultDto(
                     StatusCodes.Status400BadRequest,
                     ex.Message,
                     ex.ErrorTranslationKey
                     );
                 return BadRequest(errorDto);
             }
-            return Created("", new ActionInfoDto(
-                true,
+            return Created("", new ActionResultDto(
+                StatusCodes.Status201Created,
                 "User successfully registered"
-                // TODO: Add translation key
                 ));
+        }
+
+        [HttpGet("email/verify/{emailVerificationCode}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesErrorResponseType(typeof(ActionResultDto))]
+        public async Task<ActionResult<ActionResultDto>> VerifyEmail([FromRoute] string emailVerificationCode)
+        {
+            if (await userService.VerifyEmail(emailVerificationCode))
+            {
+                return Ok(new ActionResultDto(
+                    StatusCodes.Status200OK,
+                    "Email verification successfull"
+                    ));
+            } 
+            else
+            {
+                return NotFound(new ActionResultDto(
+                    StatusCodes.Status404NotFound,
+                    "Invalid email verification code"
+                    // TODO: Add translation key
+                    ));
+            }
         }
     }
 }

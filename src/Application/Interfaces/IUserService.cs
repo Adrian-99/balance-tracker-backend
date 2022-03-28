@@ -9,7 +9,8 @@ namespace Application.Interfaces
 {
     public interface IUserService
     {
-        public Task ValidateUsernameAndEmail(string username, string email);
-        public Task<User> Register(User user);
+        Task ValidateUsernameAndEmail(string username, string email);
+        Task<User> Register(User user);
+        Task<bool> VerifyEmail(string emailVerificationCode);
     }
 }

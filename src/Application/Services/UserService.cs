@@ -60,6 +60,20 @@ namespace Application.Services
             return addedUser;
         }
 
+        public async Task<bool> VerifyEmail(string emailVerificationCode)
+        {
+            var user = await userRepository.GetByEmailVerificationCode(emailVerificationCode);
+            
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.EmailVerificationCode = null;
+            await userRepository.Update(user);
+            return true;
+        }
+
         private string GenerateRandomString(int length)
         {
             var randomBytes = RandomNumberGenerator.GetBytes(length);
