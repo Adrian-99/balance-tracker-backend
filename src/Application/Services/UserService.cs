@@ -24,8 +24,8 @@ namespace Application.Services
             if (await userRepository.GetByUsernameIgnoreCase(username) != null)
             {
                 throw new DataValidationException(
-                    "Username is already taken"
-                    // TODO: Add translation key
+                    "Username is already taken",
+                    "error.user.register.usernameTaken"
                     );
             }
             else if (username.Any(c => !ALLOWED_CHARS.Contains(c)))

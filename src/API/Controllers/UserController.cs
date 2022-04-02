@@ -1,6 +1,7 @@
 ﻿using Application.Dtos;
 using Application.Exceptions;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace balance_tracker_backend.Controllers
@@ -45,7 +46,8 @@ namespace balance_tracker_backend.Controllers
             }
             return Created("", new ActionResultDto(
                 StatusCodes.Status201Created,
-                "User successfully registered"
+                "User successfully registered",
+                "success.user.register"
                 ));
         }
 
