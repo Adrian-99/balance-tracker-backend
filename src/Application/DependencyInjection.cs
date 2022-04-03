@@ -16,6 +16,7 @@ namespace Application
         {
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPasswordService, PasswordService>();
+            services.AddScoped<IMailService, MailService>();
 
             services.AddScoped<IUserMapper, UserMapper>();
         }

@@ -13,10 +13,12 @@ namespace Application.Services
         private const string ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
 
         private IUserRepository userRepository;
+        private IMailService mailService;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IMailService mailService)
         {
             this.userRepository = userRepository;
+            this.mailService = mailService;
         }
 
         public async Task ValidateUsernameAndEmail(string username, string email)
@@ -55,7 +57,7 @@ namespace Application.Services
             user.EmailVerificationCode = emailVerificationCode;
             var addedUser = await userRepository.Add(user);
 
-            // TODO: Send activation email
+            _ = mailService.SendEmailVerificationEmail(addedUser).ConfigureAwait(false);
 
             return addedUser;
         }
