@@ -14,11 +14,13 @@ namespace Application.Services
 
         private IUserRepository userRepository;
         private IMailService mailService;
+        private IPasswordService passwordService;
 
-        public UserService(IUserRepository userRepository, IMailService mailService)
+        public UserService(IUserRepository userRepository, IMailService mailService, IPasswordService passwordService)
         {
             this.userRepository = userRepository;
             this.mailService = mailService;
+            this.passwordService = passwordService;
         }
 
         public async Task ValidateUsernameAndEmail(string username, string email)
@@ -74,6 +76,19 @@ namespace Application.Services
             user.EmailVerificationCode = null;
             await userRepository.Update(user);
             return true;
+        }
+
+        public async Task<User> Authenticate(string username, string password)
+        {
+            var user = await userRepository.GetByUsernameIgnoreCase(username);
+            if (user != null && passwordService.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            {
+                return user;
+            }
+            else
+            {
+                throw new UnauthorizedAccessException();
+            }
         }
 
         private string GenerateRandomString(int length)
