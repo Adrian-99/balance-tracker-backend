@@ -17,7 +17,7 @@ namespace Application.Services
     {
         private IConfiguration configuration;
 
-        private static Dictionary<string, Tuple<string, string>> generatedTokens = new Dictionary<string, Tuple<string, string>>();
+        private static Dictionary<string, Tuple<string, string>> validTokens = new Dictionary<string, Tuple<string, string>>();
 
         public JwtService(IConfiguration configuration)
         {
@@ -36,13 +36,20 @@ namespace Application.Services
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var accessTokenClaims = new[]
+            var accessTokenClaims = new List<Claim>(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.GivenName, user.FirstName ?? ""),
-                new Claim(ClaimTypes.Surname, user.LastName ?? "")
-            };
+                new Claim(ClaimTypes.Email, user.Email)
+            });
+            if (user.FirstName != null)
+            {
+                accessTokenClaims.Add(new Claim(ClaimTypes.GivenName, user.FirstName));
+            }
+            if (user.LastName != null)
+            {
+                accessTokenClaims.Add(new Claim(ClaimTypes.Surname, user.LastName));
+            }
+
             var accessJwtToken = new JwtSecurityToken(
                 issuer,
                 audience,
@@ -68,27 +75,27 @@ namespace Application.Services
 
             refreshToken = tokenHandler.WriteToken(refreshJwtToken);
 
-            if (!generatedTokens.ContainsKey(user.Username))
+            if (!validTokens.ContainsKey(user.Username))
             {
-                generatedTokens.Add(user.Username, new Tuple<string, string>(accessToken, refreshToken));
+                validTokens.Add(user.Username, new Tuple<string, string>(accessToken, refreshToken));
             }
             else
             {
-                generatedTokens[user.Username] = new Tuple<string, string>(accessToken, refreshToken);
+                validTokens[user.Username] = new Tuple<string, string>(accessToken, refreshToken);
             }
         }
 
         public async Task<string?> ValidateAccessToken(string accessToken)
         {
             var authorizedUsername = await ValidateToken(accessToken);
-            if (authorizedUsername != null && generatedTokens.ContainsKey(authorizedUsername))
+            if (authorizedUsername != null && validTokens.ContainsKey(authorizedUsername))
             {
-                if (generatedTokens[authorizedUsername].Item1.Equals(accessToken))
+                if (validTokens[authorizedUsername].Item1.Equals(accessToken))
                 {
                     return authorizedUsername;
                 }
 
-                generatedTokens.Remove(authorizedUsername);
+                validTokens.Remove(authorizedUsername);
                 return null;
             }
 
@@ -98,14 +105,14 @@ namespace Application.Services
         public async Task<string?> ValidateRefreshToken(string refreshToken)
         {
             var authorizedUsername = await ValidateToken(refreshToken);
-            if (authorizedUsername != null && generatedTokens.ContainsKey(authorizedUsername))
+            if (authorizedUsername != null && validTokens.ContainsKey(authorizedUsername))
             {
-                if (generatedTokens[authorizedUsername].Item2.Equals(refreshToken))
+                if (validTokens[authorizedUsername].Item2.Equals(refreshToken))
                 {
                     return authorizedUsername;
                 }
 
-                generatedTokens.Remove(authorizedUsername);
+                validTokens.Remove(authorizedUsername);
                 return null;
             }
 

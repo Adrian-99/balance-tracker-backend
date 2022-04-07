@@ -11,7 +11,7 @@ namespace Application.Interfaces
     {
         Task ValidateUsernameAndEmail(string username, string email);
         Task<User> Register(User user);
-        Task<bool> VerifyEmail(string emailVerificationCode);
+        Task<bool> VerifyEmail(string username, string emailVerificationCode);
         Task<User> Authenticate(string username, string password);
     }
 }

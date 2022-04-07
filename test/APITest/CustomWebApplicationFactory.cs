@@ -14,6 +14,13 @@ namespace APITest
 {
     public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
     {
+        private Action<IServiceCollection>? configureMocksAction;
+
+        public CustomWebApplicationFactory(Action<IServiceCollection>? configureMocksAction = null)
+        {
+            this.configureMocksAction = configureMocksAction;
+        }
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services =>
@@ -28,6 +35,8 @@ namespace APITest
                 {
                     options.UseInMemoryDatabase("InMemoryBalanceTrackerDb");
                 });
+
+                configureMocksAction?.Invoke(services);
 
                 var sp = services.BuildServiceProvider();
 

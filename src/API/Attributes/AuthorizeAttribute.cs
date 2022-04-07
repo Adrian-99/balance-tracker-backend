@@ -16,7 +16,7 @@ namespace API.Attributes
                 return;
             }
 
-            if (context.HttpContext.Items["authorizedUser"] == null)
+            if (context.HttpContext.Items["authorizedUsername"] == null)
             {
                 context.Result = new JsonResult(new ActionResultDto(
                     StatusCodes.Status401Unauthorized,

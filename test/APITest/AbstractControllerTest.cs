@@ -1,4 +1,5 @@
-﻿using Infrastructure.Data;
+﻿using Domain.Entities;
+using Infrastructure.Data;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using System;
@@ -16,17 +17,13 @@ namespace APITest
         protected IServiceProvider serviceProvider;
         protected DatabaseContext databaseContext;
 
-        public AbstractControllerTest()
-        {
-            customWebApplicationFactory = new CustomWebApplicationFactory<Program>();
-            httpClient = customWebApplicationFactory.CreateClient();
-        }
-
         [SetUp]
         protected virtual void Setup()
         {
+            customWebApplicationFactory = new CustomWebApplicationFactory<Program>(PrepareMocks);
+            httpClient = customWebApplicationFactory.CreateClient();
             CreateNewScope();
-            PrepareDatabase();
+            PrepareTestData();
             CreateNewScope();
         }
 
@@ -36,7 +33,14 @@ namespace APITest
             databaseContext.Database.EnsureDeleted();
         }
 
-        protected abstract void PrepareDatabase();
+        protected virtual void PrepareMocks(IServiceCollection services) { }
+
+        protected abstract void PrepareTestData();
+
+        protected T GetService<T>() where T : class
+        {
+            return serviceProvider.GetRequiredService<T>();
+        }
 
         private void CreateNewScope()
         {

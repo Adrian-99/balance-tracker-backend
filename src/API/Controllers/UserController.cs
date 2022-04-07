@@ -62,11 +62,11 @@ namespace balance_tracker_backend.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesErrorResponseType(typeof(ActionResultDto))]
         public async Task<ActionResult<ActionResultDto>> VerifyEmail([FromRoute] string emailVerificationCode)
         {
-            if (await userService.VerifyEmail(emailVerificationCode))
+            if (await userService.VerifyEmail(HttpContext.Items["authorizedUsername"].ToString(), emailVerificationCode))
             {
                 return Ok(new ActionResultDto(
                     StatusCodes.Status200OK,
@@ -75,8 +75,8 @@ namespace balance_tracker_backend.Controllers
             } 
             else
             {
-                return NotFound(new ActionResultDto(
-                    StatusCodes.Status404NotFound,
+                return BadRequest(new ActionResultDto(
+                    StatusCodes.Status400BadRequest,
                     "Invalid email verification code"
                     // TODO: Add translation key
                     ));

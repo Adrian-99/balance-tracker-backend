@@ -64,11 +64,11 @@ namespace Application.Services
             return addedUser;
         }
 
-        public async Task<bool> VerifyEmail(string emailVerificationCode)
+        public async Task<bool> VerifyEmail(string username, string emailVerificationCode)
         {
-            var user = await userRepository.GetByEmailVerificationCode(emailVerificationCode);
+            var user = await userRepository.GetByUsernameIgnoreCase(username);
             
-            if (user == null)
+            if (user == null || !emailVerificationCode.Equals(user.EmailVerificationCode))
             {
                 return false;
             }

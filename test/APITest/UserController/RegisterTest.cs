@@ -1,5 +1,9 @@
 using Application.Dtos;
+using Application.Interfaces;
+using Domain.Entities;
 using Infrastructure.Data;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using NUnit.Framework;
 using System.Linq;
 using System.Net;
@@ -11,7 +15,17 @@ namespace APITest.UserController
     {
         private const string URL = "/api/user/register";
 
-        protected override void PrepareDatabase()
+        private Mock<IMailService> mailServiceMock;
+
+        protected override void PrepareMocks(IServiceCollection services)
+        {
+            mailServiceMock = new Mock<IMailService>();
+            var mailService = services.Single(s => s.ServiceType == typeof(IMailService));
+            services.Remove(mailService);
+            services.AddScoped(_ => mailServiceMock.Object);
+        }
+
+        protected override void PrepareTestData()
         {
             DataSeeder.SeedUsers(databaseContext);
         }
@@ -32,6 +46,8 @@ namespace APITest.UserController
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
             Assert.AreEqual(usersCountBefore + 1, databaseContext.Users.Count());
             Assert.NotNull(lastUser);
+
+            mailServiceMock.Verify(s => s.SendEmailVerificationEmail(It.Is<User>(u => u.Id.Equals(lastUser.Id))), Times.Once());
 
             Assert.AreEqual(userRegisterDto.Username, lastUser.Username);
             Assert.AreEqual(userRegisterDto.Email, lastUser.Email);
@@ -61,6 +77,8 @@ namespace APITest.UserController
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
             Assert.AreEqual(usersCountBefore + 1, databaseContext.Users.Count());
             Assert.NotNull(lastUser);
+
+            mailServiceMock.Verify(s => s.SendEmailVerificationEmail(It.Is<User>(u => u.Id.Equals(lastUser.Id))), Times.Once());
 
             Assert.AreEqual(userRegisterDto.Username, lastUser.Username);
             Assert.AreEqual(userRegisterDto.Email, lastUser.Email);
@@ -179,6 +197,8 @@ namespace APITest.UserController
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.AreEqual(usersCountBefore, databaseContext.Users.Count());
+
+            mailServiceMock.Verify(s => s.SendEmailVerificationEmail(It.IsAny<User>()), Times.Never());
         }
     }
 }
