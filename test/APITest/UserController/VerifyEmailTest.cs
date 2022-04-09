@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Dtos;
+using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
 using NUnit.Framework;
@@ -34,11 +35,14 @@ namespace APITest.UserController
         [Test]
         public async Task VerifyEmail_WithCorrectCode()
         {
-            var response = await httpClient.SendAsync(TestUtils.AuthorizedHttpRequest(
-                HttpMethod.Get,
-                $"{URL}/{emailVerificationCode}",
-                unverifiedUserAccessToken
-                ));
+            var verifyEmailDto = new VerifyEmailDto();
+            verifyEmailDto.EmailVerificationCode = emailVerificationCode;
+
+            var response = await TestUtils.SendHttpRequestAsync(httpClient,
+                HttpMethod.Put,
+                URL,
+                unverifiedUserAccessToken,
+                verifyEmailDto);
 
             var user = GetUserById(userId);
 
@@ -49,11 +53,14 @@ namespace APITest.UserController
         [Test]
         public async Task VerifyEmail_WithToLowerCode()
         {
-            var response = await httpClient.SendAsync(TestUtils.AuthorizedHttpRequest(
-                HttpMethod.Get,
-                $"{URL}/{emailVerificationCode.ToLower()}",
-                unverifiedUserAccessToken
-                ));
+            var verifyEmailDto = new VerifyEmailDto();
+            verifyEmailDto.EmailVerificationCode = emailVerificationCode.ToLower();
+
+            var response = await TestUtils.SendHttpRequestAsync(httpClient,
+                HttpMethod.Put,
+                URL,
+                unverifiedUserAccessToken,
+                verifyEmailDto);
 
             var user = GetUserById(userId);
 
@@ -64,11 +71,14 @@ namespace APITest.UserController
         [Test]
         public async Task VerifyEmail_WithIncorrectCode()
         {
-            var response = await httpClient.SendAsync(TestUtils.AuthorizedHttpRequest(
-                HttpMethod.Get,
-                $"{URL}/someTotallyIncorrectCode123",
-                unverifiedUserAccessToken
-                ));
+            var verifyEmailDto = new VerifyEmailDto();
+            verifyEmailDto.EmailVerificationCode = "someTotallyIncorrectCode123";
+
+            var response = await TestUtils.SendHttpRequestAsync(httpClient,
+                HttpMethod.Put,
+                URL,
+                unverifiedUserAccessToken,
+                verifyEmailDto);
 
             var user = GetUserById(userId);
 
@@ -79,7 +89,10 @@ namespace APITest.UserController
         [Test]
         public async Task VerifyEmail_Unauthorized()
         {
-            var response = await httpClient.GetAsync($"{URL}/{emailVerificationCode}");
+            var verifyEmailDto = new VerifyEmailDto();
+            verifyEmailDto.EmailVerificationCode = emailVerificationCode;
+
+            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Put, URL, null, verifyEmailDto);
 
             var user = GetUserById(userId);
 
@@ -90,17 +103,16 @@ namespace APITest.UserController
         [Test]
         public async Task VerifyEmail_AuthorizedAsSomeoneElse()
         {
+            var verifyEmailDto = new VerifyEmailDto();
+            verifyEmailDto.EmailVerificationCode = emailVerificationCode;
+
             string accessToken;
             var someoneElse = (from someUser in databaseContext.Users
                                where someUser.Id != userId
                                select someUser).First();
             GetService<IJwtService>().GenerateTokens(someoneElse, out accessToken, out _);
 
-            var response = await httpClient.SendAsync(TestUtils.AuthorizedHttpRequest(
-                HttpMethod.Get,
-                $"{URL}/{emailVerificationCode}",
-                accessToken
-                ));
+            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Put, URL, accessToken, verifyEmailDto);
 
             var user = GetUserById(userId);
 

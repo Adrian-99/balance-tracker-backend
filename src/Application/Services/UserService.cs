@@ -78,7 +78,7 @@ namespace Application.Services
             return true;
         }
 
-        public async Task<User> Authenticate(string username, string password)
+        public async Task<User?> Authenticate(string username, string password)
         {
             var user = await userRepository.GetByUsernameIgnoreCase(username);
             if (user != null && passwordService.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
@@ -87,8 +87,13 @@ namespace Application.Services
             }
             else
             {
-                throw new UnauthorizedAccessException();
+                return null;
             }
+        }
+
+        public Task<User?> GetUserByUsernameIgnoreCaseAsync(string username)
+        {
+            return userRepository.GetByUsernameIgnoreCase(username);
         }
 
         private string GenerateRandomString(int length)

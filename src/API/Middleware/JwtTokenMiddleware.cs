@@ -18,7 +18,7 @@ namespace API.Middleware
             if (context.Request.Headers.Authorization.Count > 0)
             {
                 string accessToken = context.Request.Headers.Authorization.First().Split(' ').Last();
-                var authorizedUsername = await jwtService.ValidateAccessToken(accessToken);
+                var authorizedUsername = jwtService.ValidateAccessToken(accessToken);
                 context.Items["authorizedUsername"] = authorizedUsername;
             }
             await next.Invoke(context);

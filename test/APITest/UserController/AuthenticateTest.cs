@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,7 +31,7 @@ namespace APITest.UserController
             authenticateDto.Username = USERNAME;
             authenticateDto.Password = PASSWORD;
 
-            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, URL, authenticateDto);
+            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, authenticateDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -39,8 +40,8 @@ namespace APITest.UserController
             Assert.NotNull(responseContent.RefreshToken);
 
             var jwtService = GetService<IJwtService>();
-            Assert.AreEqual(USERNAME, await jwtService.ValidateAccessToken(responseContent.AccessToken));
-            Assert.AreEqual(USERNAME, await jwtService.ValidateRefreshToken(responseContent.RefreshToken));
+            Assert.AreEqual(USERNAME, jwtService.ValidateAccessToken(responseContent.AccessToken));
+            Assert.AreEqual(USERNAME, jwtService.ValidateRefreshToken(responseContent.RefreshToken));
         }
 
         [Test]
@@ -50,7 +51,7 @@ namespace APITest.UserController
             authenticateDto.Username = USERNAME;
             authenticateDto.Password = PASSWORD.ToLower();
 
-            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, URL, authenticateDto);
+            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, authenticateDto);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
@@ -62,7 +63,7 @@ namespace APITest.UserController
             authenticateDto.Username = USERNAME;
             authenticateDto.Password = "Qwerty1@";
 
-            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, URL, authenticateDto);
+            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, authenticateDto);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
@@ -74,7 +75,7 @@ namespace APITest.UserController
             authenticateDto.Username = "randomUser";
             authenticateDto.Password = PASSWORD;
 
-            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, URL, authenticateDto);
+            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, authenticateDto);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }

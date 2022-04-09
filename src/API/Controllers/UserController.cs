@@ -58,15 +58,15 @@ namespace balance_tracker_backend.Controllers
                 ));
         }
 
-        [HttpGet("email/verify/{emailVerificationCode}")]
+        [HttpPut("email/verify")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesErrorResponseType(typeof(ActionResultDto))]
-        public async Task<ActionResult<ActionResultDto>> VerifyEmail([FromRoute] string emailVerificationCode)
+        public async Task<ActionResult<ActionResultDto>> VerifyEmail([FromBody] VerifyEmailDto verifyEmailDto)
         {
-            if (await userService.VerifyEmail(HttpContext.Items["authorizedUsername"].ToString(), emailVerificationCode))
+            if (await userService.VerifyEmail(HttpContext.Items["authorizedUsername"].ToString(), verifyEmailDto.EmailVerificationCode))
             {
                 return Ok(new ActionResultDto(
                     StatusCodes.Status200OK,
@@ -90,20 +90,42 @@ namespace balance_tracker_backend.Controllers
         [ProducesErrorResponseType(typeof(ActionResultDto))]
         public async Task<ActionResult<TokensDto>> Authenticate([FromBody] AuthenticateDto authenticateDto)
         {
-            try
-            {
-                var user = await userService.Authenticate(authenticateDto.Username, authenticateDto.Password);
-                string accessToken, refreshToken;
-                jwtService.GenerateTokens(user, out accessToken, out refreshToken);
-                return Ok(new TokensDto(accessToken, refreshToken));
-            }
-            catch (UnauthorizedAccessException)
+            var user = await userService.Authenticate(authenticateDto.Username, authenticateDto.Password);
+
+            if (user == null)
             {
                 return Unauthorized(new ActionResultDto(
                     StatusCodes.Status401Unauthorized,
                     "Wrong username or password"
                     ));
             }
+
+            string accessToken, refreshToken;
+            jwtService.GenerateTokens(user, out accessToken, out refreshToken);
+            return Ok(new TokensDto(accessToken, refreshToken));
+        }
+
+        [HttpPost("refresh-token")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesErrorResponseType(typeof(ActionResultDto))]
+        public async Task<ActionResult<TokensDto>> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+        {
+            var username = jwtService.ValidateRefreshToken(refreshTokenDto.RefreshToken);
+
+            if (username == null)
+            {
+                return BadRequest(new ActionResultDto(
+                    StatusCodes.Status400BadRequest,
+                    "Invalid refresh token"
+                    ));
+            }
+
+            var user = await userService.GetUserByUsernameIgnoreCaseAsync(username);
+            string accessToken, refreshToken;
+            jwtService.GenerateTokens(user, out accessToken, out refreshToken);
+            return Ok(new TokensDto(accessToken, refreshToken));
         }
     }
 }

@@ -10,19 +10,23 @@ namespace APITest
 {
     public static class TestUtils
     {
-        public static Task<HttpResponseMessage> PostWithJsonBodyAsync(HttpClient httpClient, string url, object body)
-        {
-            return httpClient.PostAsync(
-                url,
-                new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json"
-                ));
-        }
-
-        public static HttpRequestMessage AuthorizedHttpRequest(HttpMethod httpMethod, string url, string accessToken)
+        public static Task<HttpResponseMessage> SendHttpRequestAsync(HttpClient httpClient,
+            HttpMethod httpMethod,
+            string url,
+            string? accessToken = null,
+            object? body = null)
         {
             var request = new HttpRequestMessage(httpMethod, url);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            return request;
+            if (accessToken != null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            }
+            if (body != null)
+            {
+                request.Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
+            }
+
+            return httpClient.SendAsync(request);
         }
     }
 }

@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace APITest.UserController
@@ -40,7 +41,7 @@ namespace APITest.UserController
 
             var usersCountBefore = databaseContext.Users.Count();
 
-            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, URL, userRegisterDto);
+            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, userRegisterDto);
             var lastUser = databaseContext.Users.LastOrDefault();
 
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
@@ -71,7 +72,7 @@ namespace APITest.UserController
 
             var usersCountBefore = databaseContext.Users.Count();
 
-            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, URL, userRegisterDto);
+            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, userRegisterDto);
             var lastUser = databaseContext.Users.LastOrDefault();
 
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
@@ -193,7 +194,7 @@ namespace APITest.UserController
         {
             var usersCountBefore = databaseContext.Users.Count();
 
-            var response = await TestUtils.PostWithJsonBodyAsync(httpClient, URL, userRegisterDto);
+            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, userRegisterDto);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.AreEqual(usersCountBefore, databaseContext.Users.Count());

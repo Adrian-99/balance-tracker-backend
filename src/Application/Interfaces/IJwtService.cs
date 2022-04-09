@@ -10,7 +10,7 @@ namespace Application.Interfaces
     public interface IJwtService
     {
         void GenerateTokens(User user, out string accessToken, out string refreshToken);
-        Task<string?> ValidateAccessToken(string accessToken);
-        Task<string?> ValidateRefreshToken(string refreshToken);
+        string? ValidateAccessToken(string accessToken);
+        string? ValidateRefreshToken(string refreshToken);
     }
 }

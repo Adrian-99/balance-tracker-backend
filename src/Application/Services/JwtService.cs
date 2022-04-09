@@ -75,19 +75,16 @@ namespace Application.Services
 
             refreshToken = tokenHandler.WriteToken(refreshJwtToken);
 
-            if (!validTokens.ContainsKey(user.Username))
+            if (validTokens.ContainsKey(user.Username))
             {
-                validTokens.Add(user.Username, new Tuple<string, string>(accessToken, refreshToken));
+                validTokens.Remove(user.Username);
             }
-            else
-            {
-                validTokens[user.Username] = new Tuple<string, string>(accessToken, refreshToken);
-            }
+            validTokens.Add(user.Username, new Tuple<string, string>(accessToken, refreshToken));
         }
 
-        public async Task<string?> ValidateAccessToken(string accessToken)
+        public string? ValidateAccessToken(string accessToken)
         {
-            var authorizedUsername = await ValidateToken(accessToken);
+            var authorizedUsername = ValidateToken(accessToken);
             if (authorizedUsername != null && validTokens.ContainsKey(authorizedUsername))
             {
                 if (validTokens[authorizedUsername].Item1.Equals(accessToken))
@@ -102,9 +99,9 @@ namespace Application.Services
             return null;
         }
 
-        public async Task<string?> ValidateRefreshToken(string refreshToken)
+        public string? ValidateRefreshToken(string refreshToken)
         {
-            var authorizedUsername = await ValidateToken(refreshToken);
+            var authorizedUsername = ValidateToken(refreshToken);
             if (authorizedUsername != null && validTokens.ContainsKey(authorizedUsername))
             {
                 if (validTokens[authorizedUsername].Item2.Equals(refreshToken))
@@ -119,7 +116,7 @@ namespace Application.Services
             return null;
         }
 
-        private async Task <string?> ValidateToken(string token)
+        private string? ValidateToken(string token)
         {
             if (string.IsNullOrEmpty(token))
             {
