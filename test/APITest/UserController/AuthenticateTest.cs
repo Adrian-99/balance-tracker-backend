@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace APITest.UserController
 {
-    public class AuthenticateTest : AbstractControllerTest
+    public class AuthenticateTest : AbstractTestClass
     {
         private static string URL = "/api/user/authenticate";
         private static string USERNAME = "User1";

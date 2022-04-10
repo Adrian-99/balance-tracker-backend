@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace APITest.UserController
 {
-    public class VerifyEmailTest : AbstractControllerTest
+    public class VerifyEmailTest : AbstractTestClass
     {
         private const string URL = "/api/user/email/verify";
 

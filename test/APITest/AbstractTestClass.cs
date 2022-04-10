@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace APITest
 {
-    public abstract class AbstractControllerTest
+    public abstract class AbstractTestClass
     {
         private CustomWebApplicationFactory<Program> customWebApplicationFactory;
         protected HttpClient httpClient;

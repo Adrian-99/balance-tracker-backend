@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace APITest.UserController
 {
-    public class RefreshTokenTest : AbstractControllerTest
+    public class RefreshTokenTest : AbstractTestClass
     {
         private static string URL = "/api/user/refresh-token";
 

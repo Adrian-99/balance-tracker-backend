@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace APITest.UserController
 {
-    public class RegisterTest : AbstractControllerTest
+    public class RegisterTest : AbstractTestClass
     {
         private const string URL = "/api/user/register";
 
