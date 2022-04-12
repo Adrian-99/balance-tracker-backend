@@ -9,6 +9,6 @@ namespace Application.Interfaces
 {
     public interface IMailService
     {
-        Task SendEmailVerificationEmail(User user);
+        Task SendEmailVerificationEmailAsync(User user);
     }
 }

@@ -25,14 +25,7 @@ namespace Application.Services
 
         public async Task ValidateUsernameAndEmail(string username, string email)
         {
-            if (await userRepository.GetByUsernameIgnoreCase(username) != null)
-            {
-                throw new DataValidationException(
-                    "Username is already taken",
-                    "error.user.register.usernameTaken"
-                    );
-            }
-            else if (username.Any(c => !ALLOWED_CHARS.Contains(c)))
+            if (username.Any(c => !ALLOWED_CHARS.Contains(c)))
             {
                 throw new DataValidationException(
                     "Username may contain only letters, digits, minus (-) and underscore (_)"
@@ -46,27 +39,44 @@ namespace Application.Services
                     // TODO: Add translation key
                     );
             }
+            else if (await userRepository.GetByUsernameAsync(username) != null)
+            {
+                throw new DataValidationException(
+                    "Username is already taken",
+                    "error.user.register.usernameTaken"
+                    );
+            }
+            else if (await userRepository.GetByEmailAsync(email) != null)
+            {
+                throw new DataValidationException(
+                    "Email is already taken",
+                    "error.user.register.emailTaken"
+                    );
+            }
         }
 
         public async Task<User> Register(User user)
         {
-            string emailVerificationCode;
+            var usedEmailVerificationCodes = userRepository.GetAll()
+                .Where(user => user.EmailVerificationCode != null)
+                .Select(user => user.EmailVerificationCode);
+            string newEmailVerificationCode;
             do
             {
-                emailVerificationCode = GenerateRandomString(30);
+                newEmailVerificationCode = GenerateRandomString(30);
             }
-            while (await userRepository.GetByEmailVerificationCode(emailVerificationCode) != null);
-            user.EmailVerificationCode = emailVerificationCode;
-            var addedUser = await userRepository.Add(user);
+            while (usedEmailVerificationCodes.Contains(newEmailVerificationCode));
+            user.EmailVerificationCode = newEmailVerificationCode;
+            var addedUser = await userRepository.AddAsync(user);
 
-            _ = mailService.SendEmailVerificationEmail(addedUser).ConfigureAwait(false);
+            _ = mailService.SendEmailVerificationEmailAsync(addedUser).ConfigureAwait(false);
 
             return addedUser;
         }
 
         public async Task<bool> VerifyEmail(string username, string emailVerificationCode)
         {
-            var user = await userRepository.GetByUsernameIgnoreCase(username);
+            var user = await userRepository.GetByUsernameAsync(username);
             
             if (user == null || !emailVerificationCode.Equals(user.EmailVerificationCode))
             {
@@ -74,13 +84,22 @@ namespace Application.Services
             }
 
             user.EmailVerificationCode = null;
-            await userRepository.Update(user);
+            await userRepository.UpdateAsync(user);
             return true;
         }
 
-        public async Task<User?> Authenticate(string username, string password)
+        public async Task<User?> Authenticate(string usernameOrEmail, string password)
         {
-            var user = await userRepository.GetByUsernameIgnoreCase(username);
+            User? user;
+            if (usernameOrEmail.Contains('@'))
+            {
+                user = await userRepository.GetByEmailAsync(usernameOrEmail);
+            }
+            else
+            {
+                user = await userRepository.GetByUsernameAsync(usernameOrEmail);
+            }
+
             if (user != null && passwordService.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
             {
                 return user;
@@ -93,7 +112,7 @@ namespace Application.Services
 
         public Task<User?> GetUserByUsernameIgnoreCaseAsync(string username)
         {
-            return userRepository.GetByUsernameIgnoreCase(username);
+            return userRepository.GetByUsernameAsync(username);
         }
 
         private string GenerateRandomString(int length)

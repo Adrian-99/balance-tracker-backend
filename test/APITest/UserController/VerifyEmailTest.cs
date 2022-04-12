@@ -1,6 +1,7 @@
 ﻿using Application.Dtos;
 using Application.Interfaces;
 using Domain.Entities;
+using Domain.Interfaces;
 using Infrastructure.Data;
 using NUnit.Framework;
 using System;
@@ -44,7 +45,7 @@ namespace APITest.UserController
                 unverifiedUserAccessToken,
                 verifyEmailDto);
 
-            var user = GetUserById(userId);
+            var user = await GetService<IUserRepository>().GetByIdAsync(userId);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.IsNull(user.EmailVerificationCode);
@@ -62,7 +63,7 @@ namespace APITest.UserController
                 unverifiedUserAccessToken,
                 verifyEmailDto);
 
-            var user = GetUserById(userId);
+            var user = await GetService<IUserRepository>().GetByIdAsync(userId);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.AreEqual(emailVerificationCode, user.EmailVerificationCode);
@@ -80,7 +81,7 @@ namespace APITest.UserController
                 unverifiedUserAccessToken,
                 verifyEmailDto);
 
-            var user = GetUserById(userId);
+            var user = await GetService<IUserRepository>().GetByIdAsync(userId);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.AreEqual(emailVerificationCode, user.EmailVerificationCode);
@@ -94,7 +95,7 @@ namespace APITest.UserController
 
             var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Put, URL, null, verifyEmailDto);
 
-            var user = GetUserById(userId);
+            var user = await GetService<IUserRepository>().GetByIdAsync(userId);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
             Assert.AreEqual(emailVerificationCode, user.EmailVerificationCode);
@@ -114,17 +115,10 @@ namespace APITest.UserController
 
             var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Put, URL, accessToken, verifyEmailDto);
 
-            var user = GetUserById(userId);
+            var user = await GetService<IUserRepository>().GetByIdAsync(userId);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.AreEqual(emailVerificationCode, user.EmailVerificationCode);
-        }
-
-        private User GetUserById(Guid id)
-        {
-            return (from user in databaseContext.Users
-                   where user.Id == id
-                   select user).First();
         }
     }
 }

@@ -19,44 +19,49 @@ namespace Infrastructure.Repositories
             this.databaseContext = databaseContext;
         }
 
-        public async Task<User?> GetById(Guid id)
+        public IEnumerable<User> GetAll()
+        {
+            return databaseContext.Users;
+        }
+
+        public async Task<User?> GetByIdAsync(Guid id)
         {
             return await (from user in databaseContext.Users
                           where user.Id == id
                           select user).FirstOrDefaultAsync();
         }
 
-        public async Task<User?> GetByUsernameIgnoreCase(string username)
+        public async Task<User?> GetByUsernameAsync(string username)
         {
             return await (from user in databaseContext.Users
                           where user.Username.ToLower() == username.ToLower()
                           select user).FirstOrDefaultAsync();
         }
 
-        public async Task<User?> GetByEmailVerificationCode(string emailVerificationCode)
+        public async Task<User?> GetByEmailAsync(string email)
         {
             return await (from user in databaseContext.Users
-                          where user.EmailVerificationCode == emailVerificationCode
+                          where user.Email.ToLower() == email.ToLower()
                           select user).FirstOrDefaultAsync();
         }
 
-        public async Task<User> Add(User user)
+        public async Task<User> AddAsync(User user)
         {
             var dbUser = await databaseContext.Users.AddAsync(user);
             await databaseContext.SaveChangesAsync();
             return dbUser.Entity;
         }
 
-        public async Task<User> Update(User user)
+        public async Task<User> UpdateAsync(User user)
         {
             var dbUser = databaseContext.Users.Update(user);
             await databaseContext.SaveChangesAsync();
             return dbUser.Entity;
         }
 
-        public async Task Delete(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var user = await GetById(id);
+            var user = await GetByIdAsync(id);
             databaseContext.Users.Remove(user);
             await databaseContext.SaveChangesAsync();
         }

@@ -36,7 +36,7 @@ namespace APITest.UserController
         {
             var userRegisterDto = new UserRegisterDto();
             userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "user2@gmail.com";
+            userRegisterDto.Email = "User2@gmail.com";
             userRegisterDto.Password = "User2!@#";
 
             var usersCountBefore = databaseContext.Users.Count();
@@ -48,10 +48,10 @@ namespace APITest.UserController
             Assert.AreEqual(usersCountBefore + 1, databaseContext.Users.Count());
             Assert.NotNull(lastUser);
 
-            mailServiceMock.Verify(s => s.SendEmailVerificationEmail(It.Is<User>(u => u.Id.Equals(lastUser.Id))), Times.Once());
+            mailServiceMock.Verify(s => s.SendEmailVerificationEmailAsync(It.Is<User>(u => u.Id.Equals(lastUser.Id))), Times.Once());
 
             Assert.AreEqual(userRegisterDto.Username, lastUser.Username);
-            Assert.AreEqual(userRegisterDto.Email, lastUser.Email);
+            Assert.AreEqual(userRegisterDto.Email.ToLower(), lastUser.Email);
             Assert.IsNull(lastUser.FirstName);
             Assert.IsNull(lastUser.LastName);
             Assert.IsNotNull(lastUser.PasswordHash);
@@ -65,7 +65,7 @@ namespace APITest.UserController
         {
             var userRegisterDto = new UserRegisterDto();
             userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "user2@gmail.com";
+            userRegisterDto.Email = "User2@gmail.com";
             userRegisterDto.FirstName = "userFirstName";
             userRegisterDto.LastName = "userLastName";
             userRegisterDto.Password = "User2!@#";
@@ -79,10 +79,10 @@ namespace APITest.UserController
             Assert.AreEqual(usersCountBefore + 1, databaseContext.Users.Count());
             Assert.NotNull(lastUser);
 
-            mailServiceMock.Verify(s => s.SendEmailVerificationEmail(It.Is<User>(u => u.Id.Equals(lastUser.Id))), Times.Once());
+            mailServiceMock.Verify(s => s.SendEmailVerificationEmailAsync(It.Is<User>(u => u.Id.Equals(lastUser.Id))), Times.Once());
 
             Assert.AreEqual(userRegisterDto.Username, lastUser.Username);
-            Assert.AreEqual(userRegisterDto.Email, lastUser.Email);
+            Assert.AreEqual(userRegisterDto.Email.ToLower(), lastUser.Email);
             Assert.AreEqual(userRegisterDto.FirstName, lastUser.FirstName);
             Assert.AreEqual(userRegisterDto.LastName, lastUser.LastName);
             Assert.IsNotNull(lastUser.PasswordHash);
@@ -97,6 +97,17 @@ namespace APITest.UserController
             var userRegisterDto = new UserRegisterDto();
             userRegisterDto.Username = "usEr1";
             userRegisterDto.Email = "user2@gmail.com";
+            userRegisterDto.Password = "User2!@#";
+
+            await AssertRegisterBadRequest(userRegisterDto);
+        }
+
+        [Test]
+        public async Task Register_WithTakenEmail()
+        {
+            var userRegisterDto = new UserRegisterDto();
+            userRegisterDto.Username = "User2";
+            userRegisterDto.Email = "User1@gmail.com";
             userRegisterDto.Password = "User2!@#";
 
             await AssertRegisterBadRequest(userRegisterDto);
@@ -199,7 +210,7 @@ namespace APITest.UserController
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.AreEqual(usersCountBefore, databaseContext.Users.Count());
 
-            mailServiceMock.Verify(s => s.SendEmailVerificationEmail(It.IsAny<User>()), Times.Never());
+            mailServiceMock.Verify(s => s.SendEmailVerificationEmailAsync(It.IsAny<User>()), Times.Never());
         }
     }
 }

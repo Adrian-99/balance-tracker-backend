@@ -9,11 +9,12 @@ namespace Domain.Interfaces
 {
     public interface IUserRepository
     {
-        Task<User?> GetById(Guid id);
-        Task<User?> GetByUsernameIgnoreCase(string username);
-        Task<User?> GetByEmailVerificationCode(string emailVerificationCode);
-        Task<User> Add(User user);
-        Task<User> Update(User user);
-        Task Delete(Guid id);
+        IEnumerable<User> GetAll();
+        Task<User?> GetByIdAsync(Guid id);
+        Task<User?> GetByUsernameAsync(string username);
+        Task<User?> GetByEmailAsync(string email);
+        Task<User> AddAsync(User user);
+        Task<User> UpdateAsync(User user);
+        Task DeleteAsync(Guid id);
     }
 }

@@ -90,7 +90,7 @@ namespace balance_tracker_backend.Controllers
         [ProducesErrorResponseType(typeof(ActionResultDto))]
         public async Task<ActionResult<TokensDto>> Authenticate([FromBody] AuthenticateDto authenticateDto)
         {
-            var user = await userService.Authenticate(authenticateDto.Username, authenticateDto.Password);
+            var user = await userService.Authenticate(authenticateDto.UsernameOrEmail, authenticateDto.Password);
 
             if (user == null)
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 namespace Domain.Entities
 {
     [Table("Users")]
+    [Index(nameof(Username), IsUnique = true, Name = "Index_Username")]
     public class User
     {
         [Key]
@@ -20,7 +22,7 @@ namespace Domain.Entities
 
         [Required]
         [Encrypted]
-        public string Email { get; set; }
+        public string Email { get => _email; set => _email = value.ToLower(); }
 
         [Required]
         public byte[] PasswordHash { get; set; }
@@ -37,5 +39,8 @@ namespace Domain.Entities
         public string? EmailVerificationCode { get; set; }
 
         public string? ResetPasswordCode { get; set; }
+
+
+        private string _email;
     }
 }

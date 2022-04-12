@@ -12,14 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20220323184540_01_UserEntity")]
-    partial class _01_UserEntity
+    [Migration("20220412192830_UserEntity")]
+    partial class UserEntity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.3")
+                .HasAnnotation("Npgsql:CollationDefinition:case_insensitive_collation", "en-u-ks-primary,en-u-ks-primary,icu,False")
+                .HasAnnotation("ProductVersion", "6.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseSerialColumns(modelBuilder);
@@ -32,7 +33,8 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .UseCollation("case_insensitive_collation");
 
                     b.Property<string>("EmailVerificationCode")
                         .HasColumnType("text");
@@ -56,9 +58,13 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .UseCollation("case_insensitive_collation");
 
                     b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Username" }, "Index_Username")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

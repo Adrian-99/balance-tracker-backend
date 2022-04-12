@@ -39,7 +39,7 @@ namespace Application.Services
             frontendUrl = configuration.GetSection("Frontend").GetSection("Address").Value;
         }
 
-        public Task SendEmailVerificationEmail(User user)
+        public Task SendEmailVerificationEmailAsync(User user)
         {
             var email = new MimeMessage();
             email.To.Add(MailboxAddress.Parse(user.Email));

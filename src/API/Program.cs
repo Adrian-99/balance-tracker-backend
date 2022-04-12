@@ -71,7 +71,7 @@ app.UseHttpsRedirection();
 
 app.UseCors(options =>
 {
-    options.WithOrigins(builder.Configuration.GetSection("Frontend").GetSection("Address").Value)
+    options.WithOrigins(builder.Configuration["Frontend:Address"])
         .AllowAnyMethod()
         .AllowAnyHeader();
 });
