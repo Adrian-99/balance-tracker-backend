@@ -116,6 +116,14 @@ namespace Application.Services
             return null;
         }
 
+        public void RevokeTokens(string username)
+        {
+            if (validTokens.ContainsKey(username))
+            {
+                validTokens.Remove(username);
+            }
+        }
+
         private string? ValidateToken(string token)
         {
             if (string.IsNullOrEmpty(token))

@@ -12,5 +12,6 @@ namespace Application.Interfaces
         void GenerateTokens(User user, out string accessToken, out string refreshToken);
         string? ValidateAccessToken(string accessToken);
         string? ValidateRefreshToken(string refreshToken);
+        void RevokeTokens(string username);
     }
 }

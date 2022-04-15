@@ -1,4 +1,5 @@
 using API.Middleware;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -65,6 +66,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    var scope = app.Services.CreateScope();
+    var databaseContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+    DataSeeder.SeedAll(databaseContext);
 }
 
 app.UseHttpsRedirection();

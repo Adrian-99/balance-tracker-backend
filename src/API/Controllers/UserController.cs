@@ -96,7 +96,8 @@ namespace balance_tracker_backend.Controllers
             {
                 return Unauthorized(new ActionResultDto(
                     StatusCodes.Status401Unauthorized,
-                    "Wrong username or password"
+                    "Wrong username or password",
+                    "error.user.authenticate.wrongCredentials"
                     ));
             }
 
@@ -126,6 +127,17 @@ namespace balance_tracker_backend.Controllers
             string accessToken, refreshToken;
             jwtService.GenerateTokens(user, out accessToken, out refreshToken);
             return Ok(new TokensDto(accessToken, refreshToken));
+        }
+
+        [HttpDelete("revoke-tokens")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesErrorResponseType(typeof(ActionResultDto))]
+        public ActionResult RevokeTokens()
+        {
+            jwtService.RevokeTokens(HttpContext.Items["authorizedUsername"].ToString());
+            return NoContent();
         }
     }
 }
