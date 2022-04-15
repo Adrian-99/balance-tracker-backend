@@ -58,8 +58,9 @@ Application.DependencyInjection.AddServices(builder.Services);
 
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionHandlerMiddleware>();
-app.UseMiddleware<JwtTokenMiddleware>();
+app.UseMiddleware<LoggingMiddleware>()
+    .UseMiddleware<ExceptionHandlerMiddleware>()
+    .UseMiddleware<JwtTokenMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
