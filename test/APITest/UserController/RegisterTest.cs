@@ -1,4 +1,4 @@
-using Application.Dtos;
+using Application.Dtos.Ingoing;
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
@@ -41,7 +41,7 @@ namespace APITest.UserController
 
             var usersCountBefore = databaseContext.Users.Count();
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, userRegisterDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, userRegisterDto);
             var lastUser = databaseContext.Users.LastOrDefault();
 
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
@@ -57,7 +57,9 @@ namespace APITest.UserController
             Assert.IsNotNull(lastUser.PasswordHash);
             Assert.IsNotNull(lastUser.PasswordSalt);
             Assert.IsNotNull(lastUser.EmailVerificationCode);
+            Assert.IsNotNull(lastUser.EmailVerificationCodeCreatedAt);
             Assert.IsNull(lastUser.ResetPasswordCode);
+            Assert.IsNull(lastUser.ResetPasswordCodeCreatedAt);
         }
 
         [Test]
@@ -72,7 +74,7 @@ namespace APITest.UserController
 
             var usersCountBefore = databaseContext.Users.Count();
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, userRegisterDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, userRegisterDto);
             var lastUser = databaseContext.Users.LastOrDefault();
 
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
@@ -88,7 +90,9 @@ namespace APITest.UserController
             Assert.IsNotNull(lastUser.PasswordHash);
             Assert.IsNotNull(lastUser.PasswordSalt);
             Assert.IsNotNull(lastUser.EmailVerificationCode);
+            Assert.IsNotNull(lastUser.EmailVerificationCodeCreatedAt);
             Assert.IsNull(lastUser.ResetPasswordCode);
+            Assert.IsNull(lastUser.ResetPasswordCodeCreatedAt);
         }
 
         [Test]
@@ -205,7 +209,7 @@ namespace APITest.UserController
         {
             var usersCountBefore = databaseContext.Users.Count();
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, userRegisterDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, userRegisterDto);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.AreEqual(usersCountBefore, databaseContext.Users.Count());

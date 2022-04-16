@@ -1,5 +1,6 @@
 ﻿using API.Attributes;
-using Application.Dtos;
+using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Application.Exceptions;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Cors;
@@ -37,10 +38,10 @@ namespace balance_tracker_backend.Controllers
         {
             try
             {
-                await userService.ValidateUsernameAndEmail(userRegisterDto.Username, userRegisterDto.Email);
+                await userService.ValidateUsernameAndEmailAsync(userRegisterDto.Username, userRegisterDto.Email);
                 passwordService.CheckPasswordComplexity(userRegisterDto.Password, userRegisterDto.Username);
                 var user = userMapper.FromUserRegisterDtoToUser(userRegisterDto);
-                await userService.Register(user);
+                await userService.RegisterAsync(user);
             }
             catch (DataValidationException ex)
             {
@@ -66,7 +67,7 @@ namespace balance_tracker_backend.Controllers
         [ProducesErrorResponseType(typeof(ActionResultDto))]
         public async Task<ActionResult<ActionResultDto>> VerifyEmail([FromBody] VerifyEmailDto verifyEmailDto)
         {
-            if (await userService.VerifyEmail(HttpContext.Items["authorizedUsername"].ToString(), verifyEmailDto.EmailVerificationCode))
+            if (await userService.VerifyEmailAsync(HttpContext.Items["authorizedUsername"].ToString(), verifyEmailDto.EmailVerificationCode))
             {
                 return Ok(new ActionResultDto(
                     StatusCodes.Status200OK,
@@ -90,7 +91,7 @@ namespace balance_tracker_backend.Controllers
         [ProducesErrorResponseType(typeof(ActionResultDto))]
         public async Task<ActionResult<TokensDto>> Authenticate([FromBody] AuthenticateDto authenticateDto)
         {
-            var user = await userService.Authenticate(authenticateDto.UsernameOrEmail, authenticateDto.Password);
+            var user = await userService.AuthenticateAsync(authenticateDto.UsernameOrEmail, authenticateDto.Password);
 
             if (user == null)
             {
@@ -138,6 +139,18 @@ namespace balance_tracker_backend.Controllers
         {
             jwtService.RevokeTokens(HttpContext.Items["authorizedUsername"].ToString());
             return NoContent();
+        }
+
+        [HttpPost("password/reset/request")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<ActionResultDto>> ResetPasswordRequest([FromBody] ResetPasswordRequestDto resetPasswordRequestDto)
+        {
+            await userService.GenerateResetPasswordCodeAsync(resetPasswordRequestDto.UsernameOrEmail);
+            return Ok(new ActionResultDto(StatusCodes.Status200OK,
+                "If such account exists, email with reset password code has been sent",
+                "success.user.resetPasswordRequest"
+                ));
         }
     }
 }

@@ -36,6 +36,7 @@ namespace Infrastructure.Data
 
             modelBuilder.Entity<User>().Property(user => user.Username).UseCollation(CASE_INSENSITIVE_COLLATION);
             modelBuilder.Entity<User>().Property(user => user.Email).UseCollation(CASE_INSENSITIVE_COLLATION);
+            modelBuilder.Entity<User>().HasIndex(u => new { u.EmailVerificationCode, u.ResetPasswordCode }).IsUnique(true);
         }
     }
 }

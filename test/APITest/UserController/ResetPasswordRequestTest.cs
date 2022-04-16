@@ -1,0 +1,122 @@
+﻿using Application.Dtos.Ingoing;
+using Application.Interfaces;
+using Domain.Entities;
+using Domain.Interfaces;
+using Infrastructure.Data;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace APITest.UserController
+{
+    public class ResetPasswordRequestTest : AbstractTestClass
+    {
+        private const string URL = "/api/user/password/reset/request";
+
+        private Mock<IMailService> mailServiceMock;
+        private User user;
+
+        protected override void PrepareTestData()
+        {
+            DataSeeder.SeedUsers(databaseContext);
+            user = databaseContext.Users
+                .Where(u => u.ResetPasswordCode == null && u.ResetPasswordCodeCreatedAt == null)
+                .First();
+        }
+
+        protected override void PrepareMocks(IServiceCollection services)
+        {
+            mailServiceMock = new Mock<IMailService>();
+            var mailService = services.Single(s => s.ServiceType == typeof(IMailService));
+            services.Remove(mailService);
+            services.AddScoped(_ => mailServiceMock.Object);
+        }
+
+        [Test]
+        public async Task ResetPasswordRequest_WithCorrectUsername()
+        {
+            var resetPasswordRequestDto = new ResetPasswordRequestDto();
+            resetPasswordRequestDto.UsernameOrEmail = user.Username;
+
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
+            var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(userAfter.ResetPasswordCode);
+            Assert.NotNull(userAfter.ResetPasswordCodeCreatedAt);
+
+            mailServiceMock.Verify(s => s.SendResetPasswordEmailAsync(It.Is<User>(u => u.Id.Equals(user.Id))), Times.Once());
+        }
+
+        [Test]
+        public async Task ResetPasswordRequest_WithCorrectEmail()
+        {
+            var resetPasswordRequestDto = new ResetPasswordRequestDto();
+            resetPasswordRequestDto.UsernameOrEmail = user.Email;
+
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
+            var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(userAfter.ResetPasswordCode);
+            Assert.NotNull(userAfter.ResetPasswordCodeCreatedAt);
+
+            mailServiceMock.Verify(s => s.SendResetPasswordEmailAsync(It.Is<User>(u => u.Id.Equals(user.Id))), Times.Once());
+        }
+
+        [Test]
+        public async Task ResetPasswordRequest_WithIncorrectUsername()
+        {
+            var resetPasswordRequestDto = new ResetPasswordRequestDto();
+            resetPasswordRequestDto.UsernameOrEmail = "someTotallyWrongUsername";
+
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            mailServiceMock.Verify(s => s.SendResetPasswordEmailAsync(It.IsAny<User>()), Times.Never());
+        }
+
+        [Test]
+        public async Task ResetPasswordRequest_WithIncorrectEmail()
+        {
+            var resetPasswordRequestDto = new ResetPasswordRequestDto();
+            resetPasswordRequestDto.UsernameOrEmail = "someTotallyWrongEmail@domain.com";
+
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            mailServiceMock.Verify(s => s.SendResetPasswordEmailAsync(It.IsAny<User>()), Times.Never());
+        }
+
+        [Test]
+        public async Task ResetPasswordRequest_ReplacingExistingCode()
+        {
+            var otherUserBefore = (from user in databaseContext.Users
+                                    where user.ResetPasswordCode != null && user.ResetPasswordCodeCreatedAt != null
+                                    select user).First();
+
+            var resetPasswordRequestDto = new ResetPasswordRequestDto();
+            resetPasswordRequestDto.UsernameOrEmail = otherUserBefore.Username;
+
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
+            var otherUserAfter = TestUtils.GetUserById(databaseContext, otherUserBefore.Id);
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(otherUserAfter.ResetPasswordCode);
+            Assert.NotNull(otherUserAfter.ResetPasswordCodeCreatedAt);
+            Assert.AreNotEqual(otherUserBefore.ResetPasswordCode, otherUserAfter.ResetPasswordCode);
+            Assert.AreNotEqual(otherUserBefore.ResetPasswordCodeCreatedAt, otherUserAfter.ResetPasswordCodeCreatedAt);
+
+            mailServiceMock.Verify(s => s.SendResetPasswordEmailAsync(It.Is<User>(u => u.Id.Equals(otherUserBefore.Id))), Times.Once());
+        }
+    }
+}

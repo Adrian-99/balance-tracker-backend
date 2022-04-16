@@ -36,9 +36,15 @@ namespace Domain.Entities
         [Encrypted]
         public string? LastName { get; set; }
 
+        [Encrypted]
         public string? EmailVerificationCode { get; set; }
 
+        public DateTime? EmailVerificationCodeCreatedAt { get; set; }
+
+        [Encrypted]
         public string? ResetPasswordCode { get; set; }
+
+        public DateTime? ResetPasswordCodeCreatedAt { get; set; }
 
 
         private string _email;

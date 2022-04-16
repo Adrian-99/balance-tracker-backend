@@ -31,7 +31,7 @@ namespace APITest.UserController
             Assert.AreEqual(user.Username, jwtService.ValidateAccessToken(accessToken));
             Assert.AreEqual(user.Username, jwtService.ValidateRefreshToken(refreshToken));
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Delete, URL, accessToken);
+            var response = await SendHttpRequestAsync(HttpMethod.Delete, URL, accessToken);
 
             Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
             Assert.IsNull(jwtService.ValidateAccessToken(accessToken));
@@ -41,7 +41,7 @@ namespace APITest.UserController
         [Test]
         public async Task RevokeTokens_WithIncorrectToken()
         {
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Delete, URL, "someTotallyWrongAccessToken");
+            var response = await SendHttpRequestAsync(HttpMethod.Delete, URL, "someTotallyWrongAccessToken");
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }

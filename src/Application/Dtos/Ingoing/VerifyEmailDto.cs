@@ -5,14 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Dtos
+namespace Application.Dtos.Ingoing
 {
-    public class AuthenticateDto
+    public class VerifyEmailDto
     {
         [Required]
-        public string UsernameOrEmail { get; set; }
-
-        [Required]
-        public string Password { get; set; }
+        public string EmailVerificationCode { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Application.Dtos;
+﻿using Application.Dtos.Outgoing;
 using Newtonsoft.Json;
 
 namespace API.Middleware

@@ -34,7 +34,9 @@ namespace Infrastructure.Data
                     FirstName = "Jan",
                     LastName = "Kowalski",
                     PasswordHash = passwordHash,
-                    PasswordSalt = passwordSalt
+                    PasswordSalt = passwordSalt,
+                    ResetPasswordCode = "erHj7QDYqnCeKebWKc0noYSnNhqwoO",
+                    ResetPasswordCodeCreatedAt = DateTime.UtcNow
                 });
 
                 passwordService.CreatePasswordHash("Qwerty1@", out passwordHash, out passwordSalt);
@@ -44,7 +46,8 @@ namespace Infrastructure.Data
                     Email = "random@gmail.com",
                     PasswordHash = passwordHash,
                     PasswordSalt = passwordSalt,
-                    EmailVerificationCode = "iwFCfh9skMQSCikWjHzLbAojbIG_NT"
+                    EmailVerificationCode = "iwFCfh9skMQSCikWjHzLbAojbIG_NT",
+                    EmailVerificationCodeCreatedAt = DateTime.UtcNow
                 });
 
                 databaseContext.SaveChanges();

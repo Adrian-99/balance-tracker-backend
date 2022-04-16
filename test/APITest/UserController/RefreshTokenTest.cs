@@ -1,4 +1,5 @@
-﻿using Application.Dtos;
+﻿using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Application.Interfaces;
 using Infrastructure.Data;
 using Newtonsoft.Json;
@@ -33,7 +34,7 @@ namespace APITest.UserController
             var refreshTokenDto = new RefreshTokenDto();
             refreshTokenDto.RefreshToken = refreshToken1;
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, refreshTokenDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, refreshTokenDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -51,7 +52,7 @@ namespace APITest.UserController
             var refreshTokenDto = new RefreshTokenDto();
             refreshTokenDto.RefreshToken = "someTotallyWrongRefreshToken";
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, refreshTokenDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, refreshTokenDto);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
@@ -67,7 +68,7 @@ namespace APITest.UserController
             var refreshTokenDto = new RefreshTokenDto();
             refreshTokenDto.RefreshToken = accessToken;
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, refreshTokenDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, refreshTokenDto);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }

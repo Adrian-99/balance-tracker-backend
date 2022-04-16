@@ -1,4 +1,4 @@
-﻿using Application.Dtos;
+﻿using Application.Dtos.Ingoing;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -18,55 +18,46 @@ namespace APITest.UserController
     {
         private const string URL = "/api/user/email/verify";
 
-        private Guid userId;
-        private string emailVerificationCode;
+        private User user;
         private string unverifiedUserAccessToken;
 
         protected override void PrepareTestData()
         {
             DataSeeder.SeedUsers(databaseContext);
-            var unverifiedUser = (from user in databaseContext.Users
-                                 where user.EmailVerificationCode != null
+            user = (from user in databaseContext.Users
+                                 where user.EmailVerificationCode != null && user.EmailVerificationCodeCreatedAt != null
                                  select user).First();
-            userId = unverifiedUser.Id;
-            emailVerificationCode = unverifiedUser.EmailVerificationCode;
-            GetService<IJwtService>().GenerateTokens(unverifiedUser, out unverifiedUserAccessToken, out _);
+            GetService<IJwtService>().GenerateTokens(user, out unverifiedUserAccessToken, out _);
         }
 
         [Test]
         public async Task VerifyEmail_WithCorrectCode()
         {
             var verifyEmailDto = new VerifyEmailDto();
-            verifyEmailDto.EmailVerificationCode = emailVerificationCode;
+            verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode;
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient,
-                HttpMethod.Put,
-                URL,
-                unverifiedUserAccessToken,
-                verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, unverifiedUserAccessToken, verifyEmailDto);
 
-            var user = await GetService<IUserRepository>().GetByIdAsync(userId);
+            var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsNull(user.EmailVerificationCode);
+            Assert.IsNull(userAfter.EmailVerificationCode);
+            Assert.IsNull(userAfter.EmailVerificationCodeCreatedAt);
         }
 
         [Test]
         public async Task VerifyEmail_WithToLowerCode()
         {
             var verifyEmailDto = new VerifyEmailDto();
-            verifyEmailDto.EmailVerificationCode = emailVerificationCode.ToLower();
+            verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode.ToLower();
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient,
-                HttpMethod.Put,
-                URL,
-                unverifiedUserAccessToken,
-                verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, unverifiedUserAccessToken, verifyEmailDto);
 
-            var user = await GetService<IUserRepository>().GetByIdAsync(userId);
+            var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.AreEqual(emailVerificationCode, user.EmailVerificationCode);
+            Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
+            Assert.AreEqual(user.EmailVerificationCodeCreatedAt, userAfter.EmailVerificationCodeCreatedAt);
         }
 
         [Test]
@@ -75,50 +66,67 @@ namespace APITest.UserController
             var verifyEmailDto = new VerifyEmailDto();
             verifyEmailDto.EmailVerificationCode = "someTotallyIncorrectCode123";
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient,
-                HttpMethod.Put,
-                URL,
-                unverifiedUserAccessToken,
-                verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, unverifiedUserAccessToken, verifyEmailDto);
 
-            var user = await GetService<IUserRepository>().GetByIdAsync(userId);
+            var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.AreEqual(emailVerificationCode, user.EmailVerificationCode);
+            Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
+            Assert.AreEqual(user.EmailVerificationCodeCreatedAt, userAfter.EmailVerificationCodeCreatedAt);
+        }
+
+        [Test]
+        public async Task VerifyEmail_WithExpiredCode()
+        {
+            user.EmailVerificationCodeCreatedAt = DateTime.UtcNow.AddHours(-1);
+            await GetService<IUserRepository>().UpdateAsync(user);
+
+            var verifyEmailDto = new VerifyEmailDto();
+            verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode;
+
+            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, unverifiedUserAccessToken, verifyEmailDto);
+
+            var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
+            Assert.AreEqual(user.EmailVerificationCodeCreatedAt, userAfter.EmailVerificationCodeCreatedAt);
         }
 
         [Test]
         public async Task VerifyEmail_Unauthorized()
         {
             var verifyEmailDto = new VerifyEmailDto();
-            verifyEmailDto.EmailVerificationCode = emailVerificationCode;
+            verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode;
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Put, URL, null, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, null, verifyEmailDto);
 
-            var user = await GetService<IUserRepository>().GetByIdAsync(userId);
+            var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.AreEqual(emailVerificationCode, user.EmailVerificationCode);
+            Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
+            Assert.AreEqual(user.EmailVerificationCodeCreatedAt, userAfter.EmailVerificationCodeCreatedAt);
         }
 
         [Test]
         public async Task VerifyEmail_AuthorizedAsSomeoneElse()
         {
             var verifyEmailDto = new VerifyEmailDto();
-            verifyEmailDto.EmailVerificationCode = emailVerificationCode;
+            verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode;
 
             string accessToken;
             var someoneElse = (from someUser in databaseContext.Users
-                               where someUser.Id != userId
+                               where someUser.Id != user.Id
                                select someUser).First();
             GetService<IJwtService>().GenerateTokens(someoneElse, out accessToken, out _);
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Put, URL, accessToken, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, accessToken, verifyEmailDto);
 
-            var user = await GetService<IUserRepository>().GetByIdAsync(userId);
+            var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.AreEqual(emailVerificationCode, user.EmailVerificationCode);
+            Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
+            Assert.AreEqual(user.EmailVerificationCodeCreatedAt, userAfter.EmailVerificationCodeCreatedAt);
         }
     }
 }

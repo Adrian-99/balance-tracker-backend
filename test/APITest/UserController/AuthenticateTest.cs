@@ -1,4 +1,5 @@
-﻿using Application.Dtos;
+﻿using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Application.Interfaces;
 using Infrastructure.Data;
 using Newtonsoft.Json;
@@ -32,7 +33,7 @@ namespace APITest.UserController
             authenticateDto.UsernameOrEmail = USERNAME;
             authenticateDto.Password = PASSWORD;
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, authenticateDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -52,7 +53,7 @@ namespace APITest.UserController
             authenticateDto.UsernameOrEmail = EMAIL;
             authenticateDto.Password = PASSWORD;
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, authenticateDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -72,7 +73,7 @@ namespace APITest.UserController
             authenticateDto.UsernameOrEmail = USERNAME;
             authenticateDto.Password = PASSWORD.ToLower();
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, authenticateDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
@@ -84,7 +85,7 @@ namespace APITest.UserController
             authenticateDto.UsernameOrEmail = USERNAME;
             authenticateDto.Password = "Qwerty1@";
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, authenticateDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
@@ -96,7 +97,7 @@ namespace APITest.UserController
             authenticateDto.UsernameOrEmail = "randomUser";
             authenticateDto.Password = PASSWORD;
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, authenticateDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
@@ -108,7 +109,7 @@ namespace APITest.UserController
             authenticateDto.UsernameOrEmail = "random@gmail.com";
             authenticateDto.Password = PASSWORD;
 
-            var response = await TestUtils.SendHttpRequestAsync(httpClient, HttpMethod.Post, URL, null, authenticateDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }

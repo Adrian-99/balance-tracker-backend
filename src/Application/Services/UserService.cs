@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -12,18 +13,23 @@ namespace Application.Services
     {
         private const string ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
 
+        private IConfiguration configuration;
         private IUserRepository userRepository;
         private IMailService mailService;
         private IPasswordService passwordService;
 
-        public UserService(IUserRepository userRepository, IMailService mailService, IPasswordService passwordService)
+        public UserService(IConfiguration configuration,
+            IUserRepository userRepository,
+            IMailService mailService,
+            IPasswordService passwordService)
         {
+            this.configuration = configuration;
             this.userRepository = userRepository;
             this.mailService = mailService;
             this.passwordService = passwordService;
         }
 
-        public async Task ValidateUsernameAndEmail(string username, string email)
+        public async Task ValidateUsernameAndEmailAsync(string username, string email)
         {
             if (username.Any(c => !ALLOWED_CHARS.Contains(c)))
             {
@@ -55,18 +61,20 @@ namespace Application.Services
             }
         }
 
-        public async Task<User> Register(User user)
+        public async Task<User> RegisterAsync(User user)
         {
             var usedEmailVerificationCodes = userRepository.GetAll()
                 .Where(user => user.EmailVerificationCode != null)
                 .Select(user => user.EmailVerificationCode);
+            int emailVerificationCodeLength = Convert.ToInt32(configuration["UserSettings:EmailVerificationCode:Length"]);
             string newEmailVerificationCode;
             do
             {
-                newEmailVerificationCode = GenerateRandomString(30);
+                newEmailVerificationCode = GenerateRandomString(emailVerificationCodeLength);
             }
             while (usedEmailVerificationCodes.Contains(newEmailVerificationCode));
             user.EmailVerificationCode = newEmailVerificationCode;
+            user.EmailVerificationCodeCreatedAt = DateTime.UtcNow;
             var addedUser = await userRepository.AddAsync(user);
 
             _ = mailService.SendEmailVerificationEmailAsync(addedUser).ConfigureAwait(false);
@@ -74,31 +82,33 @@ namespace Application.Services
             return addedUser;
         }
 
-        public async Task<bool> VerifyEmail(string username, string emailVerificationCode)
+        public async Task<bool> VerifyEmailAsync(string username, string emailVerificationCode)
         {
             var user = await userRepository.GetByUsernameAsync(username);
             
-            if (user == null || !emailVerificationCode.Equals(user.EmailVerificationCode))
+            if (user == null || user.EmailVerificationCode == null || !emailVerificationCode.Equals(user.EmailVerificationCode))
+            {
+                return false;
+            }
+
+            int emailVerificationCodeValidMinutes = Convert.ToInt32(configuration["UserSettings:EmailVerificationCode:ValidMinutes"]);
+
+            if (user.EmailVerificationCodeCreatedAt == null ||
+                DateTime.UtcNow.Subtract((DateTime)user.EmailVerificationCodeCreatedAt).TotalMinutes > emailVerificationCodeValidMinutes)
             {
                 return false;
             }
 
             user.EmailVerificationCode = null;
+            user.EmailVerificationCodeCreatedAt = null;
             await userRepository.UpdateAsync(user);
+
             return true;
         }
 
-        public async Task<User?> Authenticate(string usernameOrEmail, string password)
+        public async Task<User?> AuthenticateAsync(string usernameOrEmail, string password)
         {
-            User? user;
-            if (usernameOrEmail.Contains('@'))
-            {
-                user = await userRepository.GetByEmailAsync(usernameOrEmail);
-            }
-            else
-            {
-                user = await userRepository.GetByUsernameAsync(usernameOrEmail);
-            }
+            var user = await GetUserByUsernameOrEmailAsync(usernameOrEmail);
 
             if (user != null && passwordService.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
             {
@@ -115,6 +125,31 @@ namespace Application.Services
             return userRepository.GetByUsernameAsync(username);
         }
 
+        public async Task GenerateResetPasswordCodeAsync(string usernameOrEmail)
+        {
+            var user = await GetUserByUsernameOrEmailAsync(usernameOrEmail);
+
+            if (user != null)
+            {
+                var usedResetPasswordCodes = userRepository.GetAll()
+                    .Where(user => user.ResetPasswordCode != null)
+                    .Select(user => user.ResetPasswordCode);
+                int resetPasswordCodeLength = Convert.ToInt32(configuration["UserSettings:ResetPasswordCode:Length"]);
+                string resetPasswordCode;
+                do
+                {
+                    resetPasswordCode = GenerateRandomString(resetPasswordCodeLength);
+                }
+                while (usedResetPasswordCodes.Contains(resetPasswordCode));
+
+                user.ResetPasswordCode = resetPasswordCode;
+                user.ResetPasswordCodeCreatedAt = DateTime.UtcNow;
+                var updatedUser = await userRepository.UpdateAsync(user);
+
+                _ = mailService.SendResetPasswordEmailAsync(updatedUser).ConfigureAwait(false);
+            }
+        }
+
         private string GenerateRandomString(int length)
         {
             var randomBytes = RandomNumberGenerator.GetBytes(length);
@@ -123,6 +158,18 @@ namespace Application.Services
                 .ForEach(randomByte => randomStringBuilder.Append(ALLOWED_CHARS[randomByte % ALLOWED_CHARS.Length]));
 
             return randomStringBuilder.ToString();
+        }
+
+        private Task<User?> GetUserByUsernameOrEmailAsync(string usernameOrEmail)
+        {
+            if (usernameOrEmail.Contains('@'))
+            {
+                return userRepository.GetByEmailAsync(usernameOrEmail);
+            }
+            else
+            {
+                return userRepository.GetByUsernameAsync(usernameOrEmail);
+            }
         }
     }
 }

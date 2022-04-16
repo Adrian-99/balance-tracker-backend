@@ -10,5 +10,6 @@ namespace Application.Interfaces
     public interface IMailService
     {
         Task SendEmailVerificationEmailAsync(User user);
+        Task SendResetPasswordEmailAsync(User user);
     }
 }

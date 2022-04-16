@@ -19,7 +19,14 @@ namespace Application.Services
             "Dziękujemy za rejestrację w serwisie Balance Tracker. " +
             "Aby móc w pełni skorzystać ze wszystkich funkcjonalności, prosimy o weryfikację adresu e-mail. " +
             "W tym celu, kliknij w <a href=\"{url}\">ten link</a>, lub wprowadź poniższy kod:<br/>" +
-            "<b>{code}</b>";
+            "<b>{code}</b><br/><br/>" +
+            "Uwaga! Kod ten jest aktywny tylko przez {validFor} minut! Po tym czasie konieczne będzie wygenerowanie nowego kodu.";
+        private static readonly string RESET_PASSWORD_SUBJECT = "Balance Tracker - resetowanie hasła";
+        private static readonly string RESET_PASSWORD_BODY = "Witaj {username}!<br/><br/>" +
+            "Ktoś poprosił o reset hasła do Twojego konta.<br/>" +
+            "Możesz ustawić nowe hasło klikając w <a href=\"{url}\">ten link</a> lub wprowadzając poniższy kod:<br/>" +
+            "<b>{code}</b><br/><br/>" +
+            "Uwaga! Kod ten jest aktywny tylko przez {validFor} minut! Po tym czasie konieczne będzie wygenerowanie nowego kodu.";
 
         private readonly string fromMail;
         private readonly string displayName;
@@ -27,36 +34,64 @@ namespace Application.Services
         private readonly string smtpHost;
         private readonly int smtpPort;
         private readonly string frontendUrl;
+        private readonly string emailVerificationCodeValidMinutes;
+        private readonly string resetPasswordCodeValidMinutes;
 
         public MailService(IConfiguration configuration)
         {
             var mailSettings = configuration.GetSection("MailSettings");
-            fromMail = mailSettings.GetSection("FromMail").Value;
-            displayName = mailSettings.GetSection("DisplayName").Value;
-            password = mailSettings.GetSection("Password").Value;
-            smtpHost = mailSettings.GetSection("SmtpHost").Value;
-            smtpPort = Convert.ToInt32(mailSettings.GetSection("SmtpPort").Value);
-            frontendUrl = configuration.GetSection("Frontend").GetSection("Address").Value;
+            fromMail = mailSettings["FromMail"];
+            displayName = mailSettings["DisplayName"];
+            password = mailSettings["Password"];
+            smtpHost = mailSettings["SmtpHost"];
+            smtpPort = Convert.ToInt32(mailSettings["SmtpPort"]);
+
+            frontendUrl = configuration["Frontend:Address"];
+            emailVerificationCodeValidMinutes = configuration["UserSettings:EmailVerificationCode:ValidMinutes"];
+            resetPasswordCodeValidMinutes = configuration["UserSettings:ResetPasswordCode:ValidMinutes"];
         }
 
         public Task SendEmailVerificationEmailAsync(User user)
         {
-            var email = new MimeMessage();
-            email.To.Add(MailboxAddress.Parse(user.Email));
-            email.Subject = VERIFY_EMAIL_SUBJECT;
+            var placeholdersMap = new Dictionary<string, string>();
+            placeholdersMap.Add("{username}", !string.IsNullOrEmpty(user.FirstName) ? user.FirstName : user.Username);
+            placeholdersMap.Add("{url}", frontendUrl); // TODO: Replace with actual correct url
+            placeholdersMap.Add("{code}", user.EmailVerificationCode);
+            placeholdersMap.Add("{validFor}", emailVerificationCodeValidMinutes);
 
-            var builder = new BodyBuilder();
-            builder.HtmlBody = VERIFY_EMAIL_BODY.Replace("{username}", !string.IsNullOrEmpty(user.FirstName) ? user.FirstName : user.Username)
-                .Replace("{url}", frontendUrl) // TODO: Replace with actual correct url
-                .Replace("{code}", user.EmailVerificationCode);
-            email.Body = builder.ToMessageBody();
-
-            return SendEmail(email);
+            return SendEmail(user.Email, VERIFY_EMAIL_SUBJECT, VERIFY_EMAIL_BODY, placeholdersMap);
         }
 
-        private async Task SendEmail(MimeMessage email)
+        public Task SendResetPasswordEmailAsync(User user)
         {
+            var placeholdersMap = new Dictionary<string, string>();
+            placeholdersMap.Add("{username}", !string.IsNullOrEmpty(user.FirstName) ? user.FirstName : user.Username);
+            placeholdersMap.Add("{url}", frontendUrl); // TODO: Replace with actual correct url
+            placeholdersMap.Add("{code}", user.ResetPasswordCode);
+            placeholdersMap.Add("{validFor}", resetPasswordCodeValidMinutes);
+
+            return SendEmail(user.Email, RESET_PASSWORD_SUBJECT, RESET_PASSWORD_BODY, placeholdersMap);
+        }
+
+        private async Task SendEmail(string emailTo, string subject, string body, Dictionary<string, string>? placeholdersMap = null)
+        {
+            var email = new MimeMessage();
             email.Sender = MailboxAddress.Parse(fromMail);
+            email.To.Add(MailboxAddress.Parse(emailTo));
+            email.Subject = subject;
+
+            if (placeholdersMap != null)
+            {
+                foreach (var placeholder in placeholdersMap)
+                {
+                    body = body.Replace(placeholder.Key, placeholder.Value);
+                }
+            }
+
+            var builder = new BodyBuilder();
+            builder.HtmlBody = body;
+            email.Body = builder.ToMessageBody();
+
             using (var smtp = new SmtpClient())
             {
                 smtp.Connect(smtpHost, smtpPort, SecureSocketOptions.StartTls);

@@ -5,11 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Dtos
+namespace Application.Dtos.Ingoing
 {
-    public class RefreshTokenDto
+    public class AuthenticateDto
     {
         [Required]
-        public string RefreshToken { get; set; }
+        public string UsernameOrEmail { get; set; }
+
+        [Required]
+        public string Password { get; set; }
     }
 }
