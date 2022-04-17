@@ -150,6 +150,37 @@ namespace Application.Services
             }
         }
 
+        public async Task<User?> ValidateResetPasswordCodeAsync(string resetPasswordCode)
+        {
+            var user = await userRepository.GetByResetPasswordCodeAsync(resetPasswordCode);
+            if (user == null)
+            {
+                return null;
+            }
+
+            int resetPasswordCodeValidMinutes = Convert.ToInt32(configuration["UserSettings:ResetPasswordCode:ValidMinutes"]);
+            if (user.ResetPasswordCodeCreatedAt == null ||
+                DateTime.UtcNow.Subtract((DateTime)user.ResetPasswordCodeCreatedAt).TotalMinutes > resetPasswordCodeValidMinutes)
+            {
+                return null;
+            }
+
+            return user;
+        }
+
+        public async Task ChangePasswordAsync(User user, string newPassword)
+        {
+            byte[] passwordHash, passwordSalt;
+            passwordService.CreatePasswordHash(newPassword, out passwordHash, out passwordSalt);
+
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+            user.ResetPasswordCode = null;
+            user.ResetPasswordCodeCreatedAt = null;
+
+            await userRepository.UpdateAsync(user);
+        }
+
         private string GenerateRandomString(int length)
         {
             var randomBytes = RandomNumberGenerator.GetBytes(length);

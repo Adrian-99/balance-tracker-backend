@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,5 +14,7 @@ namespace Application.Interfaces
         public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
 
         public void CheckPasswordComplexity(string password, string? username = null);
+
+        public void CheckPasswordComplexity(string password, User user);
     }
 }

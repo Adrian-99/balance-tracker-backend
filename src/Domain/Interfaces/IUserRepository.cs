@@ -13,6 +13,7 @@ namespace Domain.Interfaces
         Task<User?> GetByIdAsync(Guid id);
         Task<User?> GetByUsernameAsync(string username);
         Task<User?> GetByEmailAsync(string email);
+        Task<User?> GetByResetPasswordCodeAsync(string resetPasswordCode);
         Task<User> AddAsync(User user);
         Task<User> UpdateAsync(User user);
         Task DeleteAsync(Guid id);

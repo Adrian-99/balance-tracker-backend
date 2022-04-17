@@ -15,5 +15,7 @@ namespace Application.Interfaces
         Task<User?> AuthenticateAsync(string usernameOrEmail, string password);
         Task<User?> GetUserByUsernameIgnoreCaseAsync(string username);
         Task GenerateResetPasswordCodeAsync(string usernameOrEmail);
+        Task<User?> ValidateResetPasswordCodeAsync(string resetPasswordCode);
+        Task ChangePasswordAsync(User user, string newPassword);
     }
 }

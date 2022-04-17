@@ -1,5 +1,6 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -15,6 +16,7 @@ namespace Application.Services
         private const bool PASSWORD_REQUIRE_DIGIT = true;
         private const bool PASSWORD_REQUIRE_SPECIAL_CHAR = true;
         private const bool PASSWORD_FORBID_USERNAME_VALUE = true;
+        private const bool PASSWORD_FORBID_SAME_AS_CURRENT = true;
 
         public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
@@ -39,8 +41,8 @@ namespace Application.Services
             if (PASSWORD_FORBID_USERNAME_VALUE && username != null && username.ToLower().Equals(password.ToLower()))
             {
                 throw new DataValidationException(
-                    "Password cannot be the same as username"
-                    // TODO: Add translation key
+                    "Password cannot be the same as username",
+                    "error.validation.passwordSameAsUsername"
                     );
             }
             else if (password.Length < PASSWORD_REQUIRED_LENGTH)
@@ -78,6 +80,18 @@ namespace Application.Services
                     // TODO: Add translation key
                     );
             }
+        }
+
+        public void CheckPasswordComplexity(string password, User user)
+        {
+            if (PASSWORD_FORBID_SAME_AS_CURRENT && VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            {
+                throw new DataValidationException(
+                    "New password cannot be the same as current one",
+                    "error.validation.passwordSameAsCurrentOne"
+                    );
+            }
+            CheckPasswordComplexity(password, user.Username);
         }
     }
 }

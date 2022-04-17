@@ -66,7 +66,7 @@ namespace Application.Services
         {
             var placeholdersMap = new Dictionary<string, string>();
             placeholdersMap.Add("{username}", !string.IsNullOrEmpty(user.FirstName) ? user.FirstName : user.Username);
-            placeholdersMap.Add("{url}", frontendUrl); // TODO: Replace with actual correct url
+            placeholdersMap.Add("{url}", $"{frontendUrl}/reset-password?code={user.ResetPasswordCode}");
             placeholdersMap.Add("{code}", user.ResetPasswordCode);
             placeholdersMap.Add("{validFor}", resetPasswordCodeValidMinutes);
 

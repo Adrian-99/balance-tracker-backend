@@ -45,6 +45,13 @@ namespace Infrastructure.Repositories
                           select user).FirstOrDefaultAsync();
         }
 
+        public async Task<User?> GetByResetPasswordCodeAsync(string resetPasswordCode)
+        {
+            return await (from user in databaseContext.Users
+                          where user.ResetPasswordCode == resetPasswordCode
+                          select user).FirstOrDefaultAsync();
+        }
+
         public async Task<User> AddAsync(User user)
         {
             var dbUser = await databaseContext.Users.AddAsync(user);

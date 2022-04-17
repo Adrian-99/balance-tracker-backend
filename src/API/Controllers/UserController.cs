@@ -45,12 +45,11 @@ namespace balance_tracker_backend.Controllers
             }
             catch (DataValidationException ex)
             {
-                var errorDto = new ActionResultDto(
+                return BadRequest(new ActionResultDto(
                     StatusCodes.Status400BadRequest,
                     ex.Message,
                     ex.ErrorTranslationKey
-                    );
-                return BadRequest(errorDto);
+                    ));
             }
             return Created("", new ActionResultDto(
                 StatusCodes.Status201Created,
@@ -150,6 +149,44 @@ namespace balance_tracker_backend.Controllers
             return Ok(new ActionResultDto(StatusCodes.Status200OK,
                 "If such account exists, email with reset password code has been sent",
                 "success.user.resetPasswordRequest"
+                ));
+        }
+
+        [HttpPut("password/reset")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesErrorResponseType(typeof(ActionResultDto))]
+        public async Task<ActionResult<ActionResultDto>> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+        {
+            var user = await userService.ValidateResetPasswordCodeAsync(resetPasswordDto.ResetPasswordCode);
+            if (user == null)
+            {
+                return BadRequest(new ActionResultDto(StatusCodes.Status400BadRequest,
+                    "Invalid reset password code",
+                    "error.user.resetPassword.invalidCode"
+                    ));
+            }
+
+            try
+            {
+                passwordService.CheckPasswordComplexity(resetPasswordDto.NewPassword, user);
+            }
+            catch (DataValidationException ex)
+            {
+                return BadRequest(new ActionResultDto(
+                    StatusCodes.Status400BadRequest,
+                    ex.Message,
+                    ex.ErrorTranslationKey
+                    ));
+            }
+
+            await userService.ChangePasswordAsync(user, resetPasswordDto.NewPassword);
+
+            return Ok(new ActionResultDto(
+                StatusCodes.Status200OK,
+                "Password successfully changed",
+                "success.user.resetPassword"
                 ));
         }
     }
