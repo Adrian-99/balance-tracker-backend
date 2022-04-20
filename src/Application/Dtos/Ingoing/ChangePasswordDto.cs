@@ -7,11 +7,8 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.Ingoing
 {
-    public class ResetPasswordDto
+    public class ChangePasswordDto
     {
-        [Required]
-        public string ResetPasswordCode { get; set; }
-
         [Required]
         public string NewPassword { get; set; }
     }

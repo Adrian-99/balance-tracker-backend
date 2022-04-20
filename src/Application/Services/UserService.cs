@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using System.Text;
@@ -27,6 +28,11 @@ namespace Application.Services
             this.userRepository = userRepository;
             this.mailService = mailService;
             this.passwordService = passwordService;
+        }
+
+        public Task<User> GetAuthorizedUserAsync(HttpContext httpContext)
+        {
+            return userRepository.GetByUsernameAsync(httpContext.Items["authorizedUsername"].ToString());
         }
 
         public async Task ValidateUsernameAndEmailAsync(string username, string email)
@@ -82,11 +88,9 @@ namespace Application.Services
             return addedUser;
         }
 
-        public async Task<bool> VerifyEmailAsync(string username, string emailVerificationCode)
-        {
-            var user = await userRepository.GetByUsernameAsync(username);
-            
-            if (user == null || user.EmailVerificationCode == null || !emailVerificationCode.Equals(user.EmailVerificationCode))
+        public async Task<bool> VerifyEmailAsync(User user, string emailVerificationCode)
+        {            
+            if (user.EmailVerificationCode == null || !emailVerificationCode.Equals(user.EmailVerificationCode))
             {
                 return false;
             }

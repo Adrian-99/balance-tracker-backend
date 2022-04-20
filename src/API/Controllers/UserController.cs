@@ -66,7 +66,8 @@ namespace balance_tracker_backend.Controllers
         [ProducesErrorResponseType(typeof(ActionResultDto))]
         public async Task<ActionResult<ActionResultDto>> VerifyEmail([FromBody] VerifyEmailDto verifyEmailDto)
         {
-            if (await userService.VerifyEmailAsync(HttpContext.Items["authorizedUsername"].ToString(), verifyEmailDto.EmailVerificationCode))
+            var user = await userService.GetAuthorizedUserAsync(HttpContext);
+            if (await userService.VerifyEmailAsync(user, verifyEmailDto.EmailVerificationCode))
             {
                 return Ok(new ActionResultDto(
                     StatusCodes.Status200OK,
@@ -187,6 +188,38 @@ namespace balance_tracker_backend.Controllers
                 StatusCodes.Status200OK,
                 "Password successfully changed",
                 "success.user.resetPassword"
+                ));
+        }
+
+        [HttpPut("password/change")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesErrorResponseType(typeof(ActionResultDto))]
+        public async Task<ActionResult<ActionResultDto>> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            var user = await userService.GetAuthorizedUserAsync(HttpContext);
+
+            try
+            {
+                passwordService.CheckPasswordComplexity(changePasswordDto.NewPassword, user);
+            }
+            catch (DataValidationException ex)
+            {
+                return BadRequest(new ActionResultDto(
+                    StatusCodes.Status400BadRequest,
+                    ex.Message,
+                    ex.ErrorTranslationKey
+                    ));
+            }
+
+            await userService.ChangePasswordAsync(user, changePasswordDto.NewPassword);
+
+            return Ok(new ActionResultDto(
+                StatusCodes.Status200OK,
+                "Password successfully changed",
+                "success.user.changePassword"
                 ));
         }
     }
