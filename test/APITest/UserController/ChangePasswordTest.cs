@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace APITest.UserController
 
         protected override void PrepareTestData()
         {
-            DataSeeder.SeedUsers(databaseContext);
+            DataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
             user = databaseContext.Users.First();
             GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
         }
@@ -82,6 +83,15 @@ namespace APITest.UserController
         {
             var changePasswordDto = new ChangePasswordDto();
             changePasswordDto.NewPassword = "J@n1";
+
+            await AssertBadRequest(changePasswordDto);
+        }
+
+        [Test]
+        public async Task ChangePassword_WithTooLongPassword()
+        {
+            var changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.NewPassword = "$omeVeryL0ngPa$$wordThatMeets4llOtherCriteriaExceptTheMaxLength";
 
             await AssertBadRequest(changePasswordDto);
         }

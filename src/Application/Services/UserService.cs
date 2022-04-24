@@ -1,5 +1,7 @@
-﻿using Application.Exceptions;
+﻿using Application.Dtos.Ingoing;
+using Application.Exceptions;
 using Application.Interfaces;
+using Application.Other;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +16,7 @@ namespace Application.Services
     {
         private const string ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
 
-        private IConfiguration configuration;
+        private readonly UserSettings userSettings;
         private IUserRepository userRepository;
         private IMailService mailService;
         private IPasswordService passwordService;
@@ -24,7 +26,7 @@ namespace Application.Services
             IMailService mailService,
             IPasswordService passwordService)
         {
-            this.configuration = configuration;
+            userSettings = UserSettings.Get(configuration);
             this.userRepository = userRepository;
             this.mailService = mailService;
             this.passwordService = passwordService;
@@ -35,34 +37,55 @@ namespace Application.Services
             return userRepository.GetByUsernameAsync(httpContext.Items["authorizedUsername"].ToString());
         }
 
-        public async Task ValidateUsernameAndEmailAsync(string username, string email)
+        public async Task ValidateUserDetailsAsync(UserRegisterDto userDetails)
         {
-            if (username.Any(c => !ALLOWED_CHARS.Contains(c)))
+            if (userDetails.Username.Any(c => !ALLOWED_CHARS.Contains(c)))
             {
                 throw new DataValidationException(
                     "Username may contain only letters, digits, minus (-) and underscore (_)"
                     // TODO: Add translation key
                     );
             }
-            else if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase))
+            else if (userDetails.Username.Length > userSettings.Username.MaxLength)
+            {
+                throw new DataValidationException(
+                    $"Username must not be longer than {userSettings.Username.MaxLength} characters"
+                    // TODO: Add translation key
+                    );
+            }
+            else if (!Regex.IsMatch(userDetails.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase))
             {
                 throw new DataValidationException(
                     "Invalid email address"
                     // TODO: Add translation key
                     );
             }
-            else if (await userRepository.GetByUsernameAsync(username) != null)
+            else if (await userRepository.GetByUsernameAsync(userDetails.Username) != null)
             {
                 throw new DataValidationException(
                     "Username is already taken",
                     "error.user.register.usernameTaken"
                     );
             }
-            else if (await userRepository.GetByEmailAsync(email) != null)
+            else if (await userRepository.GetByEmailAsync(userDetails.Email) != null)
             {
                 throw new DataValidationException(
                     "Email is already taken",
                     "error.user.register.emailTaken"
+                    );
+            }
+            else if (userDetails.FirstName?.Length > userSettings.FirstName.MaxLength)
+            {
+                throw new DataValidationException(
+                    $"First name must not be longer than {userSettings.FirstName.MaxLength} characters"
+                    // TODO: Add translation key
+                    );
+            }
+            else if (userDetails.LastName?.Length > userSettings.LastName.MaxLength)
+            {
+                throw new DataValidationException(
+                    $"Last name must not be longer than {userSettings.LastName.MaxLength} characters"
+                    // TODO: Add translation key
                     );
             }
         }
@@ -72,11 +95,10 @@ namespace Application.Services
             var usedEmailVerificationCodes = userRepository.GetAll()
                 .Where(user => user.EmailVerificationCode != null)
                 .Select(user => user.EmailVerificationCode);
-            int emailVerificationCodeLength = Convert.ToInt32(configuration["UserSettings:EmailVerificationCode:Length"]);
             string newEmailVerificationCode;
             do
             {
-                newEmailVerificationCode = GenerateRandomString(emailVerificationCodeLength);
+                newEmailVerificationCode = GenerateRandomString(userSettings.EmailVerificationCode.Length);
             }
             while (usedEmailVerificationCodes.Contains(newEmailVerificationCode));
             user.EmailVerificationCode = newEmailVerificationCode;
@@ -95,10 +117,8 @@ namespace Application.Services
                 return false;
             }
 
-            int emailVerificationCodeValidMinutes = Convert.ToInt32(configuration["UserSettings:EmailVerificationCode:ValidMinutes"]);
-
             if (user.EmailVerificationCodeCreatedAt == null ||
-                DateTime.UtcNow.Subtract((DateTime)user.EmailVerificationCodeCreatedAt).TotalMinutes > emailVerificationCodeValidMinutes)
+                DateTime.UtcNow.Subtract((DateTime)user.EmailVerificationCodeCreatedAt).TotalMinutes > userSettings.EmailVerificationCode.ValidMinutes)
             {
                 return false;
             }
@@ -138,11 +158,11 @@ namespace Application.Services
                 var usedResetPasswordCodes = userRepository.GetAll()
                     .Where(user => user.ResetPasswordCode != null)
                     .Select(user => user.ResetPasswordCode);
-                int resetPasswordCodeLength = Convert.ToInt32(configuration["UserSettings:ResetPasswordCode:Length"]);
+
                 string resetPasswordCode;
                 do
                 {
-                    resetPasswordCode = GenerateRandomString(resetPasswordCodeLength);
+                    resetPasswordCode = GenerateRandomString(userSettings.ResetPasswordCode.Length);
                 }
                 while (usedResetPasswordCodes.Contains(resetPasswordCode));
 
@@ -162,9 +182,8 @@ namespace Application.Services
                 return null;
             }
 
-            int resetPasswordCodeValidMinutes = Convert.ToInt32(configuration["UserSettings:ResetPasswordCode:ValidMinutes"]);
             if (user.ResetPasswordCodeCreatedAt == null ||
-                DateTime.UtcNow.Subtract((DateTime)user.ResetPasswordCodeCreatedAt).TotalMinutes > resetPasswordCodeValidMinutes)
+                DateTime.UtcNow.Subtract((DateTime)user.ResetPasswordCodeCreatedAt).TotalMinutes > userSettings.ResetPasswordCode.ValidMinutes)
             {
                 return null;
             }

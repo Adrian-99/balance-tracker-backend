@@ -1,6 +1,8 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces;
+using Application.Other;
 using Domain.Entities;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -10,13 +12,12 @@ namespace Application.Services
 {
     public class PasswordService : IPasswordService
     {
-        private const int PASSWORD_REQUIRED_LENGTH = 8;
-        private const bool PASSWORD_REQUIRE_LOWER_CASE = true;
-        private const bool PASSWORD_REQUIRE_UPPER_CASE = true;
-        private const bool PASSWORD_REQUIRE_DIGIT = true;
-        private const bool PASSWORD_REQUIRE_SPECIAL_CHAR = true;
-        private const bool PASSWORD_FORBID_USERNAME_VALUE = true;
-        private const bool PASSWORD_FORBID_SAME_AS_CURRENT = true;
+        private readonly PasswordSettings passwordSettings;
+
+        public PasswordService(IConfiguration configuration)
+        {
+            passwordSettings = PasswordSettings.Get(configuration);
+        }
 
         public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
@@ -38,42 +39,49 @@ namespace Application.Services
 
         public void CheckPasswordComplexity(string password, string? username = null)
         {
-            if (PASSWORD_FORBID_USERNAME_VALUE && username != null && username.ToLower().Equals(password.ToLower()))
+            if (passwordSettings.ForbidSameAsUsername && username != null && username.ToLower().Equals(password.ToLower()))
             {
                 throw new DataValidationException(
                     "Password cannot be the same as username",
                     "error.validation.passwordSameAsUsername"
                     );
             }
-            else if (password.Length < PASSWORD_REQUIRED_LENGTH)
+            else if (password.Length < passwordSettings.MinLength)
             {
                 throw new DataValidationException(
-                    $"Password must be at least {PASSWORD_REQUIRED_LENGTH} characters long"
+                    $"Password must be at least {passwordSettings.MinLength} characters long"
                     // TODO: Add translation key
                     );
             }
-            else if (PASSWORD_REQUIRE_LOWER_CASE && !password.Any(c => char.IsLower(c)))
+            else if (password.Length > passwordSettings.MaxLength)
+            {
+                throw new DataValidationException(
+                    $"Password must not be longer than {passwordSettings.MinLength} characters"
+                    // TODO: Add translation key
+                    );
+            }
+            else if (passwordSettings.SmallLetterRequired && !password.Any(c => char.IsLower(c)))
             {
                 throw new DataValidationException(
                     "Password must contain at least one small letter"
                     // TODO: Add translation key
                     );
             }
-            else if (PASSWORD_REQUIRE_UPPER_CASE && !password.Any(c => char.IsUpper(c)))
+            else if (passwordSettings.BigLetterRequired && !password.Any(c => char.IsUpper(c)))
             {
                 throw new DataValidationException(
                     "Password must contain at least one big letter"
                     // TODO: Add translation key
                     );
             }
-            else if (PASSWORD_REQUIRE_DIGIT && !password.Any(c => char.IsDigit(c)))
+            else if (passwordSettings.DigitRequired && !password.Any(c => char.IsDigit(c)))
             {
                 throw new DataValidationException(
                     "Password must contain at least one digit"
                     // TODO: Add translation key
                     );
             }
-            else if (PASSWORD_REQUIRE_SPECIAL_CHAR && !password.Any(c => !char.IsLetterOrDigit(c)))
+            else if (passwordSettings.SpecialCharacterRequired && !password.Any(c => !char.IsLetterOrDigit(c)))
             {
                 throw new DataValidationException(
                     "Password must contain at least one special character"
@@ -84,7 +92,7 @@ namespace Application.Services
 
         public void CheckPasswordComplexity(string password, User user)
         {
-            if (PASSWORD_FORBID_SAME_AS_CURRENT && VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            if (passwordSettings.ForbidSameAsCurrent && VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
             {
                 throw new DataValidationException(
                     "New password cannot be the same as current one",

@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace APITest.UserController
 
         protected override void PrepareTestData()
         {
-            DataSeeder.SeedUsers(databaseContext);
+            DataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
             user = (from user in databaseContext.Users
                                  where user.EmailVerificationCode != null && user.EmailVerificationCodeCreatedAt != null
                                  select user).First();

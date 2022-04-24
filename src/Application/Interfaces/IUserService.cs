@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.Dtos.Ingoing;
+using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Application.Interfaces
     public interface IUserService
     {
         Task<User> GetAuthorizedUserAsync(HttpContext httpContext);
-        Task ValidateUsernameAndEmailAsync(string username, string email);
+        Task ValidateUserDetailsAsync(UserRegisterDto userDetails);
         Task<User> RegisterAsync(User user);
         Task<bool> VerifyEmailAsync(User user, string emailVerificationCode);
         Task<User?> AuthenticateAsync(string usernameOrEmail, string password);

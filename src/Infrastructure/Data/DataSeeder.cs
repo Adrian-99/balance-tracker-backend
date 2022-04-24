@@ -1,21 +1,22 @@
 ﻿using Application.Services;
 using Domain.Entities;
+using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Data
 {
     public static class DataSeeder
     {
-        public static void SeedAll(DatabaseContext databaseContext)
+        public static void SeedAll(IConfiguration configuration, DatabaseContext databaseContext)
         {
-            SeedUsers(databaseContext);
+            SeedUsers(configuration, databaseContext);
         }
 
-        public static void SeedUsers(DatabaseContext databaseContext)
+        public static void SeedUsers(IConfiguration configuration, DatabaseContext databaseContext)
         {
             databaseContext.Database.EnsureCreated();
             if (databaseContext.Users.Count() == 0)
             {
-                var passwordService = new PasswordService();
+                var passwordService = new PasswordService(configuration);
 
                 byte[] passwordHash, passwordSalt;
 

@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Infrastructure.Data;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace APITest.JwtService
     {
         protected override void PrepareTestData()
         {
-            DataSeeder.SeedUsers(databaseContext);
+            DataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
         }
 
         [Test]

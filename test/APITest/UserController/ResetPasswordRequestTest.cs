@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
@@ -25,7 +26,7 @@ namespace APITest.UserController
 
         protected override void PrepareTestData()
         {
-            DataSeeder.SeedUsers(databaseContext);
+            DataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
             user = databaseContext.Users
                 .Where(u => u.ResetPasswordCode == null && u.ResetPasswordCodeCreatedAt == null)
                 .First();

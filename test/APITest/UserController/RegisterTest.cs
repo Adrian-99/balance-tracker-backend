@@ -2,6 +2,7 @@ using Application.Dtos.Ingoing;
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
@@ -28,7 +29,7 @@ namespace APITest.UserController
 
         protected override void PrepareTestData()
         {
-            DataSeeder.SeedUsers(databaseContext);
+            DataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
         }
 
         [Test]
@@ -129,11 +130,48 @@ namespace APITest.UserController
         }
 
         [Test]
+        public async Task Register_WithTooLongUsername()
+        {
+            var userRegisterDto = new UserRegisterDto();
+            userRegisterDto.Username = "SomeVeryLongUsernameThatItExceedsMaximumAllowedLengthOfUsername";
+            userRegisterDto.Email = "user2@gmail.com";
+            userRegisterDto.Password = "User2!@#";
+
+            await AssertRegisterBadRequest(userRegisterDto);
+        }
+
+        [Test]
         public async Task Register_WithIncorrectEmail()
         {
             var userRegisterDto = new UserRegisterDto();
             userRegisterDto.Username = "User2";
             userRegisterDto.Email = "user2@gmail";
+            userRegisterDto.Password = "User2!@#";
+
+            await AssertRegisterBadRequest(userRegisterDto);
+        }
+
+        [Test]
+        public async Task Register_WithTooLongFirstName()
+        {
+            var userRegisterDto = new UserRegisterDto();
+            userRegisterDto.Username = "User2";
+            userRegisterDto.Email = "User2@gmail.com";
+            userRegisterDto.FirstName = "SomeVeryLongFirstNameThatItExceedsMaximumAllowedLengthOfFirstName";
+            userRegisterDto.LastName = "userLastName";
+            userRegisterDto.Password = "User2!@#";
+
+            await AssertRegisterBadRequest(userRegisterDto);
+        }
+
+        [Test]
+        public async Task Register_WithTooLongLastName()
+        {
+            var userRegisterDto = new UserRegisterDto();
+            userRegisterDto.Username = "User2";
+            userRegisterDto.Email = "User2@gmail.com";
+            userRegisterDto.FirstName = "userFirstName";
+            userRegisterDto.LastName = "SomeVeryLongLastNameThatItExceedsMaximumAllowedLengthOfLastName";
             userRegisterDto.Password = "User2!@#";
 
             await AssertRegisterBadRequest(userRegisterDto);
@@ -157,6 +195,17 @@ namespace APITest.UserController
             userRegisterDto.Username = "User2";
             userRegisterDto.Email = "user2@gmail.com";
             userRegisterDto.Password = "User2!";
+
+            await AssertRegisterBadRequest(userRegisterDto);
+        }
+
+        [Test]
+        public async Task Register_WithPasswordTooLong()
+        {
+            var userRegisterDto = new UserRegisterDto();
+            userRegisterDto.Username = "User2";
+            userRegisterDto.Email = "user2@gmail.com";
+            userRegisterDto.Password = "$omeVeryL0ngPa$$wordThatMeets4llOtherCriteriaExceptTheMaxLength";
 
             await AssertRegisterBadRequest(userRegisterDto);
         }

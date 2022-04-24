@@ -38,7 +38,7 @@ namespace balance_tracker_backend.Controllers
         {
             try
             {
-                await userService.ValidateUsernameAndEmailAsync(userRegisterDto.Username, userRegisterDto.Email);
+                await userService.ValidateUserDetailsAsync(userRegisterDto);
                 passwordService.CheckPasswordComplexity(userRegisterDto.Password, userRegisterDto.Username);
                 var user = userMapper.FromUserRegisterDtoToUser(userRegisterDto);
                 await userService.RegisterAsync(user);

@@ -69,7 +69,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     var scope = app.Services.CreateScope();
     var databaseContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-    DataSeeder.SeedAll(databaseContext);
+    DataSeeder.SeedAll(app.Configuration, databaseContext);
 }
 
 app.UseHttpsRedirection();
