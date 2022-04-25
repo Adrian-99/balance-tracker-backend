@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.Settings;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.DataEncryption;
 using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
@@ -22,10 +23,9 @@ namespace Infrastructure.Data
         public DatabaseContext(DbContextOptions<DatabaseContext> options, IConfiguration configuration) :
             base(options)
         {
-            var encryptionKey = Encoding.UTF8.GetBytes(configuration["Encryption:Key"]);
-            var encryptionIV = Encoding.UTF8.GetBytes(configuration["Encryption:IV"]);
+            var encryptionSettings = EncryptionSettings.Get(configuration);
 
-            encryptionProvider = new AesProvider(encryptionKey, encryptionIV);
+            encryptionProvider = new AesProvider(encryptionSettings.KeyBytes, encryptionSettings.IVBytes);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

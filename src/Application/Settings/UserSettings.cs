@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Other
+namespace Application.Settings
 {
     internal class UserSettings
     {
@@ -37,7 +37,7 @@ namespace Application.Other
 
         public static UsernameSettings Get(IConfiguration configuration)
         {
-            return configuration.GetSection("UserSettings")
+            return configuration.GetSection("User")
                 .GetSection("Username")
                 .Get<UsernameSettings>();
         }
@@ -49,7 +49,7 @@ namespace Application.Other
 
         public static FirstNameSettings Get(IConfiguration configuration)
         {
-            return configuration.GetSection("UserSettings")
+            return configuration.GetSection("User")
                 .GetSection("FirstName")
                 .Get<FirstNameSettings>();
         }
@@ -61,7 +61,7 @@ namespace Application.Other
 
         public static LastNameSettings Get(IConfiguration configuration)
         {
-            return configuration.GetSection("UserSettings")
+            return configuration.GetSection("User")
                 .GetSection("LastName")
                 .Get<LastNameSettings>();
         }
@@ -80,7 +80,7 @@ namespace Application.Other
 
         public static PasswordSettings Get(IConfiguration configuration)
         {
-            return configuration.GetSection("UserSettings")
+            return configuration.GetSection("User")
                 .GetSection("Password")
                 .Get<PasswordSettings>();
         }
@@ -93,7 +93,7 @@ namespace Application.Other
 
         public static EmailVerificationCodeSettings Get(IConfiguration configuration)
         {
-            return configuration.GetSection("UserSettings")
+            return configuration.GetSection("User")
                 .GetSection("EmailVerificationCode")
                 .Get<EmailVerificationCodeSettings>();
         }
@@ -106,7 +106,7 @@ namespace Application.Other
 
         public static ResetPasswordCodeSettings Get(IConfiguration configuration)
         {
-            return configuration.GetSection("UserSettings")
+            return configuration.GetSection("User")
                 .GetSection("ResetPasswordCode")
                 .Get<ResetPasswordCodeSettings>();
         }

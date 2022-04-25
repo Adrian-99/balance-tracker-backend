@@ -21,4 +21,13 @@
     <InternalsVisibleTo Include="APITest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="MailTemplates\EmailVerificationTemplate.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="MailTemplates\ResetPasswordTemplate.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

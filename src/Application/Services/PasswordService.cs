@@ -1,6 +1,6 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces;
-using Application.Other;
+using Application.Settings;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using System;

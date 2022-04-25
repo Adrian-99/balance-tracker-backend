@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Settings;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -15,25 +16,20 @@ namespace Application.Services
 {
     public class JwtService : IJwtService
     {
-        private IConfiguration configuration;
+        private readonly JwtSettings jwtSettings;
 
         private static Dictionary<string, Tuple<string, string>> validTokens = new Dictionary<string, Tuple<string, string>>();
 
         public JwtService(IConfiguration configuration)
         {
-            this.configuration = configuration;
+            jwtSettings = JwtSettings.Get(configuration);
         }
 
         public void GenerateTokens(User user, out string accessToken, out string refreshToken)
         {
-            var issuer = configuration["JwtSettings:Issuer"];
-            var audience = configuration["JwtSettings:Audience"];
-            var accessTokenValidMinutes = Convert.ToInt32(configuration["JwtSettings:AccessTokenValidMinutes"]);
-            var refreshTokenValidMinutes = Convert.ToInt32(configuration["JwtSettings:RefreshTokenValidMinutes"]);
-
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]));
+            var securityKey = new SymmetricSecurityKey(jwtSettings.KeyBytes);
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var accessTokenClaims = new List<Claim>(new[]
@@ -51,11 +47,11 @@ namespace Application.Services
             }
 
             var accessJwtToken = new JwtSecurityToken(
-                issuer,
-                audience,
+                jwtSettings.Issuer,
+                jwtSettings.Audience,
                 accessTokenClaims,
                 DateTime.Now,
-                DateTime.Now.AddMinutes(accessTokenValidMinutes),
+                DateTime.Now.AddMinutes(jwtSettings.AccessTokenValidMinutes),
                 credentials
                 );
             accessToken = tokenHandler.WriteToken(accessJwtToken);
@@ -65,11 +61,11 @@ namespace Application.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Username)
             };
             var refreshJwtToken = new JwtSecurityToken(
-                issuer,
-                audience,
+                jwtSettings.Issuer,
+                jwtSettings.Audience,
                 refreshTokenClaims,
                 DateTime.Now,
-                DateTime.Now.AddMinutes(refreshTokenValidMinutes),
+                DateTime.Now.AddMinutes(jwtSettings.RefreshTokenValidMinutes),
                 credentials
                 );
 
@@ -132,9 +128,6 @@ namespace Application.Services
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]);
-            var issuer = configuration["JwtSettings:Issuer"];
-            var audience = configuration["JwtSettings:Audience"];
             try
             {
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
@@ -143,9 +136,9 @@ namespace Application.Services
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = issuer,
-                    ValidAudience = audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(jwtSettings.KeyBytes),
                     // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
                     ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);

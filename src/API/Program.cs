@@ -1,9 +1,7 @@
 using API.Middleware;
+using Application.Settings;
 using Infrastructure.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,7 +74,7 @@ app.UseHttpsRedirection();
 
 app.UseCors(options =>
 {
-    options.WithOrigins(builder.Configuration["Frontend:Address"])
+    options.WithOrigins(FrontendSettings.Get(builder.Configuration).Address)
         .AllowAnyMethod()
         .AllowAnyHeader();
 });

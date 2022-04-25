@@ -1,7 +1,7 @@
 ﻿using Application.Dtos.Ingoing;
 using Application.Exceptions;
 using Application.Interfaces;
-using Application.Other;
+using Application.Settings;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
