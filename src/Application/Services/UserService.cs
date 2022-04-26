@@ -34,7 +34,7 @@ namespace Application.Services
 
         public Task<User> GetAuthorizedUserAsync(HttpContext httpContext)
         {
-            return userRepository.GetByUsernameAsync(httpContext.Items["authorizedUsername"].ToString());
+            return userRepository.GetByUsernameAsync(httpContext.Items[Constants.AUTHORIZED_USERNAME].ToString());
         }
 
         public async Task ValidateUserDetailsAsync(UserRegisterDto userDetails)

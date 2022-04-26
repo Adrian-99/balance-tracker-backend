@@ -35,7 +35,8 @@ namespace Application.Services
             var accessTokenClaims = new List<Claim>(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Username),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.AuthorizationDecision, user.EmailVerificationCode == null ? "true" : "false")
             });
             if (user.FirstName != null)
             {
@@ -80,33 +81,46 @@ namespace Application.Services
 
         public string? ValidateAccessToken(string accessToken)
         {
-            var authorizedUsername = ValidateToken(accessToken);
-            if (authorizedUsername != null && validTokens.ContainsKey(authorizedUsername))
-            {
-                if (validTokens[authorizedUsername].Item1.Equals(accessToken))
-                {
-                    return authorizedUsername;
-                }
+            return ValidateAccessToken(accessToken, out _);
+        }
 
-                validTokens.Remove(authorizedUsername);
-                return null;
+        public string? ValidateAccessToken(string accessToken, out bool isEmailVerified)
+        {
+            var claims = ValidateToken(accessToken);
+            if (claims != null)
+            {
+                var username = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                if (username != null && validTokens.ContainsKey(username))
+                {
+                    if (validTokens[username].Item1.Equals(accessToken))
+                    {
+                        isEmailVerified = claims.First(c => c.Type == ClaimTypes.AuthorizationDecision).Value.Equals("true");
+                        return username;
+                    }
+
+                    validTokens.Remove(username);
+                }
             }
 
+            isEmailVerified = false;
             return null;
         }
 
         public string? ValidateRefreshToken(string refreshToken)
         {
-            var authorizedUsername = ValidateToken(refreshToken);
-            if (authorizedUsername != null && validTokens.ContainsKey(authorizedUsername))
+            var claims = ValidateToken(refreshToken);
+            if (claims != null)
             {
-                if (validTokens[authorizedUsername].Item2.Equals(refreshToken))
+                var username = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                if (validTokens.ContainsKey(username))
                 {
-                    return authorizedUsername;
-                }
+                    if (validTokens[username].Item2.Equals(refreshToken))
+                    {
+                        return username;
+                    }
 
-                validTokens.Remove(authorizedUsername);
-                return null;
+                    validTokens.Remove(username);
+                }
             }
 
             return null;
@@ -120,7 +134,7 @@ namespace Application.Services
             }
         }
 
-        private string? ValidateToken(string token)
+        private IEnumerable<Claim>? ValidateToken(string token)
         {
             if (string.IsNullOrEmpty(token))
             {
@@ -144,7 +158,7 @@ namespace Application.Services
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                return jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
+                return jwtToken.Claims;
             }
             catch
             {

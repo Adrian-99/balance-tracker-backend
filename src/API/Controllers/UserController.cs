@@ -1,4 +1,5 @@
 ﻿using API.Attributes;
+using Application;
 using Application.Dtos.Ingoing;
 using Application.Dtos.Outgoing;
 using Application.Exceptions;
@@ -59,7 +60,7 @@ namespace balance_tracker_backend.Controllers
         }
 
         [HttpPut("email/verify")]
-        [Authorize]
+        [Authorize(false)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -131,14 +132,16 @@ namespace balance_tracker_backend.Controllers
         }
 
         [HttpDelete("revoke-tokens")]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [Authorize(false)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesErrorResponseType(typeof(ActionResultDto))]
-        public ActionResult RevokeTokens()
+        public ActionResult<ActionResultDto> RevokeTokens()
         {
-            jwtService.RevokeTokens(HttpContext.Items["authorizedUsername"].ToString());
-            return NoContent();
+            jwtService.RevokeTokens(HttpContext.Items[Constants.AUTHORIZED_USERNAME].ToString());
+            return Ok(new ActionResultDto(StatusCodes.Status200OK,
+                "Tokens revoked"
+                ));
         }
 
         [HttpPost("password/reset/request")]
@@ -192,7 +195,7 @@ namespace balance_tracker_backend.Controllers
         }
 
         [HttpPut("password/change")]
-        [Authorize]
+        [Authorize(false)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -221,6 +224,18 @@ namespace balance_tracker_backend.Controllers
                 "Password successfully changed",
                 "success.user.changePassword"
                 ));
+        }
+
+        [HttpGet("data")]
+        [Authorize(false)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesErrorResponseType(typeof(ActionResultDto))]
+        public async Task<ActionResult<UserDataDto>> GetUserData()
+        {
+            var user = await userService.GetAuthorizedUserAsync(HttpContext);
+            var userDataDto = userMapper.FromUserToUserDataDto(user);
+            return Ok(userDataDto);
         }
     }
 }

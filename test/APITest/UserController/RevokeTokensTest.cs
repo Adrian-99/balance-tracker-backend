@@ -34,7 +34,7 @@ namespace APITest.UserController
 
             var response = await SendHttpRequestAsync(HttpMethod.Delete, URL, accessToken);
 
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.IsNull(jwtService.ValidateAccessToken(accessToken));
             Assert.IsNull(jwtService.ValidateRefreshToken(refreshToken));
         }

@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Application.Interfaces;
 using Domain.Entities;
 
@@ -29,6 +30,18 @@ namespace Application.Mappers
             user.ResetPasswordCode = null;
 
             return user;
+        }
+
+        public UserDataDto FromUserToUserDataDto(User user)
+        {
+            var userDataDto = new UserDataDto();
+            userDataDto.Username = user.Username;
+            userDataDto.Email = user.Email;
+            userDataDto.IsEmailVerified = user.EmailVerificationCode == null;
+            userDataDto.FirstName = user.FirstName;
+            userDataDto.LastName = user.LastName;
+
+            return userDataDto;
         }
     }
 }

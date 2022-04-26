@@ -11,6 +11,7 @@ namespace Application.Interfaces
     {
         void GenerateTokens(User user, out string accessToken, out string refreshToken);
         string? ValidateAccessToken(string accessToken);
+        string? ValidateAccessToken(string accessToken, out bool isEmailVerified);
         string? ValidateRefreshToken(string refreshToken);
         void RevokeTokens(string username);
     }

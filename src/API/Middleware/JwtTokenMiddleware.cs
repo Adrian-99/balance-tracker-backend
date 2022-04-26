@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application;
+using Application.Interfaces;
 
 namespace API.Middleware
 {
@@ -18,8 +19,10 @@ namespace API.Middleware
             if (context.Request.Headers.Authorization.Count > 0)
             {
                 string accessToken = context.Request.Headers.Authorization.First().Split(' ').Last();
-                var authorizedUsername = jwtService.ValidateAccessToken(accessToken);
-                context.Items["authorizedUsername"] = authorizedUsername;
+                bool isEmailVerified;
+                var authorizedUsername = jwtService.ValidateAccessToken(accessToken, out isEmailVerified);
+                context.Items[Constants.AUTHORIZED_USERNAME] = authorizedUsername;
+                context.Items[Constants.IS_EMAIL_VERIFIED] = isEmailVerified;
             }
             await next.Invoke(context);
         }

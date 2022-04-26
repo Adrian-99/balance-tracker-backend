@@ -1,4 +1,5 @@
-﻿using Application.Dtos.Outgoing;
+﻿using Application;
+using Application.Dtos.Outgoing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
@@ -8,6 +9,13 @@ namespace API.Attributes
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
     public class AuthorizeAttribute : Attribute, IAuthorizationFilter
     {
+        private readonly bool requireVerifiedEmail;
+
+        public AuthorizeAttribute(bool requireVerifiedEmail = true)
+        {
+            this.requireVerifiedEmail = requireVerifiedEmail;
+        }
+
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             var allowAnonymous = context.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any();
@@ -16,7 +24,7 @@ namespace API.Attributes
                 return;
             }
 
-            if (context.HttpContext.Items["authorizedUsername"] == null)
+            if (context.HttpContext.Items[Constants.AUTHORIZED_USERNAME] == null)
             {
                 context.Result = new JsonResult(new ActionResultDto(
                     StatusCodes.Status401Unauthorized,
@@ -24,6 +32,16 @@ namespace API.Attributes
                     // TODO: Add translation key
                 ))
                 { ContentType = "application/json", StatusCode = StatusCodes.Status401Unauthorized };
+            }
+
+            if (requireVerifiedEmail && (bool)context.HttpContext.Items[Constants.IS_EMAIL_VERIFIED] == false)
+            {
+                context.Result = new JsonResult(new ActionResultDto(
+                    StatusCodes.Status403Forbidden,
+                    "Forbidden - email verification required"
+                    // TODO: Add translation key
+                ))
+                { ContentType = "application/json", StatusCode = StatusCodes.Status403Forbidden };
             }
         }
     }
