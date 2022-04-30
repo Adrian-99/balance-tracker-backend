@@ -37,51 +37,56 @@ namespace Application.Services
             return userRepository.GetByUsernameAsync(httpContext.Items[Constants.AUTHORIZED_USERNAME].ToString());
         }
 
-        public async Task ValidateUserDetailsAsync(UserRegisterDto userDetails)
+        public async Task ValidateUserDetailsAsync(string username,
+                                      string email,
+                                      string? firstName,
+                                      string? lastName,
+                                      bool checkIfUsernameTaken = true,
+                                      bool checkIfEmailTaken = true)
         {
-            if (userDetails.Username.Any(c => !ALLOWED_CHARS.Contains(c)))
+            if (username.Any(c => !ALLOWED_CHARS.Contains(c)))
             {
                 throw new DataValidationException(
                     "Username may contain only letters, digits, minus (-) and underscore (_)"
                     // TODO: Add translation key
                     );
             }
-            else if (userDetails.Username.Length > userSettings.Username.MaxLength)
+            else if (username.Length > userSettings.Username.MaxLength)
             {
                 throw new DataValidationException(
                     $"Username must not be longer than {userSettings.Username.MaxLength} characters"
                     // TODO: Add translation key
                     );
             }
-            else if (!Regex.IsMatch(userDetails.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase))
+            else if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase))
             {
                 throw new DataValidationException(
                     "Invalid email address"
                     // TODO: Add translation key
                     );
             }
-            else if (await userRepository.GetByUsernameAsync(userDetails.Username) != null)
+            else if (checkIfUsernameTaken && await userRepository.GetByUsernameAsync(username) != null)
             {
                 throw new DataValidationException(
                     "Username is already taken",
                     "error.user.register.usernameTaken"
                     );
             }
-            else if (await userRepository.GetByEmailAsync(userDetails.Email) != null)
+            else if (checkIfEmailTaken && await userRepository.GetByEmailAsync(email) != null)
             {
                 throw new DataValidationException(
                     "Email is already taken",
                     "error.user.register.emailTaken"
                     );
             }
-            else if (userDetails.FirstName?.Length > userSettings.FirstName.MaxLength)
+            else if (firstName?.Length > userSettings.FirstName.MaxLength)
             {
                 throw new DataValidationException(
                     $"First name must not be longer than {userSettings.FirstName.MaxLength} characters"
                     // TODO: Add translation key
                     );
             }
-            else if (userDetails.LastName?.Length > userSettings.LastName.MaxLength)
+            else if (lastName?.Length > userSettings.LastName.MaxLength)
             {
                 throw new DataValidationException(
                     $"Last name must not be longer than {userSettings.LastName.MaxLength} characters"
@@ -92,16 +97,7 @@ namespace Application.Services
 
         public async Task<User> RegisterAsync(User user)
         {
-            var usedEmailVerificationCodes = userRepository.GetAll()
-                .Where(user => user.EmailVerificationCode != null)
-                .Select(user => user.EmailVerificationCode);
-            string newEmailVerificationCode;
-            do
-            {
-                newEmailVerificationCode = GenerateRandomString(userSettings.EmailVerificationCode.Length);
-            }
-            while (usedEmailVerificationCodes.Contains(newEmailVerificationCode));
-            user.EmailVerificationCode = newEmailVerificationCode;
+            user.EmailVerificationCode = GenerateEmailVerificationCode();
             user.EmailVerificationCodeCreatedAt = DateTime.UtcNow;
             var addedUser = await userRepository.AddAsync(user);
 
@@ -191,7 +187,7 @@ namespace Application.Services
             return user;
         }
 
-        public async Task ChangePasswordAsync(User user, string newPassword)
+        public Task<User> ChangePasswordAsync(User user, string newPassword)
         {
             byte[] passwordHash, passwordSalt;
             passwordService.CreatePasswordHash(newPassword, out passwordHash, out passwordSalt);
@@ -201,7 +197,32 @@ namespace Application.Services
             user.ResetPasswordCode = null;
             user.ResetPasswordCodeCreatedAt = null;
 
-            await userRepository.UpdateAsync(user);
+            return userRepository.UpdateAsync(user);
+        }
+
+        public async Task<User> ChangeUserDataAsync(User user, ChangeUserDataDto newData)
+        {
+            var wasEmailChanged = user.Email != newData.Email.ToLower();
+
+            user.Username = newData.Username;
+            user.Email = newData.Email;
+            user.FirstName = newData.FirstName;
+            user.LastName = newData.LastName;
+
+            if (wasEmailChanged)
+            {
+                user.EmailVerificationCode = GenerateEmailVerificationCode();
+                user.EmailVerificationCodeCreatedAt = DateTime.UtcNow;
+            }
+
+            var updatedUser = await userRepository.UpdateAsync(user);
+
+            if (wasEmailChanged)
+            {
+                _ = mailService.SendEmailVerificationEmailAsync(updatedUser).ConfigureAwait(false);
+            }
+
+            return updatedUser;
         }
 
         private string GenerateRandomString(int length)
@@ -224,6 +245,20 @@ namespace Application.Services
             {
                 return userRepository.GetByUsernameAsync(usernameOrEmail);
             }
+        }
+
+        private string GenerateEmailVerificationCode()
+        {
+            var usedEmailVerificationCodes = userRepository.GetAll()
+                .Where(user => user.EmailVerificationCode != null)
+                .Select(user => user.EmailVerificationCode);
+            string newEmailVerificationCode;
+            do
+            {
+                newEmailVerificationCode = GenerateRandomString(userSettings.EmailVerificationCode.Length);
+            }
+            while (usedEmailVerificationCodes.Contains(newEmailVerificationCode));
+            return newEmailVerificationCode;
         }
     }
 }

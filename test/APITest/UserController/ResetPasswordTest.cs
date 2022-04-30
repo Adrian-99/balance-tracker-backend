@@ -35,7 +35,7 @@ namespace APITest.UserController
             resetPasswordDto.ResetPasswordCode = user.ResetPasswordCode;
             resetPasswordDto.NewPassword = "$omeN3wPa$$word";
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, null, resetPasswordDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, null, resetPasswordDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -151,7 +151,7 @@ namespace APITest.UserController
 
         private async Task AssertBadRequest(ResetPasswordDto resetPasswordDto)
         {
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, null, resetPasswordDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, null, resetPasswordDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);

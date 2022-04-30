@@ -11,7 +11,7 @@ namespace Application.Interfaces
 {
     public interface IUserMapper
     {
-        public User FromUserRegisterDtoToUser(UserRegisterDto userRegisterDto);
-        public UserDataDto FromUserToUserDataDto(User user);
+        User FromUserRegisterDtoToUser(UserRegisterDto userRegisterDto);
+        UserDataDto FromUserToUserDataDto(User user);
     }
 }

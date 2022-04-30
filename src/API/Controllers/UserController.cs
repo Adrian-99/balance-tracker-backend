@@ -39,7 +39,10 @@ namespace balance_tracker_backend.Controllers
         {
             try
             {
-                await userService.ValidateUserDetailsAsync(userRegisterDto);
+                await userService.ValidateUserDetailsAsync(userRegisterDto.Username,
+                                                           userRegisterDto.Email,
+                                                           userRegisterDto.FirstName,
+                                                           userRegisterDto.LastName);
                 passwordService.CheckPasswordComplexity(userRegisterDto.Password, userRegisterDto.Username);
                 var user = userMapper.FromUserRegisterDtoToUser(userRegisterDto);
                 await userService.RegisterAsync(user);
@@ -59,7 +62,7 @@ namespace balance_tracker_backend.Controllers
                 ));
         }
 
-        [HttpPut("email/verify")]
+        [HttpPatch("email/verify")]
         [Authorize(false)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -156,7 +159,7 @@ namespace balance_tracker_backend.Controllers
                 ));
         }
 
-        [HttpPut("password/reset")]
+        [HttpPatch("password/reset")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -194,7 +197,7 @@ namespace balance_tracker_backend.Controllers
                 ));
         }
 
-        [HttpPut("password/change")]
+        [HttpPatch("password/change")]
         [Authorize(false)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -236,6 +239,43 @@ namespace balance_tracker_backend.Controllers
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
             var userDataDto = userMapper.FromUserToUserDataDto(user);
             return Ok(userDataDto);
+        }
+
+        [HttpPatch("data")]
+        [Authorize(false)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesErrorResponseType(typeof(ActionResultDto))]
+        public async Task<ActionResult<ActionResultDto>> ChangeUserData([FromBody] ChangeUserDataDto changeUserDataDto)
+        {
+            var user = await userService.GetAuthorizedUserAsync(HttpContext);
+            try
+            {
+                await userService.ValidateUserDetailsAsync(changeUserDataDto.Username,
+                                                           changeUserDataDto.Email,
+                                                           changeUserDataDto.FirstName,
+                                                           changeUserDataDto.LastName,
+                                                           changeUserDataDto.Username.ToLower() != user.Username.ToLower(),
+                                                           changeUserDataDto.Email.ToLower() != user.Email);
+            }
+            catch (DataValidationException ex)
+            {
+                return BadRequest(new ActionResultDto(
+                    StatusCodes.Status400BadRequest,
+                    ex.Message,
+                    ex.ErrorTranslationKey
+                    ));
+            }
+
+            var isEmailChanged = user.Email != changeUserDataDto.Email.ToLower();
+            await userService.ChangeUserDataAsync(user, changeUserDataDto);
+
+            return Ok(new ActionResultDto(
+                StatusCodes.Status200OK,
+                "User data updated successfully",
+                isEmailChanged ? "success.user.data.emailChanged" : "success.user.data.emailNotChanged"
+                ));
         }
     }
 }

@@ -33,7 +33,7 @@ namespace APITest.UserController
             var changePasswordDto = new ChangePasswordDto();
             changePasswordDto.NewPassword = "$omeN3wPa$$word";
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, accessToken, changePasswordDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changePasswordDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -50,7 +50,7 @@ namespace APITest.UserController
             var changePasswordDto = new ChangePasswordDto();
             changePasswordDto.NewPassword = "$omeN3wPa$$word";
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, null, changePasswordDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, null, changePasswordDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -134,7 +134,7 @@ namespace APITest.UserController
 
         private async Task AssertBadRequest(ChangePasswordDto changePasswordDto)
         {
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, accessToken, changePasswordDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changePasswordDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);

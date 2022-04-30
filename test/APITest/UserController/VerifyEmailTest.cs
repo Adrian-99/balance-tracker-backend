@@ -37,7 +37,7 @@ namespace APITest.UserController
             var verifyEmailDto = new VerifyEmailDto();
             verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode;
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, unverifiedUserAccessToken, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
 
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
@@ -52,7 +52,7 @@ namespace APITest.UserController
             var verifyEmailDto = new VerifyEmailDto();
             verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode.ToLower();
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, unverifiedUserAccessToken, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
 
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
@@ -67,7 +67,7 @@ namespace APITest.UserController
             var verifyEmailDto = new VerifyEmailDto();
             verifyEmailDto.EmailVerificationCode = "someTotallyIncorrectCode123";
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, unverifiedUserAccessToken, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
 
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
@@ -85,7 +85,7 @@ namespace APITest.UserController
             var verifyEmailDto = new VerifyEmailDto();
             verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode;
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, unverifiedUserAccessToken, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
 
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
@@ -100,7 +100,7 @@ namespace APITest.UserController
             var verifyEmailDto = new VerifyEmailDto();
             verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode;
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, null, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, null, verifyEmailDto);
 
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
@@ -121,7 +121,7 @@ namespace APITest.UserController
                                select someUser).First();
             GetService<IJwtService>().GenerateTokens(someoneElse, out accessToken, out _);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL, accessToken, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, verifyEmailDto);
 
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
