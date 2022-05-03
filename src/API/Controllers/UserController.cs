@@ -250,33 +250,34 @@ namespace balance_tracker_backend.Controllers
         public async Task<ActionResult<OptionalTokensDto>> ChangeUserData([FromBody] ChangeUserDataDto changeUserDataDto)
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
-            var isUsernameChanged = user.Username.ToLower() != changeUserDataDto.Username.ToLower();
-            var isEmailChanged = user.Email != changeUserDataDto.Email.ToLower();
-            var previousUsername = user.Username;
             string? newAccessToken = null;
             string? newRefreshToken = null;
-            try
+            var isEmailChanged = user.Email != changeUserDataDto.Email.ToLower();
+            if (changeUserDataDto.Username != user.Username ||
+                isEmailChanged ||
+                changeUserDataDto.FirstName != user.FirstName ||
+                changeUserDataDto.LastName != user.LastName)
             {
-                await userService.ValidateUserDetailsAsync(changeUserDataDto.Username,
-                                                           changeUserDataDto.Email,
-                                                           changeUserDataDto.FirstName,
-                                                           changeUserDataDto.LastName,
-                                                           isUsernameChanged,
-                                                           isEmailChanged);
-            }
-            catch (DataValidationException ex)
-            {
-                return BadRequest(new ActionResultDto(
-                    StatusCodes.Status400BadRequest,
-                    ex.Message,
-                    ex.ErrorTranslationKey
-                    ));
-            }
+                var previousUsername = user.Username;
+                try
+                {
+                    await userService.ValidateUserDetailsAsync(changeUserDataDto.Username,
+                                                               changeUserDataDto.Email,
+                                                               changeUserDataDto.FirstName,
+                                                               changeUserDataDto.LastName,
+                                                               user.Username.ToLower() != changeUserDataDto.Username.ToLower(),
+                                                               isEmailChanged);
+                }
+                catch (DataValidationException ex)
+                {
+                    return BadRequest(new ActionResultDto(
+                        StatusCodes.Status400BadRequest,
+                        ex.Message,
+                        ex.ErrorTranslationKey
+                        ));
+                }
 
-            var updatedUser = await userService.ChangeUserDataAsync(user, changeUserDataDto);
-
-            if (isUsernameChanged)
-            {
+                var updatedUser = await userService.ChangeUserDataAsync(user, changeUserDataDto);
                 jwtService.RevokeTokens(previousUsername);
                 jwtService.GenerateTokens(updatedUser, out newAccessToken, out newRefreshToken);
             }
