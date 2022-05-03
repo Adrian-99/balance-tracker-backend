@@ -17,6 +17,7 @@ namespace APITest.UserController
     public class ChangePasswordTest : AbstractTestClass
     {
         private static readonly string URL = "/api/user/password/change";
+        private static readonly string CURRENT_PASSWORD = "User1!@#";
         private User user;
         private string accessToken;
 
@@ -31,6 +32,7 @@ namespace APITest.UserController
         public async Task ChangePassword_WithCorrectData()
         {
             var changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.CurrentPassword = CURRENT_PASSWORD;
             changePasswordDto.NewPassword = "$omeN3wPa$$word";
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changePasswordDto);
@@ -48,6 +50,7 @@ namespace APITest.UserController
         public async Task ChangePassword_Unauthorized()
         {
             var changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.CurrentPassword = CURRENT_PASSWORD;
             changePasswordDto.NewPassword = "$omeN3wPa$$word";
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, null, changePasswordDto);
@@ -61,10 +64,21 @@ namespace APITest.UserController
         }
 
         [Test]
+        public async Task ChangePassword_WithWrongCurrentPassword()
+        {
+            var changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.CurrentPassword = "thisIsWrongPassword";
+            changePasswordDto.NewPassword = "$omeN3wPa$$word";
+
+            await AssertBadRequest(changePasswordDto);
+        }
+
+        [Test]
         public async Task ChangePassword_WithSamePasswordAsCurrent()
         {
             var changePasswordDto = new ChangePasswordDto();
-            changePasswordDto.NewPassword = "User1!@#";
+            changePasswordDto.CurrentPassword = CURRENT_PASSWORD;
+            changePasswordDto.NewPassword = CURRENT_PASSWORD;
 
             await AssertBadRequest(changePasswordDto);
         }
@@ -73,6 +87,7 @@ namespace APITest.UserController
         public async Task ChangePassword_WithSamePasswordAsUsername()
         {
             var changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.CurrentPassword = CURRENT_PASSWORD;
             changePasswordDto.NewPassword = "User1";
 
             await AssertBadRequest(changePasswordDto);
@@ -82,6 +97,7 @@ namespace APITest.UserController
         public async Task ChangePassword_WithTooShortPassword()
         {
             var changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.CurrentPassword = CURRENT_PASSWORD;
             changePasswordDto.NewPassword = "J@n1";
 
             await AssertBadRequest(changePasswordDto);
@@ -91,6 +107,7 @@ namespace APITest.UserController
         public async Task ChangePassword_WithTooLongPassword()
         {
             var changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.CurrentPassword = CURRENT_PASSWORD;
             changePasswordDto.NewPassword = "$omeVeryL0ngPa$$wordThatMeets4llOtherCriteriaExceptTheMaxLength";
 
             await AssertBadRequest(changePasswordDto);
@@ -100,6 +117,7 @@ namespace APITest.UserController
         public async Task ChangePassword_WithPasswordWithoutSmallLetter()
         {
             var changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.CurrentPassword = CURRENT_PASSWORD;
             changePasswordDto.NewPassword = "$OMEN3WPA$$WORD";
 
             await AssertBadRequest(changePasswordDto);
@@ -109,6 +127,7 @@ namespace APITest.UserController
         public async Task ChangePassword_WithPasswordWithoutBigLetter()
         {
             var changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.CurrentPassword = CURRENT_PASSWORD;
             changePasswordDto.NewPassword = "$omen3wpa$$word";
 
             await AssertBadRequest(changePasswordDto);
@@ -118,6 +137,7 @@ namespace APITest.UserController
         public async Task ChangePassword_WithPasswordWithoutDigit()
         {
             var changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.CurrentPassword = CURRENT_PASSWORD;
             changePasswordDto.NewPassword = "$omeNewPa$$word";
 
             await AssertBadRequest(changePasswordDto);
@@ -127,6 +147,7 @@ namespace APITest.UserController
         public async Task ChangePassword_WithPasswordWithoutSpecialCharacter()
         {
             var changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.CurrentPassword = CURRENT_PASSWORD;
             changePasswordDto.NewPassword = "SomeN3wPassword";
 
             await AssertBadRequest(changePasswordDto);

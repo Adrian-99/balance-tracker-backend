@@ -207,6 +207,15 @@ namespace balance_tracker_backend.Controllers
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
 
+            if (!passwordService.VerifyPasswordHash(changePasswordDto.CurrentPassword, user.PasswordHash, user.PasswordSalt))
+            {
+                return BadRequest(new ActionResultDto(
+                    StatusCodes.Status400BadRequest,
+                    "Wrong current password",
+                    "error.user.changePassword.wrongCurrentPassword"
+                    ));
+            }
+
             try
             {
                 passwordService.CheckPasswordComplexity(changePasswordDto.NewPassword, user);
