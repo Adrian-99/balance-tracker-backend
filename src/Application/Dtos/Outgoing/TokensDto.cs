@@ -11,10 +11,13 @@ namespace Application.Dtos.Outgoing
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
 
-        public TokensDto(string accessToken, string refreshToken)
+        public string? TranslationKey { get; set; }
+
+        public TokensDto(string accessToken, string refreshToken, string? translationKey = null)
         {
             AccessToken = accessToken;
             RefreshToken = refreshToken;
+            TranslationKey = translationKey;
         }
     }
 }

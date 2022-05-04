@@ -256,7 +256,7 @@ namespace balance_tracker_backend.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesErrorResponseType(typeof(ActionResultDto))]
-        public async Task<ActionResult<OptionalTokensDto>> ChangeUserData([FromBody] ChangeUserDataDto changeUserDataDto)
+        public async Task<ActionResult<TokensDto>> ChangeUserData([FromBody] ChangeUserDataDto changeUserDataDto)
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
             string? newAccessToken = null;
@@ -291,7 +291,7 @@ namespace balance_tracker_backend.Controllers
                 jwtService.GenerateTokens(updatedUser, out newAccessToken, out newRefreshToken);
             }
 
-            return Ok(new OptionalTokensDto(
+            return Ok(new TokensDto(
                 newAccessToken,
                 newRefreshToken,
                 isEmailChanged ? "success.user.data.emailChanged" : "success.user.data.emailNotChanged"
