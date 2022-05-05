@@ -32,7 +32,7 @@ namespace Application.Services
         {
             var placeholdersMap = new Dictionary<string, string>();
             placeholdersMap.Add("{username}", !string.IsNullOrEmpty(user.FirstName) ? user.FirstName : user.Username);
-            placeholdersMap.Add("{url}", frontendSettings.Address); // TODO: Replace with actual correct url
+            placeholdersMap.Add("{url}", $"{frontendSettings.Address}/user-profile/verify-email?code={user.EmailVerificationCode}");
             placeholdersMap.Add("{code}", user.EmailVerificationCode);
             placeholdersMap.Add("{validFor}", emailVerificationCodeSettings.ValidMinutes.ToString());
 
