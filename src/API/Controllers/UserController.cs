@@ -4,7 +4,6 @@ using Application.Dtos.Ingoing;
 using Application.Dtos.Outgoing;
 using Application.Exceptions;
 using Application.Interfaces;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace balance_tracker_backend.Controllers
@@ -62,30 +61,62 @@ namespace balance_tracker_backend.Controllers
                 ));
         }
 
-        [HttpPatch("email/verify")]
+        [HttpPatch("verify-email")]
         [Authorize(false)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesErrorResponseType(typeof(ActionResultDto))]
-        public async Task<ActionResult<ActionResultDto>> VerifyEmail([FromBody] VerifyEmailDto verifyEmailDto)
+        public async Task<ActionResult<TokensDto>> VerifyEmail([FromBody] VerifyEmailDto verifyEmailDto)
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
-            if (await userService.VerifyEmailAsync(user, verifyEmailDto.EmailVerificationCode))
+            var updatedUser = await userService.VerifyEmailAsync(user, verifyEmailDto.EmailVerificationCode);
+            if (updatedUser != null)
             {
-                return Ok(new ActionResultDto(
-                    StatusCodes.Status200OK,
-                    "Email verification successfull"
+                string newAccessToken, newRefreshToken;
+                jwtService.GenerateTokens(updatedUser, out newAccessToken, out newRefreshToken);
+
+                return Ok(new TokensDto(
+                    newAccessToken,
+                    newRefreshToken,
+                    "success.user.verifyEmail"
                     ));
             } 
             else
             {
                 return BadRequest(new ActionResultDto(
                     StatusCodes.Status400BadRequest,
-                    "Invalid email verification code"
-                    // TODO: Add translation key
+                    "Invalid email verification code",
+                    "error.user.verifyEmail.invalidCode"
                     ));
             }
+        }
+
+        [HttpPost("verify-email/reset-code")]
+        [Authorize(false)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesErrorResponseType(typeof(ActionResultDto))]
+        public async Task<ActionResult<ActionResultDto>> ResetEmailVerificationCode()
+        {
+            var user = await userService.GetAuthorizedUserAsync(HttpContext);
+
+            if (user.EmailVerificationCode == null && user.EmailVerificationCodeCreatedAt == null)
+            {
+                return Conflict(new ActionResultDto(
+                    StatusCodes.Status409Conflict,
+                    "Email already verified"
+                    ));
+            }
+
+            await userService.ResetEmailVerificationCodeAsync(user);
+
+            return Ok(new ActionResultDto(
+                StatusCodes.Status200OK,
+                "New email verification code generated and sent through mail",
+                "success.user.resetEmailVerificationCode"
+                ));
         }
 
         [HttpPost("authenticate")]

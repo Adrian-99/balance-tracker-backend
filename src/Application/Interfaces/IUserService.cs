@@ -19,7 +19,8 @@ namespace Application.Interfaces
                                       bool checkIfUsernameTaken = true,
                                       bool checkIfEmailTaken = true);
         Task<User> RegisterAsync(User user);
-        Task<bool> VerifyEmailAsync(User user, string emailVerificationCode);
+        Task<User?> VerifyEmailAsync(User user, string emailVerificationCode);
+        Task<User> ResetEmailVerificationCodeAsync(User user);
         Task<User?> AuthenticateAsync(string usernameOrEmail, string password);
         Task<User?> GetUserByUsernameIgnoreCaseAsync(string username);
         Task GenerateResetPasswordCodeAsync(string usernameOrEmail);

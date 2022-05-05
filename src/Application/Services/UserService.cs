@@ -106,24 +106,35 @@ namespace Application.Services
             return addedUser;
         }
 
-        public async Task<bool> VerifyEmailAsync(User user, string emailVerificationCode)
+        public async Task<User?> VerifyEmailAsync(User user, string emailVerificationCode)
         {            
             if (user.EmailVerificationCode == null || !emailVerificationCode.Equals(user.EmailVerificationCode))
             {
-                return false;
+                return null;
             }
 
             if (user.EmailVerificationCodeCreatedAt == null ||
                 DateTime.UtcNow.Subtract((DateTime)user.EmailVerificationCodeCreatedAt).TotalMinutes > userSettings.EmailVerificationCode.ValidMinutes)
             {
-                return false;
+                return null;
             }
 
             user.EmailVerificationCode = null;
             user.EmailVerificationCodeCreatedAt = null;
-            await userRepository.UpdateAsync(user);
+            var updatedUser = await userRepository.UpdateAsync(user);
 
-            return true;
+            return updatedUser;
+        }
+
+        public async Task<User> ResetEmailVerificationCodeAsync(User user)
+        {
+            user.EmailVerificationCode = GenerateEmailVerificationCode();
+            user.EmailVerificationCodeCreatedAt = DateTime.UtcNow;
+            var updatedUser = await userRepository.UpdateAsync(user);
+
+            _ = mailService.SendEmailVerificationEmailAsync(updatedUser).ConfigureAwait(false);
+
+            return updatedUser;
         }
 
         public async Task<User?> AuthenticateAsync(string usernameOrEmail, string password)
