@@ -142,6 +142,19 @@ namespace balance_tracker_backend.Controllers
             return Ok(new TokensDto(accessToken, refreshToken));
         }
 
+        [HttpGet("validate-token")]
+        [Authorize(false)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesErrorResponseType(typeof(ActionResultDto))]
+        public ActionResult<ActionResultDto> ValidateToken()
+        {
+            return Ok(new ActionResultDto(
+                StatusCodes.Status200OK,
+                "Access token valid"
+                ));
+        }
+
         [HttpPost("refresh-token")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
