@@ -52,7 +52,9 @@ namespace APITest.UserController
             mailServiceMock.Verify(s => s.SendEmailVerificationEmailAsync(It.Is<User>(u => u.Id.Equals(lastUser.Id))), Times.Once());
 
             Assert.AreEqual(userRegisterDto.Username, lastUser.Username);
-            Assert.AreEqual(userRegisterDto.Email.ToLower(), lastUser.Email);
+            Assert.NotNull(lastUser.LastUsernameChangeAt);
+            Assert.AreEqual(userRegisterDto.Email, lastUser.Email);
+            Assert.IsFalse(lastUser.IsEmailVerified);
             Assert.IsNull(lastUser.FirstName);
             Assert.IsNull(lastUser.LastName);
             Assert.IsNotNull(lastUser.PasswordHash);
@@ -85,7 +87,9 @@ namespace APITest.UserController
             mailServiceMock.Verify(s => s.SendEmailVerificationEmailAsync(It.Is<User>(u => u.Id.Equals(lastUser.Id))), Times.Once());
 
             Assert.AreEqual(userRegisterDto.Username, lastUser.Username);
-            Assert.AreEqual(userRegisterDto.Email.ToLower(), lastUser.Email);
+            Assert.NotNull(lastUser.LastUsernameChangeAt);
+            Assert.AreEqual(userRegisterDto.Email, lastUser.Email);
+            Assert.IsFalse(lastUser.IsEmailVerified);
             Assert.AreEqual(userRegisterDto.FirstName, lastUser.FirstName);
             Assert.AreEqual(userRegisterDto.LastName, lastUser.LastName);
             Assert.IsNotNull(lastUser.PasswordHash);

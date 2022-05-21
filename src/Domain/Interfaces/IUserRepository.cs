@@ -9,10 +9,10 @@ namespace Domain.Interfaces
 {
     public interface IUserRepository
     {
-        IEnumerable<User> GetAll();
+        Task<ICollection<User>> GetAll();
         Task<User?> GetByIdAsync(Guid id);
-        Task<User?> GetByUsernameAsync(string username);
-        Task<User?> GetByEmailAsync(string email);
+        Task<User?> GetByUsernameIgnoreCaseAsync(string username);
+        Task<User?> GetByEmailIgnoreCaseAsync(string email);
         Task<User?> GetByResetPasswordCodeAsync(string resetPasswordCode);
         Task<User> AddAsync(User user);
         Task<User> UpdateAsync(User user);

@@ -19,9 +19,9 @@ namespace Infrastructure.Repositories
             this.databaseContext = databaseContext;
         }
 
-        public IEnumerable<User> GetAll()
+        public async Task<ICollection<User>> GetAll()
         {
-            return databaseContext.Users;
+            return await databaseContext.Users.ToListAsync();
         }
 
         public async Task<User?> GetByIdAsync(Guid id)
@@ -31,18 +31,18 @@ namespace Infrastructure.Repositories
                           select user).FirstOrDefaultAsync();
         }
 
-        public async Task<User?> GetByUsernameAsync(string username)
+        public async Task<User?> GetByUsernameIgnoreCaseAsync(string username)
         {
-            return await (from user in databaseContext.Users
-                          where user.Username.ToLower() == username.ToLower()
-                          select user).FirstOrDefaultAsync();
+            var users = await GetAll();
+            return users.Where(u => u.Username.ToLower().Equals(username.ToLower()))
+                .FirstOrDefault();
         }
 
-        public async Task<User?> GetByEmailAsync(string email)
+        public async Task<User?> GetByEmailIgnoreCaseAsync(string email)
         {
-            return await (from user in databaseContext.Users
-                          where user.Email.ToLower() == email.ToLower()
-                          select user).FirstOrDefaultAsync();
+            var users = await GetAll();
+            return users.Where(u => u.Email.ToLower().Equals(email.ToLower()))
+                .FirstOrDefault();
         }
 
         public async Task<User?> GetByResetPasswordCodeAsync(string resetPasswordCode)

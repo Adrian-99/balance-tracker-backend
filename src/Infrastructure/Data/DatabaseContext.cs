@@ -14,7 +14,7 @@ namespace Infrastructure.Data
 {
     public class DatabaseContext : DbContext
     {
-        private static string CASE_INSENSITIVE_COLLATION = "case_insensitive_collation";
+        //private static string CASE_INSENSITIVE_COLLATION = "case_insensitive_collation";
 
         private IEncryptionProvider encryptionProvider;
 
@@ -32,11 +32,9 @@ namespace Infrastructure.Data
         {
             modelBuilder.UseEncryption(encryptionProvider);
             modelBuilder.UseSerialColumns();
-            modelBuilder.HasCollation(CASE_INSENSITIVE_COLLATION, locale: "en-u-ks-primary", provider: "icu", deterministic: false);
+            //modelBuilder.HasCollation(CASE_INSENSITIVE_COLLATION, locale: "en-u-ks-primary", provider: "icu", deterministic: false);
 
-            modelBuilder.Entity<User>().Property(user => user.Username).UseCollation(CASE_INSENSITIVE_COLLATION);
-            modelBuilder.Entity<User>().Property(user => user.Email).UseCollation(CASE_INSENSITIVE_COLLATION);
-            modelBuilder.Entity<User>().HasIndex(u => new { u.EmailVerificationCode, u.ResetPasswordCode }).IsUnique(true);
+            modelBuilder.Entity<User>().HasIndex(u => new { u.Username, u.Email, u.EmailVerificationCode, u.ResetPasswordCode }).IsUnique(true);
         }
     }
 }

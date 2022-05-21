@@ -31,9 +31,10 @@ namespace Application.Settings
         }
     }
 
-    internal class UsernameSettings
+    public class UsernameSettings
     {
         public int MaxLength { get; set; }
+        public int AllowedChangeFrequencyDays { get; set; }
 
         public static UsernameSettings Get(IConfiguration configuration)
         {

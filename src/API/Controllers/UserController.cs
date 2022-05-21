@@ -4,6 +4,7 @@ using Application.Dtos.Ingoing;
 using Application.Dtos.Outgoing;
 using Application.Exceptions;
 using Application.Interfaces;
+using Application.Settings;
 using Microsoft.AspNetCore.Mvc;
 
 namespace balance_tracker_backend.Controllers
@@ -18,15 +19,20 @@ namespace balance_tracker_backend.Controllers
         private IPasswordService passwordService;
         private IJwtService jwtService;
 
+        private readonly UsernameSettings usernameSettings;
+
         public UserController(IUserMapper userMapper,
             IUserService userService,
             IPasswordService passwordService,
-            IJwtService jwtService)
+            IJwtService jwtService,
+            IConfiguration configuration)
         {
             this.userMapper = userMapper;
             this.userService = userService;
             this.passwordService = passwordService;
             this.jwtService = jwtService;
+
+            usernameSettings = UsernameSettings.Get(configuration);
         }
 
         [HttpPost("register")]
@@ -65,12 +71,23 @@ namespace balance_tracker_backend.Controllers
         [Authorize(false)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesErrorResponseType(typeof(ActionResultDto))]
         public async Task<ActionResult<TokensDto>> VerifyEmail([FromBody] VerifyEmailDto verifyEmailDto)
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
+
+            if (user.IsEmailVerified)
+            {
+                return Conflict(new ActionResultDto(
+                    StatusCodes.Status409Conflict,
+                    "Email already verified"
+                    ));
+            }
+
             var updatedUser = await userService.VerifyEmailAsync(user, verifyEmailDto.EmailVerificationCode);
+
             if (updatedUser != null)
             {
                 string newAccessToken, newRefreshToken;
@@ -102,7 +119,7 @@ namespace balance_tracker_backend.Controllers
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
 
-            if (user.EmailVerificationCode == null && user.EmailVerificationCodeCreatedAt == null)
+            if (user.IsEmailVerified)
             {
                 return Conflict(new ActionResultDto(
                     StatusCodes.Status409Conflict,
@@ -305,8 +322,20 @@ namespace balance_tracker_backend.Controllers
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
             string? newAccessToken = null;
             string? newRefreshToken = null;
+
+            var isUsernameChanged = !user.Username.Equals(changeUserDataDto.Username);
             var isEmailChanged = user.Email != changeUserDataDto.Email.ToLower();
-            if (changeUserDataDto.Username != user.Username ||
+
+            if (isUsernameChanged &&
+                Utils.IsWithinTimeframe(user.LastUsernameChangeAt, usernameSettings.AllowedChangeFrequencyDays, Utils.DateTimeUnit.DAYS))
+            {
+                return BadRequest(new ActionResultDto(
+                    StatusCodes.Status400BadRequest,
+                    $"Next allowed username change at {user.LastUsernameChangeAt.AddDays(usernameSettings.AllowedChangeFrequencyDays)}"
+                    ));
+            }
+
+            if (isUsernameChanged ||
                 isEmailChanged ||
                 changeUserDataDto.FirstName != user.FirstName ||
                 changeUserDataDto.LastName != user.LastName)

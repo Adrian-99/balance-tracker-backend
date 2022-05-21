@@ -27,7 +27,7 @@ namespace APITest.UserController
         public async Task GetUserData_ForUserWithVerifiedEmail()
         {
             var user = (from u in databaseContext.Users
-                        where u.EmailVerificationCode == null
+                        where u.IsEmailVerified
                         select u).First();
             string accessToken;
             GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
@@ -39,6 +39,7 @@ namespace APITest.UserController
             Assert.NotNull(responseContent);
 
             Assert.AreEqual(user.Username, responseContent.Username);
+            Assert.AreEqual(user.LastUsernameChangeAt, responseContent.LastUsernameChangeAt);
             Assert.AreEqual(user.Email, responseContent.Email);
             Assert.IsTrue(responseContent.IsEmailVerified);
             Assert.AreEqual(user.FirstName, responseContent.FirstName);
@@ -49,7 +50,7 @@ namespace APITest.UserController
         public async Task GetUserData_ForUserWithUnverifiedEmail()
         {
             var user = (from u in databaseContext.Users
-                        where u.EmailVerificationCode != null
+                        where !u.IsEmailVerified
                         select u).First();
             string accessToken;
             GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
@@ -61,6 +62,7 @@ namespace APITest.UserController
             Assert.NotNull(responseContent);
 
             Assert.AreEqual(user.Username, responseContent.Username);
+            Assert.AreEqual(user.LastUsernameChangeAt, responseContent.LastUsernameChangeAt);
             Assert.AreEqual(user.Email, responseContent.Email);
             Assert.IsFalse(responseContent.IsEmailVerified);
             Assert.AreEqual(user.FirstName, responseContent.FirstName);

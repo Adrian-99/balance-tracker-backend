@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 namespace Domain.Entities
 {
     [Table("Users")]
-    [Index(nameof(Username), IsUnique = true, Name = "Index_Username")]
     public class User
     {
         [Key]
@@ -18,11 +17,18 @@ namespace Domain.Entities
         public Guid Id { get; set; }
 
         [Required]
+        [Encrypted]
         public string Username { get; set; }
 
         [Required]
+        public DateTime LastUsernameChangeAt { get; set; }
+
+        [Required]
         [Encrypted]
-        public string Email { get => _email; set => _email = value.ToLower(); }
+        public string Email { get; set; }
+
+        [Required]
+        public bool IsEmailVerified { get; set; }
 
         [Required]
         public byte[] PasswordHash { get; set; }
@@ -45,8 +51,5 @@ namespace Domain.Entities
         public string? ResetPasswordCode { get; set; }
 
         public DateTime? ResetPasswordCodeCreatedAt { get; set; }
-
-
-        private string _email;
     }
 }

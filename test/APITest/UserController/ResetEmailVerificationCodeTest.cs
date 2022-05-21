@@ -39,7 +39,7 @@ namespace APITest.UserController
         {
             string accessToken;
             var userWithUnverifiedEmail = (from user in databaseContext.Users
-                                       where user.EmailVerificationCode != null && user.EmailVerificationCodeCreatedAt != null
+                                       where !user.IsEmailVerified
                                        select user).First();
             GetService<IJwtService>().GenerateTokens(userWithUnverifiedEmail, out accessToken, out _);
 
@@ -68,8 +68,8 @@ namespace APITest.UserController
         {
             string accessToken;
             var userWithVerifiedEmail = (from user in databaseContext.Users
-                                           where user.EmailVerificationCode == null && user.EmailVerificationCodeCreatedAt == null
-                                           select user).First();
+                                         where user.IsEmailVerified
+                                         select user).First();
             GetService<IJwtService>().GenerateTokens(userWithVerifiedEmail, out accessToken, out _);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken);

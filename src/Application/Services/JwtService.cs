@@ -36,7 +36,7 @@ namespace Application.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.AuthorizationDecision, user.EmailVerificationCode == null ? "true" : "false")
+                new Claim(ClaimTypes.AuthorizationDecision, user.IsEmailVerified ? "true" : "false")
             });
             if (user.FirstName != null)
             {

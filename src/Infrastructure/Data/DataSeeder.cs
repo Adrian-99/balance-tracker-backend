@@ -23,7 +23,9 @@ namespace Infrastructure.Data
                 passwordService.CreatePasswordHash("User1!@#", out passwordHash, out passwordSalt);
                 databaseContext.Users.Add(new User {
                     Username = "User1",
+                    LastUsernameChangeAt = DateTime.UtcNow,
                     Email = "user1@gmail.com",
+                    IsEmailVerified = true,
                     PasswordHash = passwordHash,
                     PasswordSalt = passwordSalt
                 });
@@ -31,7 +33,9 @@ namespace Infrastructure.Data
                 passwordService.CreatePasswordHash("J@n_Kowal$ki123", out passwordHash, out passwordSalt);
                 databaseContext.Users.Add(new User {
                     Username = "jan_kowalski",
+                    LastUsernameChangeAt = DateTime.UtcNow.AddDays(-14),
                     Email = "jankowalski@gmail.com",
+                    IsEmailVerified = true,
                     FirstName = "Jan",
                     LastName = "Kowalski",
                     PasswordHash = passwordHash,
@@ -44,7 +48,9 @@ namespace Infrastructure.Data
                 databaseContext.Users.Add(new User
                 {
                     Username = "randomUser",
+                    LastUsernameChangeAt = DateTime.UtcNow,
                     Email = "random@gmail.com",
+                    IsEmailVerified = false,
                     PasswordHash = passwordHash,
                     PasswordSalt = passwordSalt,
                     EmailVerificationCode = "iwFCfh9skMQSCikWjHzLbAojbIG_NT",

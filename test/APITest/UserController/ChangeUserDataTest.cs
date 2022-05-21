@@ -2,6 +2,7 @@
 using Application.Dtos.Outgoing;
 using Application.Interfaces;
 using Domain.Entities;
+using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +47,7 @@ namespace APITest.UserController
         }
 
         [Test]
-        public async Task ChangeUserData_WithCorrectDataWithFirstAndLastName()
+        public async Task ChangeUserData_WithCorrectDataWithFirstAndLastNameWithChangedUsernameAndEmail()
         {
             var changeUserDataDto = new ChangeUserDataDto();
             changeUserDataDto.Username = "someNewUsername";
@@ -66,7 +67,9 @@ namespace APITest.UserController
             Assert.AreEqual("success.user.data.emailChanged", responseContent.TranslationKey);
 
             Assert.AreEqual(changeUserDataDto.Username, userAfter.Username);
-            Assert.AreEqual(changeUserDataDto.Email.ToLower(), userAfter.Email);
+            Assert.AreNotEqual(user.LastUsernameChangeAt, userAfter.LastUsernameChangeAt);
+            Assert.AreEqual(changeUserDataDto.Email, userAfter.Email);
+            Assert.IsFalse(userAfter.IsEmailVerified);
             Assert.AreEqual(changeUserDataDto.FirstName, userAfter.FirstName);
             Assert.AreEqual(changeUserDataDto.LastName, userAfter.LastName);
             Assert.AreNotEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
@@ -81,7 +84,7 @@ namespace APITest.UserController
         }
 
         [Test]
-        public async Task ChangeUserData_WithCorrectDataWithoutFirstAndLastName()
+        public async Task ChangeUserData_WithCorrectDataWithoutFirstAndLastNameWithChangedUsernameAndEmail()
         {
             var changeUserDataDto = new ChangeUserDataDto();
             changeUserDataDto.Username = "someNewUsername";
@@ -99,7 +102,9 @@ namespace APITest.UserController
             Assert.AreEqual("success.user.data.emailChanged", responseContent.TranslationKey);
 
             Assert.AreEqual(changeUserDataDto.Username, userAfter.Username);
-            Assert.AreEqual(changeUserDataDto.Email.ToLower(), userAfter.Email);
+            Assert.AreNotEqual(user.LastUsernameChangeAt, userAfter.LastUsernameChangeAt);
+            Assert.AreEqual(changeUserDataDto.Email, userAfter.Email);
+            Assert.IsFalse(userAfter.IsEmailVerified);
             Assert.IsNull(userAfter.FirstName);
             Assert.IsNull(userAfter.LastName);
             Assert.AreNotEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
@@ -114,7 +119,7 @@ namespace APITest.UserController
         }
 
         [Test]
-        public async Task ChangeUserData_WithCorrectDataWithUsernameToUpper()
+        public async Task ChangeUserData_WithCorrectDataWithUsernameToUpperWithChangedEmail()
         {
             var changeUserDataDto = new ChangeUserDataDto();
             changeUserDataDto.Username = user.Username.ToUpper();
@@ -132,7 +137,9 @@ namespace APITest.UserController
             Assert.AreEqual("success.user.data.emailChanged", responseContent.TranslationKey);
 
             Assert.AreEqual(changeUserDataDto.Username, userAfter.Username);
-            Assert.AreEqual(changeUserDataDto.Email.ToLower(), userAfter.Email);
+            Assert.AreNotEqual(user.LastUsernameChangeAt, userAfter.LastUsernameChangeAt);
+            Assert.AreEqual(changeUserDataDto.Email, userAfter.Email);
+            Assert.IsFalse(userAfter.IsEmailVerified);
             Assert.IsNull(userAfter.FirstName);
             Assert.IsNull(userAfter.LastName);
             Assert.AreNotEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
@@ -147,11 +154,46 @@ namespace APITest.UserController
         }
 
         [Test]
-        public async Task ChangeUserData_WithCorrectDataWithNotChangedEmail()
+        public async Task ChangeUserData_WithCorrectDataWithNotChangeUsernameWithChangedEmail()
+        {
+            var changeUserDataDto = new ChangeUserDataDto();
+            changeUserDataDto.Username = user.Username;
+            changeUserDataDto.Email = "someNewEmail@gmail.com";
+
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changeUserDataDto);
+            var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
+            var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(responseContent);
+
+            Assert.NotNull(responseContent.AccessToken);
+            Assert.NotNull(responseContent.RefreshToken);
+            Assert.AreEqual("success.user.data.emailChanged", responseContent.TranslationKey);
+
+            Assert.AreEqual(changeUserDataDto.Username, userAfter.Username);
+            Assert.AreEqual(user.LastUsernameChangeAt, userAfter.LastUsernameChangeAt);
+            Assert.AreEqual(changeUserDataDto.Email, userAfter.Email);
+            Assert.IsFalse(userAfter.IsEmailVerified);
+            Assert.IsNull(userAfter.FirstName);
+            Assert.IsNull(userAfter.LastName);
+            Assert.AreNotEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
+            Assert.AreNotEqual(user.EmailVerificationCodeCreatedAt, userAfter.EmailVerificationCodeCreatedAt);
+
+            var jwtService = GetService<IJwtService>();
+            Assert.AreEqual(userAfter.Username, jwtService.ValidateAccessToken(responseContent.AccessToken));
+            Assert.AreEqual(userAfter.Username, jwtService.ValidateRefreshToken(responseContent.RefreshToken));
+            Assert.IsNull(jwtService.ValidateAccessToken(accessToken));
+
+            mailServiceMock.Verify(m => m.SendEmailVerificationEmailAsync(It.Is<User>(u => u.Id.Equals(user.Id))), Times.Once);
+        }
+
+        [Test]
+        public async Task ChangeUserData_WithCorrectDataWithChangedUsernameWithNotChangedEmail()
         {
             var changeUserDataDto = new ChangeUserDataDto();
             changeUserDataDto.Username = "someNewUsername";
-            changeUserDataDto.Email = user.Email.ToUpper();
+            changeUserDataDto.Email = user.Email;
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changeUserDataDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
@@ -165,7 +207,9 @@ namespace APITest.UserController
             Assert.AreEqual("success.user.data.emailNotChanged", responseContent.TranslationKey);
 
             Assert.AreEqual(changeUserDataDto.Username, userAfter.Username);
-            Assert.AreEqual(changeUserDataDto.Email.ToLower(), userAfter.Email);
+            Assert.AreNotEqual(user.LastUsernameChangeAt, userAfter.LastUsernameChangeAt);
+            Assert.AreEqual(changeUserDataDto.Email, userAfter.Email);
+            Assert.AreEqual(user.IsEmailVerified, userAfter.IsEmailVerified);
             Assert.IsNull(userAfter.FirstName);
             Assert.IsNull(userAfter.LastName);
             Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
@@ -184,7 +228,7 @@ namespace APITest.UserController
         {
             var changeUserDataDto = new ChangeUserDataDto();
             changeUserDataDto.Username = user.Username;
-            changeUserDataDto.Email = user.Email.ToUpper();
+            changeUserDataDto.Email = user.Email;
             changeUserDataDto.FirstName = user.FirstName;
             changeUserDataDto.LastName = user.LastName;
 
@@ -200,7 +244,9 @@ namespace APITest.UserController
             Assert.AreEqual("success.user.data.emailNotChanged", responseContent.TranslationKey);
 
             Assert.AreEqual(changeUserDataDto.Username, userAfter.Username);
-            Assert.AreEqual(changeUserDataDto.Email.ToLower(), userAfter.Email);
+            Assert.AreEqual(user.LastUsernameChangeAt, userAfter.LastUsernameChangeAt);
+            Assert.AreEqual(changeUserDataDto.Email, userAfter.Email);
+            Assert.AreEqual(user.IsEmailVerified, userAfter.IsEmailVerified);
             Assert.AreEqual(changeUserDataDto.FirstName, userAfter.FirstName);
             Assert.AreEqual(changeUserDataDto.LastName, userAfter.LastName);
             Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
@@ -226,13 +272,30 @@ namespace APITest.UserController
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 
             Assert.AreEqual(user.Username, userAfter.Username);
+            Assert.AreEqual(user.LastUsernameChangeAt, userAfter.LastUsernameChangeAt);
             Assert.AreEqual(user.Email, userAfter.Email);
+            Assert.AreEqual(user.IsEmailVerified, userAfter.IsEmailVerified);
             Assert.AreEqual(user.FirstName, userAfter.FirstName);
             Assert.AreEqual(user.LastName, userAfter.LastName);
             Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
             Assert.AreEqual(user.EmailVerificationCodeCreatedAt, userAfter.EmailVerificationCodeCreatedAt);
 
             mailServiceMock.Verify(m => m.SendEmailVerificationEmailAsync(It.Is<User>(u => u.Id.Equals(user.Id))), Times.Never);
+        }
+
+        [Test]
+        public async Task ChangeUserData_TooFrequentUsernameChange()
+        {
+            user.LastUsernameChangeAt = DateTime.UtcNow;
+            await GetService<IUserRepository>().UpdateAsync(user);
+
+            var changeUserDataDto = new ChangeUserDataDto();
+            changeUserDataDto.Username = "someNewUsername";
+            changeUserDataDto.Email = user.Email;
+            changeUserDataDto.FirstName = user.FirstName;
+            changeUserDataDto.LastName = user.FirstName;
+
+            await AssertBadRequestAsync(changeUserDataDto);
         }
 
         [Test]
@@ -317,7 +380,9 @@ namespace APITest.UserController
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
 
             Assert.AreEqual(user.Username, userAfter.Username);
+            Assert.AreEqual(user.LastUsernameChangeAt, userAfter.LastUsernameChangeAt);
             Assert.AreEqual(user.Email, userAfter.Email);
+            Assert.AreEqual(user.IsEmailVerified, userAfter.IsEmailVerified);
             Assert.AreEqual(user.FirstName, userAfter.FirstName);
             Assert.AreEqual(user.LastName, userAfter.LastName);
             Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);

@@ -34,7 +34,7 @@ namespace Application.Services
 
         public Task<User> GetAuthorizedUserAsync(HttpContext httpContext)
         {
-            return userRepository.GetByUsernameAsync(httpContext.Items[Constants.AUTHORIZED_USERNAME].ToString());
+            return userRepository.GetByUsernameIgnoreCaseAsync(httpContext.Items[Constants.AUTHORIZED_USERNAME].ToString());
         }
 
         public async Task ValidateUserDetailsAsync(string username,
@@ -65,14 +65,14 @@ namespace Application.Services
                     // TODO: Add translation key
                     );
             }
-            else if (checkIfUsernameTaken && await userRepository.GetByUsernameAsync(username) != null)
+            else if (checkIfUsernameTaken && await userRepository.GetByUsernameIgnoreCaseAsync(username) != null)
             {
                 throw new DataValidationException(
                     "Username is already taken",
                     "error.user.register.usernameTaken"
                     );
             }
-            else if (checkIfEmailTaken && await userRepository.GetByEmailAsync(email) != null)
+            else if (checkIfEmailTaken && await userRepository.GetByEmailIgnoreCaseAsync(email) != null)
             {
                 throw new DataValidationException(
                     "Email is already taken",
@@ -97,8 +97,12 @@ namespace Application.Services
 
         public async Task<User> RegisterAsync(User user)
         {
-            user.EmailVerificationCode = GenerateEmailVerificationCode();
+            user.LastUsernameChangeAt = DateTime.UtcNow;
+            user.IsEmailVerified = false;
+            user.EmailVerificationCode = await GenerateEmailVerificationCodeAsync();
             user.EmailVerificationCodeCreatedAt = DateTime.UtcNow;
+            user.ResetPasswordCode = null;
+            user.ResetPasswordCodeCreatedAt = null;
             var addedUser = await userRepository.AddAsync(user);
 
             _ = mailService.SendEmailVerificationEmailAsync(addedUser).ConfigureAwait(false);
@@ -108,17 +112,20 @@ namespace Application.Services
 
         public async Task<User?> VerifyEmailAsync(User user, string emailVerificationCode)
         {            
-            if (user.EmailVerificationCode == null || !emailVerificationCode.Equals(user.EmailVerificationCode))
+            if (user.IsEmailVerified ||
+                user.EmailVerificationCode == null ||
+                !emailVerificationCode.Equals(user.EmailVerificationCode) ||
+                user.EmailVerificationCodeCreatedAt == null ||
+                !Utils.IsWithinTimeframe(
+                    (DateTime)user.EmailVerificationCodeCreatedAt,
+                    userSettings.EmailVerificationCode.ValidMinutes,
+                    Utils.DateTimeUnit.MINTUES
+                    ))
             {
                 return null;
             }
 
-            if (user.EmailVerificationCodeCreatedAt == null ||
-                DateTime.UtcNow.Subtract((DateTime)user.EmailVerificationCodeCreatedAt).TotalMinutes > userSettings.EmailVerificationCode.ValidMinutes)
-            {
-                return null;
-            }
-
+            user.IsEmailVerified = true;
             user.EmailVerificationCode = null;
             user.EmailVerificationCodeCreatedAt = null;
             var updatedUser = await userRepository.UpdateAsync(user);
@@ -128,7 +135,7 @@ namespace Application.Services
 
         public async Task<User> ResetEmailVerificationCodeAsync(User user)
         {
-            user.EmailVerificationCode = GenerateEmailVerificationCode();
+            user.EmailVerificationCode = await GenerateEmailVerificationCodeAsync();
             user.EmailVerificationCodeCreatedAt = DateTime.UtcNow;
             var updatedUser = await userRepository.UpdateAsync(user);
 
@@ -153,7 +160,7 @@ namespace Application.Services
 
         public Task<User?> GetUserByUsernameIgnoreCaseAsync(string username)
         {
-            return userRepository.GetByUsernameAsync(username);
+            return userRepository.GetByUsernameIgnoreCaseAsync(username);
         }
 
         public async Task GenerateResetPasswordCodeAsync(string usernameOrEmail)
@@ -162,8 +169,8 @@ namespace Application.Services
 
             if (user != null)
             {
-                var usedResetPasswordCodes = userRepository.GetAll()
-                    .Where(user => user.ResetPasswordCode != null)
+                var users = await userRepository.GetAll();
+                var usedResetPasswordCodes = users.Where(user => user.ResetPasswordCode != null)
                     .Select(user => user.ResetPasswordCode);
 
                 string resetPasswordCode;
@@ -184,13 +191,13 @@ namespace Application.Services
         public async Task<User?> ValidateResetPasswordCodeAsync(string resetPasswordCode)
         {
             var user = await userRepository.GetByResetPasswordCodeAsync(resetPasswordCode);
-            if (user == null)
-            {
-                return null;
-            }
-
-            if (user.ResetPasswordCodeCreatedAt == null ||
-                DateTime.UtcNow.Subtract((DateTime)user.ResetPasswordCodeCreatedAt).TotalMinutes > userSettings.ResetPasswordCode.ValidMinutes)
+            if (user == null ||
+                user.ResetPasswordCodeCreatedAt == null ||
+                !Utils.IsWithinTimeframe(
+                    (DateTime)user.ResetPasswordCodeCreatedAt,
+                    userSettings.ResetPasswordCode.ValidMinutes,
+                    Utils.DateTimeUnit.MINTUES
+                    ))
             {
                 return null;
             }
@@ -213,7 +220,12 @@ namespace Application.Services
 
         public async Task<User> ChangeUserDataAsync(User user, ChangeUserDataDto newData)
         {
-            var wasEmailChanged = user.Email != newData.Email.ToLower();
+            var wasEmailChanged = !user.Email.ToLower().Equals(newData.Email.ToLower());
+
+            if (!user.Username.Equals(newData.Username))
+            {
+                user.LastUsernameChangeAt = DateTime.UtcNow;
+            }
 
             user.Username = newData.Username;
             user.Email = newData.Email;
@@ -222,7 +234,8 @@ namespace Application.Services
 
             if (wasEmailChanged)
             {
-                user.EmailVerificationCode = GenerateEmailVerificationCode();
+                user.IsEmailVerified = false;
+                user.EmailVerificationCode = await GenerateEmailVerificationCodeAsync();
                 user.EmailVerificationCodeCreatedAt = DateTime.UtcNow;
             }
 
@@ -250,18 +263,18 @@ namespace Application.Services
         {
             if (usernameOrEmail.Contains('@'))
             {
-                return userRepository.GetByEmailAsync(usernameOrEmail);
+                return userRepository.GetByEmailIgnoreCaseAsync(usernameOrEmail);
             }
             else
             {
-                return userRepository.GetByUsernameAsync(usernameOrEmail);
+                return userRepository.GetByUsernameIgnoreCaseAsync(usernameOrEmail);
             }
         }
 
-        private string GenerateEmailVerificationCode()
+        private async Task<string> GenerateEmailVerificationCodeAsync()
         {
-            var usedEmailVerificationCodes = userRepository.GetAll()
-                .Where(user => user.EmailVerificationCode != null)
+            var users = await userRepository.GetAll();
+            var usedEmailVerificationCodes = users.Where(user => user.EmailVerificationCode != null)
                 .Select(user => user.EmailVerificationCode);
             string newEmailVerificationCode;
             do

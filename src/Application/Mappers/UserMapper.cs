@@ -26,8 +26,6 @@ namespace Application.Mappers
             user.PasswordSalt = passwordSalt;
             user.FirstName = userRegisterDto.FirstName;
             user.LastName = userRegisterDto.LastName;
-            user.EmailVerificationCode = null;
-            user.ResetPasswordCode = null;
 
             return user;
         }
@@ -36,8 +34,9 @@ namespace Application.Mappers
         {
             var userDataDto = new UserDataDto();
             userDataDto.Username = user.Username;
+            userDataDto.LastUsernameChangeAt = user.LastUsernameChangeAt;
             userDataDto.Email = user.Email;
-            userDataDto.IsEmailVerified = user.EmailVerificationCode == null;
+            userDataDto.IsEmailVerified = user.IsEmailVerified;
             userDataDto.FirstName = user.FirstName;
             userDataDto.LastName = user.LastName;
 
