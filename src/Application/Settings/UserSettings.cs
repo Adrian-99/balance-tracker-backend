@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Settings
 {
-    internal class UserSettings
+    public class UserSettings
     {
         public UsernameSettings Username { get; set; }
         public FirstNameSettings FirstName { get; set; }
@@ -44,7 +44,7 @@ namespace Application.Settings
         }
     }
 
-    internal class FirstNameSettings
+    public class FirstNameSettings
     {
         public int MaxLength { get; set; }
 
@@ -56,7 +56,7 @@ namespace Application.Settings
         }
     }
 
-    internal class LastNameSettings
+    public class LastNameSettings
     {
         public int MaxLength { get; set; }
 
@@ -68,7 +68,7 @@ namespace Application.Settings
         }
     }
 
-    internal class PasswordSettings
+    public class PasswordSettings
     {
         public int MinLength { get; set; }
         public int MaxLength { get; set; }
@@ -87,7 +87,7 @@ namespace Application.Settings
         }
     }
 
-    internal class EmailVerificationCodeSettings
+    public class EmailVerificationCodeSettings
     {
         public int Length { get; set; }
         public int ValidMinutes { get; set; }
@@ -100,7 +100,7 @@ namespace Application.Settings
         }
     }
 
-    internal class ResetPasswordCodeSettings
+    public class ResetPasswordCodeSettings
     {
         public int Length { get; set; }
         public int ValidMinutes { get; set; }

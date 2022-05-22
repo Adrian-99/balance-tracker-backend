@@ -19,7 +19,7 @@ namespace balance_tracker_backend.Controllers
         private IPasswordService passwordService;
         private IJwtService jwtService;
 
-        private readonly UsernameSettings usernameSettings;
+        private readonly UserSettings userSettings;
 
         public UserController(IUserMapper userMapper,
             IUserService userService,
@@ -32,7 +32,7 @@ namespace balance_tracker_backend.Controllers
             this.passwordService = passwordService;
             this.jwtService = jwtService;
 
-            usernameSettings = UsernameSettings.Get(configuration);
+            userSettings = UserSettings.Get(configuration);
         }
 
         [HttpPost("register")]
@@ -327,11 +327,11 @@ namespace balance_tracker_backend.Controllers
             var isEmailChanged = user.Email != changeUserDataDto.Email.ToLower();
 
             if (isUsernameChanged &&
-                Utils.IsWithinTimeframe(user.LastUsernameChangeAt, usernameSettings.AllowedChangeFrequencyDays, Utils.DateTimeUnit.DAYS))
+                Utils.IsWithinTimeframe(user.LastUsernameChangeAt, userSettings.Username.AllowedChangeFrequencyDays, Utils.DateTimeUnit.DAYS))
             {
                 return BadRequest(new ActionResultDto(
                     StatusCodes.Status400BadRequest,
-                    $"Next allowed username change at {user.LastUsernameChangeAt.AddDays(usernameSettings.AllowedChangeFrequencyDays)}"
+                    $"Next allowed username change at {user.LastUsernameChangeAt.AddDays(userSettings.Username.AllowedChangeFrequencyDays)}"
                     ));
             }
 
@@ -369,6 +369,15 @@ namespace balance_tracker_backend.Controllers
                 newRefreshToken,
                 isEmailChanged ? "success.user.data.emailChanged" : "success.user.data.emailNotChanged"
                 ));
+        }
+
+        [HttpGet("settings")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<UserSettingsDto> GetUserSettings()
+        {
+            var userSettingsDto = userMapper.FromUserSettingsToUserSettingsDto(userSettings);
+            return Ok(userSettingsDto);
         }
     }
 }

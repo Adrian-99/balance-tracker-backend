@@ -1,5 +1,6 @@
 ﻿using Application.Dtos.Ingoing;
 using Application.Dtos.Outgoing;
+using Application.Settings;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,5 +14,6 @@ namespace Application.Interfaces
     {
         User FromUserRegisterDtoToUser(UserRegisterDto userRegisterDto);
         UserDataDto FromUserToUserDataDto(User user);
+        UserSettingsDto FromUserSettingsToUserSettingsDto(UserSettings userSettings);
     }
 }
