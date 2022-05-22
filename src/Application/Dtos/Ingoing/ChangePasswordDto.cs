@@ -10,9 +10,15 @@ namespace Application.Dtos.Ingoing
     public class ChangePasswordDto
     {
         [Required]
-        public string CurrentPassword { get; set; }
+        public string CurrentPassword { get; }
 
         [Required]
-        public string NewPassword { get; set; }
+        public string NewPassword { get; }
+
+        public ChangePasswordDto(string currentPassword, string newPassword)
+        {
+            CurrentPassword = currentPassword;
+            NewPassword = newPassword;
+        }
     }
 }

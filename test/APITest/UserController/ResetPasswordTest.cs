@@ -31,9 +31,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPassword_WithCorrectData()
         {
-            var resetPasswordDto = new ResetPasswordDto();
-            resetPasswordDto.ResetPasswordCode = user.ResetPasswordCode;
-            resetPasswordDto.NewPassword = "$omeN3wPa$$word";
+            var resetPasswordDto = new ResetPasswordDto(user.ResetPasswordCode, "$omeN3wPa$$word");
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, null, resetPasswordDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
@@ -49,9 +47,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPassword_WithWrongCode()
         {
-            var resetPasswordDto = new ResetPasswordDto();
-            resetPasswordDto.ResetPasswordCode = "someTotallyWrongCode";
-            resetPasswordDto.NewPassword = "$omeN3wPa$$word";
+            var resetPasswordDto = new ResetPasswordDto("someTotallyWrongCode", "$omeN3wPa$$word");
 
             await AssertBadRequest(resetPasswordDto);
         }
@@ -62,9 +58,7 @@ namespace APITest.UserController
             user.ResetPasswordCodeCreatedAt = DateTime.UtcNow.AddHours(-1);
             await GetService<IUserRepository>().UpdateAsync(user);
 
-            var resetPasswordDto = new ResetPasswordDto();
-            resetPasswordDto.ResetPasswordCode = user.ResetPasswordCode;
-            resetPasswordDto.NewPassword = "$omeN3wPa$$word";
+            var resetPasswordDto = new ResetPasswordDto(user.ResetPasswordCode, "$omeN3wPa$$word");
 
             await AssertBadRequest(resetPasswordDto);
         }
@@ -72,9 +66,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPassword_WithSamePasswordAsCurrent()
         {
-            var resetPasswordDto = new ResetPasswordDto();
-            resetPasswordDto.ResetPasswordCode = user.ResetPasswordCode;
-            resetPasswordDto.NewPassword = "J@n_Kowal$ki123";
+            var resetPasswordDto = new ResetPasswordDto(user.ResetPasswordCode, "J@n_Kowal$ki123");
 
             await AssertBadRequest(resetPasswordDto);
         }
@@ -82,9 +74,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPassword_WithSamePasswordAsUsername()
         {
-            var resetPasswordDto = new ResetPasswordDto();
-            resetPasswordDto.ResetPasswordCode = user.ResetPasswordCode;
-            resetPasswordDto.NewPassword = "Jan_Kowalski";
+            var resetPasswordDto = new ResetPasswordDto(user.ResetPasswordCode, "Jan_Kowalski");
 
             await AssertBadRequest(resetPasswordDto);
         }
@@ -92,9 +82,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPassword_WithTooShortPassword()
         {
-            var resetPasswordDto = new ResetPasswordDto();
-            resetPasswordDto.ResetPasswordCode = user.ResetPasswordCode;
-            resetPasswordDto.NewPassword = "J@n1";
+            var resetPasswordDto = new ResetPasswordDto(user.ResetPasswordCode, "J@n1");
 
             await AssertBadRequest(resetPasswordDto);
         }
@@ -102,9 +90,8 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPassword_WithTooLongPassword()
         {
-            var resetPasswordDto = new ResetPasswordDto();
-            resetPasswordDto.ResetPasswordCode = user.ResetPasswordCode;
-            resetPasswordDto.NewPassword = "$omeVeryL0ngPa$$wordThatMeets4llOtherCriteriaExceptTheMaxLength";
+            var resetPasswordDto = new ResetPasswordDto(user.ResetPasswordCode,
+                                                        "$omeVeryL0ngPa$$wordThatMeets4llOtherCriteriaExceptTheMaxLength");
 
             await AssertBadRequest(resetPasswordDto);
         }
@@ -112,9 +99,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPassword_WithPasswordWithoutSmallLetter()
         {
-            var resetPasswordDto = new ResetPasswordDto();
-            resetPasswordDto.ResetPasswordCode = user.ResetPasswordCode;
-            resetPasswordDto.NewPassword = "$OMEN3WPA$$WORD";
+            var resetPasswordDto = new ResetPasswordDto(user.ResetPasswordCode, "$OMEN3WPA$$WORD");
 
             await AssertBadRequest(resetPasswordDto);
         }
@@ -122,9 +107,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPassword_WithPasswordWithoutBigLetter()
         {
-            var resetPasswordDto = new ResetPasswordDto();
-            resetPasswordDto.ResetPasswordCode = user.ResetPasswordCode;
-            resetPasswordDto.NewPassword = "$omen3wpa$$word";
+            var resetPasswordDto = new ResetPasswordDto(user.ResetPasswordCode, "$omen3wpa$$word");
 
             await AssertBadRequest(resetPasswordDto);
         }
@@ -132,9 +115,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPassword_WithPasswordWithoutDigit()
         {
-            var resetPasswordDto = new ResetPasswordDto();
-            resetPasswordDto.ResetPasswordCode = user.ResetPasswordCode;
-            resetPasswordDto.NewPassword = "$omeNewPa$$word";
+            var resetPasswordDto = new ResetPasswordDto(user.ResetPasswordCode, "$omeNewPa$$word");
 
             await AssertBadRequest(resetPasswordDto);
         }
@@ -142,9 +123,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPassword_WithPasswordWithoutSpecialCharacter()
         {
-            var resetPasswordDto = new ResetPasswordDto();
-            resetPasswordDto.ResetPasswordCode = user.ResetPasswordCode;
-            resetPasswordDto.NewPassword = "SomeN3wPassword";
+            var resetPasswordDto = new ResetPasswordDto(user.ResetPasswordCode, "SomeN3wPassword");
 
             await AssertBadRequest(resetPasswordDto);
         }

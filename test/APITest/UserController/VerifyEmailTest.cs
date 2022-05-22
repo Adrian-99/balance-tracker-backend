@@ -36,8 +36,7 @@ namespace APITest.UserController
         [Test]
         public async Task VerifyEmail_WithCorrectCode()
         {
-            var verifyEmailDto = new VerifyEmailDto();
-            verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode;
+            var verifyEmailDto = new VerifyEmailDto(user.EmailVerificationCode);
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
@@ -59,8 +58,7 @@ namespace APITest.UserController
         [Test]
         public async Task VerifyEmail_WithToLowerCode()
         {
-            var verifyEmailDto = new VerifyEmailDto();
-            verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode.ToLower();
+            var verifyEmailDto = new VerifyEmailDto(user.EmailVerificationCode.ToLower());
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
@@ -75,8 +73,7 @@ namespace APITest.UserController
         [Test]
         public async Task VerifyEmail_WithIncorrectCode()
         {
-            var verifyEmailDto = new VerifyEmailDto();
-            verifyEmailDto.EmailVerificationCode = "someTotallyIncorrectCode123";
+            var verifyEmailDto = new VerifyEmailDto("someTotallyIncorrectCode123");
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
@@ -94,8 +91,7 @@ namespace APITest.UserController
             user.EmailVerificationCodeCreatedAt = DateTime.UtcNow.AddHours(-1);
             await GetService<IUserRepository>().UpdateAsync(user);
 
-            var verifyEmailDto = new VerifyEmailDto();
-            verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode;
+            var verifyEmailDto = new VerifyEmailDto(user.EmailVerificationCode);
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
@@ -110,8 +106,7 @@ namespace APITest.UserController
         [Test]
         public async Task VerifyEmail_Unauthorized()
         {
-            var verifyEmailDto = new VerifyEmailDto();
-            verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode;
+            var verifyEmailDto = new VerifyEmailDto(user.EmailVerificationCode);
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, null, verifyEmailDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
@@ -127,8 +122,7 @@ namespace APITest.UserController
             user.IsEmailVerified = true;
             await GetService<IUserRepository>().UpdateAsync(user);
 
-            var verifyEmailDto = new VerifyEmailDto();
-            verifyEmailDto.EmailVerificationCode = user.EmailVerificationCode;
+            var verifyEmailDto = new VerifyEmailDto(user.EmailVerificationCode);
 
             string accessToken;
             GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);

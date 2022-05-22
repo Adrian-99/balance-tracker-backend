@@ -10,13 +10,21 @@ namespace Application.Dtos.Ingoing
     public class ChangeUserDataDto
     {
         [Required]
-        public string Username { get; set; }
+        public string Username { get; }
 
         [Required]
-        public string Email { get; set; }
+        public string Email { get; }
 
-        public string? FirstName { get; set; }
+        public string? FirstName { get; }
 
-        public string? LastName { get; set; }
+        public string? LastName { get; }
+
+        public ChangeUserDataDto(string username, string email, string? firstName, string? lastName)
+        {
+            Username = username;
+            Email = email;
+            FirstName = firstName;
+            LastName = lastName;
+        }
     }
 }

@@ -35,10 +35,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithCorrectAndDataWithoutName()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "User2@gmail.com";
-            userRegisterDto.Password = "User2!@#";
+            var userRegisterDto = new UserRegisterDto("User2", "User2@gmail.com", null, null, "User2!@#");
 
             var usersCountBefore = databaseContext.Users.Count();
 
@@ -68,12 +65,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithCorrectDataAndWithName()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "User2@gmail.com";
-            userRegisterDto.FirstName = "userFirstName";
-            userRegisterDto.LastName = "userLastName";
-            userRegisterDto.Password = "User2!@#";
+            var userRegisterDto = new UserRegisterDto("User2", "User2@gmail.com", "userFirstName", "userLastName", "User2!@#");
 
             var usersCountBefore = databaseContext.Users.Count();
 
@@ -103,10 +95,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithTakenUsername()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "usEr1";
-            userRegisterDto.Email = "user2@gmail.com";
-            userRegisterDto.Password = "User2!@#";
+            var userRegisterDto = new UserRegisterDto("usEr1", "user2@gmail.com", null, null, "User2!@#");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -114,10 +103,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithTakenEmail()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "User1@gmail.com";
-            userRegisterDto.Password = "User2!@#";
+            var userRegisterDto = new UserRegisterDto("User2", "User1@gmail.com", null, null, "User2!@#");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -125,10 +111,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithIncorrectUsername()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2!";
-            userRegisterDto.Email = "user2@gmail.com";
-            userRegisterDto.Password = "User2!@#";
+            var userRegisterDto = new UserRegisterDto("User2!", "user2@gmail.com", null, null, "User2!@#");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -136,10 +119,11 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithTooLongUsername()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "SomeVeryLongUsernameThatItExceedsMaximumAllowedLengthOfUsername";
-            userRegisterDto.Email = "user2@gmail.com";
-            userRegisterDto.Password = "User2!@#";
+            var userRegisterDto = new UserRegisterDto("SomeVeryLongUsernameThatItExceedsMaximumAllowedLengthOfUsername",
+                                                      "user2@gmail.com",
+                                                      null,
+                                                      null,
+                                                      "User2!@#");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -147,10 +131,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithIncorrectEmail()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "user2@gmail";
-            userRegisterDto.Password = "User2!@#";
+            var userRegisterDto = new UserRegisterDto("User2", "user2@gmail", null, null, "User2!@#");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -158,12 +139,11 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithTooLongFirstName()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "User2@gmail.com";
-            userRegisterDto.FirstName = "SomeVeryLongFirstNameThatItExceedsMaximumAllowedLengthOfFirstName";
-            userRegisterDto.LastName = "userLastName";
-            userRegisterDto.Password = "User2!@#";
+            var userRegisterDto = new UserRegisterDto("User2",
+                                                      "User2@gmail.com",
+                                                      "SomeVeryLongFirstNameThatItExceedsMaximumAllowedLengthOfFirstName",
+                                                      "userLastName",
+                                                      "User2!@#");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -171,12 +151,11 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithTooLongLastName()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "User2@gmail.com";
-            userRegisterDto.FirstName = "userFirstName";
-            userRegisterDto.LastName = "SomeVeryLongLastNameThatItExceedsMaximumAllowedLengthOfLastName";
-            userRegisterDto.Password = "User2!@#";
+            var userRegisterDto = new UserRegisterDto("User2",
+                                                      "User2@gmail.com",
+                                                      "userFirstName",
+                                                      "SomeVeryLongLastNameThatItExceedsMaximumAllowedLengthOfLastName",
+                                                      "User2!@#");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -184,10 +163,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithPasswordSameAsUsername()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "user2@gmail.com";
-            userRegisterDto.Password = "User2";
+            var userRegisterDto = new UserRegisterDto("User2", "user2@gmail.com", null, null, "User2");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -195,10 +171,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithPasswordTooShort()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "user2@gmail.com";
-            userRegisterDto.Password = "User2!";
+            var userRegisterDto = new UserRegisterDto("User2", "user2@gmail.com", null, null, "User2!");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -206,10 +179,11 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithPasswordTooLong()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "user2@gmail.com";
-            userRegisterDto.Password = "$omeVeryL0ngPa$$wordThatMeets4llOtherCriteriaExceptTheMaxLength";
+            var userRegisterDto = new UserRegisterDto("User2",
+                                                      "user2@gmail.com",
+                                                      null,
+                                                      null,
+                                                      "$omeVeryL0ngPa$$wordThatMeets4llOtherCriteriaExceptTheMaxLength");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -217,10 +191,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithPasswordWithoutSmallLetter()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "user2@gmail.com";
-            userRegisterDto.Password = "USER2!@#";
+            var userRegisterDto = new UserRegisterDto("User2", "user2@gmail.com", null, null, "USER2!@#");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -228,10 +199,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithPasswordWithoutBigLetter()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "user2@gmail.com";
-            userRegisterDto.Password = "user2!@#";
+            var userRegisterDto = new UserRegisterDto("User2", "user2@gmail.com", null, null, "user2!@#");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -239,10 +207,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithPasswordWithoutDigit()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "user2@gmail.com";
-            userRegisterDto.Password = "User$!@#";
+            var userRegisterDto = new UserRegisterDto("User2", "user2@gmail.com", null, null, "User$!@#");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }
@@ -250,10 +215,7 @@ namespace APITest.UserController
         [Test]
         public async Task Register_WithPasswordWithoutSpecialCharacter()
         {
-            var userRegisterDto = new UserRegisterDto();
-            userRegisterDto.Username = "User2";
-            userRegisterDto.Email = "user2@gmail.com";
-            userRegisterDto.Password = "User2222";
+            var userRegisterDto = new UserRegisterDto("User2", "user2@gmail.com", null, null, "User2222");
 
             await AssertRegisterBadRequest(userRegisterDto);
         }

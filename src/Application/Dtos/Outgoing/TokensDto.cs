@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,10 +9,13 @@ namespace Application.Dtos.Outgoing
 {
     public class TokensDto
     {
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
+        [Required]
+        public string AccessToken { get; }
 
-        public string? TranslationKey { get; set; }
+        [Required]
+        public string RefreshToken { get; }
+
+        public string? TranslationKey { get; }
 
         public TokensDto(string accessToken, string refreshToken, string? translationKey = null)
         {

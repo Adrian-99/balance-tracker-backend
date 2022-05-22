@@ -30,9 +30,7 @@ namespace APITest.UserController
         [Test]
         public async Task Authenticate_WithCorrectUsernameAndPassword()
         {
-            var authenticateDto = new AuthenticateDto();
-            authenticateDto.UsernameOrEmail = USERNAME;
-            authenticateDto.Password = PASSWORD;
+            var authenticateDto = new AuthenticateDto(USERNAME, PASSWORD);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
@@ -50,9 +48,7 @@ namespace APITest.UserController
         [Test]
         public async Task Authenticate_WithCorrectEmailAndPassword()
         {
-            var authenticateDto = new AuthenticateDto();
-            authenticateDto.UsernameOrEmail = EMAIL;
-            authenticateDto.Password = PASSWORD;
+            var authenticateDto = new AuthenticateDto(EMAIL, PASSWORD);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
@@ -70,9 +66,7 @@ namespace APITest.UserController
         [Test]
         public async Task Authenticate_WithPasswordToLower()
         {
-            var authenticateDto = new AuthenticateDto();
-            authenticateDto.UsernameOrEmail = USERNAME;
-            authenticateDto.Password = PASSWORD.ToLower();
+            var authenticateDto = new AuthenticateDto(USERNAME, PASSWORD.ToLower());
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
 
@@ -82,9 +76,7 @@ namespace APITest.UserController
         [Test]
         public async Task Authenticate_WithWrongPassword()
         {
-            var authenticateDto = new AuthenticateDto();
-            authenticateDto.UsernameOrEmail = USERNAME;
-            authenticateDto.Password = "Qwerty1@";
+            var authenticateDto = new AuthenticateDto(USERNAME, "Qwerty1@");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
 
@@ -94,9 +86,7 @@ namespace APITest.UserController
         [Test]
         public async Task Authenticate_WithWrongUsername()
         {
-            var authenticateDto = new AuthenticateDto();
-            authenticateDto.UsernameOrEmail = "randomUser";
-            authenticateDto.Password = PASSWORD;
+            var authenticateDto = new AuthenticateDto("randomUser", PASSWORD);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
 
@@ -106,9 +96,7 @@ namespace APITest.UserController
         [Test]
         public async Task Authenticate_WithWrongEmail()
         {
-            var authenticateDto = new AuthenticateDto();
-            authenticateDto.UsernameOrEmail = "random@gmail.com";
-            authenticateDto.Password = PASSWORD;
+            var authenticateDto = new AuthenticateDto("random@gmail.com", PASSWORD);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, authenticateDto);
 

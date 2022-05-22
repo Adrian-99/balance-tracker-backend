@@ -10,6 +10,11 @@ namespace Application.Dtos.Ingoing
     public class ResetPasswordRequestDto
     {
         [Required]
-        public string UsernameOrEmail { get; set; }
+        public string UsernameOrEmail { get; }
+
+        public ResetPasswordRequestDto(string usernameOrEmail)
+        {
+            UsernameOrEmail = usernameOrEmail;
+        }
     }
 }

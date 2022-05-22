@@ -32,8 +32,7 @@ namespace APITest.UserController
             var jwtService = GetService<IJwtService>();
             jwtService.GenerateTokens(user, out _, out refreshToken1);
 
-            var refreshTokenDto = new RefreshTokenDto();
-            refreshTokenDto.RefreshToken = refreshToken1;
+            var refreshTokenDto = new RefreshTokenDto(refreshToken1);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, refreshTokenDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
@@ -50,8 +49,7 @@ namespace APITest.UserController
         [Test]
         public async Task RefreshToken_WithInvalidToken()
         {
-            var refreshTokenDto = new RefreshTokenDto();
-            refreshTokenDto.RefreshToken = "someTotallyWrongRefreshToken";
+            var refreshTokenDto = new RefreshTokenDto("someTotallyWrongRefreshToken");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, refreshTokenDto);
 
@@ -66,8 +64,7 @@ namespace APITest.UserController
             var jwtService = GetService<IJwtService>();
             jwtService.GenerateTokens(user, out accessToken, out _);
 
-            var refreshTokenDto = new RefreshTokenDto();
-            refreshTokenDto.RefreshToken = accessToken;
+            var refreshTokenDto = new RefreshTokenDto(accessToken);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, refreshTokenDto);
 

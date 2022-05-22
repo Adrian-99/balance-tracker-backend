@@ -10,6 +10,11 @@ namespace Application.Dtos.Ingoing
     public class VerifyEmailDto
     {
         [Required]
-        public string EmailVerificationCode { get; set; }
+        public string EmailVerificationCode { get; }
+
+        public VerifyEmailDto(string emailVerificationCode)
+        {
+            EmailVerificationCode = emailVerificationCode;
+        }
     }
 }

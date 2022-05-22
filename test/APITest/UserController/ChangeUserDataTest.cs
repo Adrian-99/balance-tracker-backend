@@ -49,11 +49,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithCorrectDataWithFirstAndLastNameWithChangedUsernameAndEmail()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "someNewUsername";
-            changeUserDataDto.Email = "someNewEmail@gmail.com";
-            changeUserDataDto.FirstName = "MyFirstName";
-            changeUserDataDto.LastName = "MyLastName";
+            var changeUserDataDto = new ChangeUserDataDto("someNewUsername", "someNewEmail@gmail.com", "MyFirstName", "MyLastName");
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changeUserDataDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
@@ -86,9 +82,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithCorrectDataWithoutFirstAndLastNameWithChangedUsernameAndEmail()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "someNewUsername";
-            changeUserDataDto.Email = "someNewEmail@gmail.com";
+            var changeUserDataDto = new ChangeUserDataDto("someNewUsername", "someNewEmail@gmail.com", null, null);
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changeUserDataDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
@@ -121,9 +115,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithCorrectDataWithUsernameToUpperWithChangedEmail()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = user.Username.ToUpper();
-            changeUserDataDto.Email = "someNewEmail@gmail.com";
+            var changeUserDataDto = new ChangeUserDataDto(user.Username.ToUpper(), "someNewEmail@gmail.com", null, null);
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changeUserDataDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
@@ -156,9 +148,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithCorrectDataWithNotChangeUsernameWithChangedEmail()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = user.Username;
-            changeUserDataDto.Email = "someNewEmail@gmail.com";
+            var changeUserDataDto = new ChangeUserDataDto(user.Username, "someNewEmail@gmail.com", null, null);
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changeUserDataDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
@@ -191,9 +181,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithCorrectDataWithChangedUsernameWithNotChangedEmail()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "someNewUsername";
-            changeUserDataDto.Email = user.Email;
+            var changeUserDataDto = new ChangeUserDataDto("someNewUsername", user.Email, null, null);
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changeUserDataDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
@@ -226,11 +214,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithCorrectNotChangedData()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = user.Username;
-            changeUserDataDto.Email = user.Email;
-            changeUserDataDto.FirstName = user.FirstName;
-            changeUserDataDto.LastName = user.LastName;
+            var changeUserDataDto = new ChangeUserDataDto(user.Username, user.Email, user.FirstName, user.LastName);
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changeUserDataDto);
             var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
@@ -260,11 +244,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_Unauthorized()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "someNewUsername";
-            changeUserDataDto.Email = "someNewEmail@gmail.com";
-            changeUserDataDto.FirstName = "MyFirstName";
-            changeUserDataDto.LastName = "MyLastName";
+            var changeUserDataDto = new ChangeUserDataDto("someNewUsername", "someNewEmail@gmail.com", "MyFirstName", "MyLastName");
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, "someTotallyWrongAccessToken", changeUserDataDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
@@ -289,11 +269,7 @@ namespace APITest.UserController
             user.LastUsernameChangeAt = DateTime.UtcNow;
             await GetService<IUserRepository>().UpdateAsync(user);
 
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "someNewUsername";
-            changeUserDataDto.Email = user.Email;
-            changeUserDataDto.FirstName = user.FirstName;
-            changeUserDataDto.LastName = user.FirstName;
+            var changeUserDataDto = new ChangeUserDataDto("someNewUsername", user.Email, user.FirstName, user.FirstName);
 
             await AssertBadRequestAsync(changeUserDataDto);
         }
@@ -301,9 +277,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithIncorrectUsername()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "$omeN3wUsername";
-            changeUserDataDto.Email = "someNewEmail@gmail.com";
+            var changeUserDataDto = new ChangeUserDataDto("$omeN3wUsername", "someNewEmail@gmail.com", null, null);
 
             await AssertBadRequestAsync(changeUserDataDto);
         }
@@ -311,9 +285,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithTooLongUsername()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "someNewUsernameThatIsWayTooLongAndThereforeCantBeAccepted";
-            changeUserDataDto.Email = "someNewEmail@gmail.com";
+            var changeUserDataDto = new ChangeUserDataDto("someNewUsernameThatIsWayTooLongAndThereforeCantBeAccepted", "someNewEmail@gmail.com", null, null);
 
             await AssertBadRequestAsync(changeUserDataDto);
         }
@@ -321,9 +293,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithTakenUsername()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "USer1";
-            changeUserDataDto.Email = "someNewEmail@gmail.com";
+            var changeUserDataDto = new ChangeUserDataDto("USer1", "someNewEmail@gmail.com", null, null);
 
             await AssertBadRequestAsync(changeUserDataDto);
         }
@@ -331,9 +301,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithIncorrectEmail()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "someNewUsername";
-            changeUserDataDto.Email = "someNewEmailgmail.com";
+            var changeUserDataDto = new ChangeUserDataDto("someNewUsername", "someNewEmailgmail.com", null, null);
 
             await AssertBadRequestAsync(changeUserDataDto);
         }
@@ -341,9 +309,7 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithTakenEmail()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "someNewUsername";
-            changeUserDataDto.Email = "User1@gmail.com";
+            var changeUserDataDto = new ChangeUserDataDto("someNewUsername", "User1@gmail.com", null, null);
 
             await AssertBadRequestAsync(changeUserDataDto);
         }
@@ -351,11 +317,10 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithTooLongFirstName()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "someNewUsername";
-            changeUserDataDto.Email = "someNewEmail@gmail.com";
-            changeUserDataDto.FirstName = "someWayTooLongFirstNameThatItCantBeAccepted";
-            changeUserDataDto.LastName = "MyLastName";
+            var changeUserDataDto = new ChangeUserDataDto("someNewUsername",
+                                                          "someNewEmail@gmail.com",
+                                                          "someWayTooLongFirstNameThatItCantBeAccepted",
+                                                          "MyLastName");
 
             await AssertBadRequestAsync(changeUserDataDto);
         }
@@ -363,11 +328,10 @@ namespace APITest.UserController
         [Test]
         public async Task ChangeUserData_WithTooLongLastName()
         {
-            var changeUserDataDto = new ChangeUserDataDto();
-            changeUserDataDto.Username = "someNewUsername";
-            changeUserDataDto.Email = "someNewEmail@gmail.com";
-            changeUserDataDto.FirstName = "MyFirstName";
-            changeUserDataDto.LastName = "someWayTooLongLastNameThatItCantBeAccepted";
+            var changeUserDataDto = new ChangeUserDataDto("someNewUsername",
+                                                          "someNewEmail@gmail.com",
+                                                          "MyFirstName",
+                                                          "someWayTooLongLastNameThatItCantBeAccepted");
 
             await AssertBadRequestAsync(changeUserDataDto);
         }

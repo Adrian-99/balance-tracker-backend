@@ -10,6 +10,11 @@ namespace Application.Dtos.Ingoing
     public class RefreshTokenDto
     {
         [Required]
-        public string RefreshToken { get; set; }
+        public string RefreshToken { get; }
+
+        public RefreshTokenDto(string refreshToken)
+        {
+            RefreshToken = refreshToken;
+        }
     }
 }

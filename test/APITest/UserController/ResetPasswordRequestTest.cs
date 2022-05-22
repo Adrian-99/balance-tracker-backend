@@ -43,8 +43,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPasswordRequest_WithCorrectUsername()
         {
-            var resetPasswordRequestDto = new ResetPasswordRequestDto();
-            resetPasswordRequestDto.UsernameOrEmail = user.Username;
+            var resetPasswordRequestDto = new ResetPasswordRequestDto(user.Username);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
@@ -59,8 +58,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPasswordRequest_WithCorrectEmail()
         {
-            var resetPasswordRequestDto = new ResetPasswordRequestDto();
-            resetPasswordRequestDto.UsernameOrEmail = user.Email;
+            var resetPasswordRequestDto = new ResetPasswordRequestDto(user.Email);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
@@ -75,8 +73,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPasswordRequest_WithIncorrectUsername()
         {
-            var resetPasswordRequestDto = new ResetPasswordRequestDto();
-            resetPasswordRequestDto.UsernameOrEmail = "someTotallyWrongUsername";
+            var resetPasswordRequestDto = new ResetPasswordRequestDto("someTotallyWrongUsername");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
 
@@ -88,8 +85,7 @@ namespace APITest.UserController
         [Test]
         public async Task ResetPasswordRequest_WithIncorrectEmail()
         {
-            var resetPasswordRequestDto = new ResetPasswordRequestDto();
-            resetPasswordRequestDto.UsernameOrEmail = "someTotallyWrongEmail@domain.com";
+            var resetPasswordRequestDto = new ResetPasswordRequestDto("someTotallyWrongEmail@domain.com");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
 
@@ -105,8 +101,7 @@ namespace APITest.UserController
                                     where user.ResetPasswordCode != null && user.ResetPasswordCodeCreatedAt != null
                                     select user).First();
 
-            var resetPasswordRequestDto = new ResetPasswordRequestDto();
-            resetPasswordRequestDto.UsernameOrEmail = otherUserBefore.Username;
+            var resetPasswordRequestDto = new ResetPasswordRequestDto(otherUserBefore.Username);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
             var otherUserAfter = TestUtils.GetUserById(databaseContext, otherUserBefore.Id);

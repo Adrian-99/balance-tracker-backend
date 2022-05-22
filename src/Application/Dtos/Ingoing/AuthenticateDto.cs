@@ -10,9 +10,15 @@ namespace Application.Dtos.Ingoing
     public class AuthenticateDto
     {
         [Required]
-        public string UsernameOrEmail { get; set; }
+        public string UsernameOrEmail { get; }
 
         [Required]
-        public string Password { get; set; }
+        public string Password { get; }
+
+        public AuthenticateDto(string usernameOrEmail, string password)
+        {
+            UsernameOrEmail = usernameOrEmail;
+            Password = password;
+        }
     }
 }

@@ -10,9 +10,15 @@ namespace Application.Dtos.Ingoing
     public class ResetPasswordDto
     {
         [Required]
-        public string ResetPasswordCode { get; set; }
+        public string ResetPasswordCode { get; }
 
         [Required]
-        public string NewPassword { get; set; }
+        public string NewPassword { get; }
+
+        public ResetPasswordDto(string resetPasswordCode, string newPassword)
+        {
+            ResetPasswordCode = resetPasswordCode;
+            NewPassword = newPassword;
+        }
     }
 }

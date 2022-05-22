@@ -32,15 +32,12 @@ namespace Application.Mappers
 
         public UserDataDto FromUserToUserDataDto(User user)
         {
-            var userDataDto = new UserDataDto();
-            userDataDto.Username = user.Username;
-            userDataDto.LastUsernameChangeAt = user.LastUsernameChangeAt;
-            userDataDto.Email = user.Email;
-            userDataDto.IsEmailVerified = user.IsEmailVerified;
-            userDataDto.FirstName = user.FirstName;
-            userDataDto.LastName = user.LastName;
-
-            return userDataDto;
+            return new UserDataDto(user.Username,
+                                   user.LastUsernameChangeAt,
+                                   user.Email,
+                                   user.IsEmailVerified,
+                                   user.FirstName,
+                                   user.LastName);
         }
     }
 }
