@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -17,14 +16,12 @@ namespace Domain.Entities
         public Guid Id { get; set; }
 
         [Required]
-        [Encrypted]
         public string Username { get; set; }
 
         [Required]
         public DateTime LastUsernameChangeAt { get; set; }
 
         [Required]
-        [Encrypted]
         public string Email { get; set; }
 
         [Required]
@@ -36,20 +33,20 @@ namespace Domain.Entities
         [Required]
         public byte[] PasswordSalt { get; set; }
 
-        [Encrypted]
         public string? FirstName { get; set; }
 
-        [Encrypted]
         public string? LastName { get; set; }
 
-        [Encrypted]
         public string? EmailVerificationCode { get; set; }
 
         public DateTime? EmailVerificationCodeCreatedAt { get; set; }
 
-        [Encrypted]
         public string? ResetPasswordCode { get; set; }
 
         public DateTime? ResetPasswordCodeCreatedAt { get; set; }
+
+
+        public virtual ICollection<Tag> Tags { get; set; }
+        public virtual ICollection<Entry> Entries { get; set; }
     }
 }

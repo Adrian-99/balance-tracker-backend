@@ -9,11 +9,8 @@ namespace Application.Settings
 {
     public class EncryptionSettings
     {
-        public string Key { get; set; }
-        public string IV { get; set; }
-
-        public byte[] KeyBytes { get => Encoding.UTF8.GetBytes(Key); }
-        public byte[] IVBytes { get => Encoding.UTF8.GetBytes(IV); }
+        public string PrivateKeyPath { get; set; }
+        public string PublicKeyPath { get; set; }
 
         public static EncryptionSettings Get(IConfiguration configuration)
         {
