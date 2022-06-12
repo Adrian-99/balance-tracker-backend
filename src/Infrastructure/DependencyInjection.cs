@@ -20,6 +20,9 @@ namespace Infrastructure
                 options => options.UseNpgsql(configuration.GetConnectionString("PostgreSQL"))
                 );
 
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IEntryRepository, EntryRepository>();
+            services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
         }
     }

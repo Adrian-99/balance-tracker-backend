@@ -9,12 +9,8 @@ using System.Threading.Tasks;
 namespace Domain.Entities
 {
     [Table("Users")]
-    public class User
+    public class User : AbstractEntity<Guid>
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
-
         [Required]
         public string Username { get; set; }
 

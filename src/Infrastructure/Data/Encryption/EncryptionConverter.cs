@@ -34,14 +34,14 @@ namespace Infrastructure.Data.Encryption
         private static T Decrypt(string value, Func<string, T> fromString)
         {
             byte[] valueBytes = Convert.FromBase64String(value);
-            var decryptedString = Encoding.UTF8.GetString(privateKeyRSA.Decrypt(valueBytes, RSAEncryptionPadding.OaepSHA1));
+            var decryptedString = Encoding.UTF8.GetString(privateKeyRSA.Decrypt(valueBytes, RSAEncryptionPadding.Pkcs1));
             return fromString.Invoke(decryptedString);
         }
 
         private static string Encrypt(T value, Func<T, string> toString)
         {
             byte[] valueBytes = Encoding.UTF8.GetBytes(toString.Invoke(value));
-            byte[] bytesEncrypted = publicKeyRSA.Encrypt(valueBytes, RSAEncryptionPadding.OaepSHA1);
+            byte[] bytesEncrypted = publicKeyRSA.Encrypt(valueBytes, RSAEncryptionPadding.Pkcs1);
             return Convert.ToBase64String(bytesEncrypted);
         }
     }

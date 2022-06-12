@@ -169,7 +169,7 @@ namespace Application.Services
 
             if (user != null)
             {
-                var users = await userRepository.GetAll();
+                var users = await userRepository.GetAllAsync();
                 var usedResetPasswordCodes = users.Where(user => user.ResetPasswordCode != null)
                     .Select(user => user.ResetPasswordCode);
 
@@ -273,7 +273,7 @@ namespace Application.Services
 
         private async Task<string> GenerateEmailVerificationCodeAsync()
         {
-            var users = await userRepository.GetAll();
+            var users = await userRepository.GetAllAsync();
             var usedEmailVerificationCodes = users.Where(user => user.EmailVerificationCode != null)
                 .Select(user => user.EmailVerificationCode);
             string newEmailVerificationCode;

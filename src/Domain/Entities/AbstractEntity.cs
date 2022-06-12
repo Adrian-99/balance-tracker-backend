@@ -8,13 +8,10 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("Categories")]
-    public class Category : AbstractEntity<Guid>
+    public abstract class AbstractEntity<PrimaryKey>
     {
-        [Required]
-        public string NameTranslationKey { get; set; }
-
-        [Required]
-        public bool IsIncome { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public PrimaryKey Id { get; set; }
     }
 }

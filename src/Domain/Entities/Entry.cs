@@ -9,12 +9,8 @@ using System.Threading.Tasks;
 namespace Domain.Entities
 {
     [Table("Entries")]
-    public class Entry
+    public class Entry : AbstractEntity<Guid>
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
-
         [Required]
         public DateTime Date { get; set; }
 
