@@ -401,5 +401,6 @@ FodyWeavers.xsd
 # Docker volumes
 docker-compose/volumes/**
 
-# Development settings
+# Development and Test settings
 src/API/appsettings.Development.json
+src/API/appsettings.Test.json

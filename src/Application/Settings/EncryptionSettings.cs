@@ -10,6 +10,7 @@ namespace Application.Settings
     public class EncryptionSettings
     {
         public string PrivateKeyPath { get; set; }
+        public string? PrivateKeyPassword { get; set; }
         public string PublicKeyPath { get; set; }
 
         public static EncryptionSettings Get(IConfiguration configuration)

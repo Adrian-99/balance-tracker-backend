@@ -26,16 +26,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Keys\PrivateKey.pfx">
+    <Content Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="appsettings.Test.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\Keys\PrivateKey.pem">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Keys\PublicKey.pem">
+    <None Update="Resources\Keys\PublicKey.pem">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="MailTemplates\EmailVerificationTemplate.html">
+    <None Update="Resources\MailTemplates\EmailVerificationTemplate.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="MailTemplates\ResetPasswordTemplate.html">
+    <None Update="Resources\MailTemplates\ResetPasswordTemplate.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
