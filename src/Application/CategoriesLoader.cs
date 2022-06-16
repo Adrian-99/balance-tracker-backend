@@ -89,7 +89,8 @@ namespace Application
 
         private bool AreDifferent(Category category1, Category category2)
         {
-            return !category1.Keyword.Equals(category2.Keyword) ||
+            return category1.OrderOnList != category2.OrderOnList ||
+                !category1.Keyword.Equals(category2.Keyword) ||
                 category1.IsIncome != category2.IsIncome ||
                 !category1.Icon.Equals(category2.Icon) ||
                 !category1.IconColor.Equals(category2.IconColor);
