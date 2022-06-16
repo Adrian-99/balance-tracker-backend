@@ -64,7 +64,7 @@ namespace Infrastructure.Data
                 .HasConversion(optionalStringEncryptionConverter);
 
             modelBuilder.Entity<Category>()
-                .HasIndex(c => c.NameTranslationKey)
+                .HasIndex(c => new { c.OrderOnList, c.Keyword })
                 .IsUnique(true);
 
             modelBuilder.Entity<EntryTag>()

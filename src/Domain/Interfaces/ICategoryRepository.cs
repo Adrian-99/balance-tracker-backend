@@ -9,5 +9,6 @@ namespace Domain.Interfaces
 {
     public interface ICategoryRepository : IGenericRepository<Category, Guid>
     {
+        Task<Category?> GetByKeywordAsync(string keyword);
     }
 }

@@ -12,9 +12,18 @@ namespace Domain.Entities
     public class Category : AbstractEntity<Guid>
     {
         [Required]
-        public string NameTranslationKey { get; set; }
+        public int OrderOnList { get; set; }
+
+        [Required]
+        public string Keyword { get; set; }
 
         [Required]
         public bool IsIncome { get; set; }
+
+        [Required]
+        public string Icon { get; set; }
+
+        [Required]
+        public string IconColor { get; set; }
     }
 }

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class JwtService : IJwtService
+    internal class JwtService : IJwtService
     {
         private readonly JwtSettings jwtSettings;
 

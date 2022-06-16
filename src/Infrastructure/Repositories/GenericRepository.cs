@@ -21,7 +21,7 @@ namespace Infrastructure.Repositories
             this.databaseContext = databaseContext;
         }
 
-        public async Task<Entity> AddAsync(Entity entity)
+        public virtual async Task<Entity> AddAsync(Entity entity)
         {
             var addedEntity = await databaseContext
                 .Set<Entity>()
@@ -30,7 +30,7 @@ namespace Infrastructure.Repositories
             return addedEntity.Entity;
         }
 
-        public async Task DeleteAsync(PrimaryKey id)
+        public virtual async Task DeleteAsync(PrimaryKey id)
         {
             var entity = await GetByIdAsync(id);
             if (entity != null)
@@ -42,21 +42,21 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public Task<List<Entity>> GetAllAsync()
+        public virtual Task<List<Entity>> GetAllAsync()
         {
             return databaseContext
                 .Set<Entity>()
                 .ToListAsync();
         }
 
-        public async Task<Entity?> GetByIdAsync(PrimaryKey id)
+        public virtual Task<Entity?> GetByIdAsync(PrimaryKey id)
         {
-            return await (from entity in databaseContext.Set<Entity>()
-                         where entity.Id.Equals(id)
-                         select entity).FirstOrDefaultAsync();
+            return (from entity in databaseContext.Set<Entity>()
+                    where entity.Id.Equals(id)
+                    select entity).FirstOrDefaultAsync();
         }
 
-        public async Task<Entity> UpdateAsync(Entity entity)
+        public virtual async Task<Entity> UpdateAsync(Entity entity)
         {
             var updatedEntity = databaseContext
                 .Set<Entity>()

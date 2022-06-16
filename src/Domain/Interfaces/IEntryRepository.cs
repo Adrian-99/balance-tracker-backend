@@ -9,5 +9,6 @@ namespace Domain.Interfaces
 {
     public interface IEntryRepository : IGenericRepository<Entry, Guid>
     {
+        Task<List<Entry>> GetAllByCategoryIdAsync(Guid categoryId);
     }
 }

@@ -18,8 +18,10 @@ namespace Application
             services.AddScoped<IPasswordService, PasswordService>();
             services.AddScoped<IMailService, MailService>();
             services.AddSingleton<IJwtService, JwtService>();
+            services.AddScoped<ICategoryService, CategoryService>();
 
             services.AddScoped<IUserMapper, UserMapper>();
+            services.AddScoped<ICategoryMapper, CategoryMapper>();
         }
     }
 }

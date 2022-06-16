@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class MailService : IMailService
+    internal class MailService : IMailService
     {
         private readonly MailSettings mailSettings;
         private readonly FrontendSettings frontendSettings;

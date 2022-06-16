@@ -1,5 +1,7 @@
 using API.Middleware;
+using Application;
 using Application.Settings;
+using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.OpenApi.Models;
 
@@ -65,10 +67,25 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    var scope = app.Services.CreateScope();
-    var databaseContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-    DataSeeder.SeedAll(app.Configuration, databaseContext);
 }
+
+app.Lifetime.ApplicationStarted.Register(async () =>
+{
+    var scope = app.Services.CreateScope();
+    await new CategoriesLoader().LoadAsync(
+        scope.ServiceProvider.GetRequiredService<ILogger<CategoriesLoader>>(),
+        app.Configuration,
+        scope.ServiceProvider.GetRequiredService<ICategoryRepository>(),
+        scope.ServiceProvider.GetRequiredService<IEntryRepository>()
+        );
+    if (app.Environment.IsDevelopment())
+    {
+        DataSeeder.SeedAll(
+            app.Configuration,
+            scope.ServiceProvider.GetRequiredService<DatabaseContext>()
+            );
+    }
+});
 
 app.UseHttpsRedirection();
 

@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Application.Services
 {
-    public class UserService : IUserService
+    internal class UserService : IUserService
     {
         private const string ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
 
