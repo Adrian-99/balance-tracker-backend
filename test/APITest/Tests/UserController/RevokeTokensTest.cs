@@ -10,7 +10,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APITest.UserController
+namespace APITest.Tests.UserController
 {
     public class RevokeTokensTest : AbstractTestClass
     {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.Exceptions
 {
-    internal class CategoriesLoaderException : Exception
+    public class CategoriesLoaderException : Exception
     {
         public CategoriesLoaderException(string message) : base(message)
         { }

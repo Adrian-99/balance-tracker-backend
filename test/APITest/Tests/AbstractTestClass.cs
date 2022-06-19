@@ -10,7 +10,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APITest
+namespace APITest.Tests
 {
     public abstract class AbstractTestClass
     {
@@ -62,7 +62,7 @@ namespace APITest
             CreateNewScope();
             var response = await httpClient.SendAsync(request);
             CreateNewScope();
-            
+
             return response;
         }
 

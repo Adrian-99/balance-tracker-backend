@@ -237,7 +237,6 @@ ClientBin/
 *.dbproj.schemaview
 *.jfm
 *.pfx
-*.pem
 *.publishsettings
 orleans.codegen.cs
 
@@ -401,6 +400,8 @@ FodyWeavers.xsd
 # Docker volumes
 docker-compose/volumes/**
 
-# Development and Test settings
+# Development settings
 src/API/appsettings.Development.json
-src/API/appsettings.Test.json
+
+# Development keys
+src/API/Resources/Keys/**

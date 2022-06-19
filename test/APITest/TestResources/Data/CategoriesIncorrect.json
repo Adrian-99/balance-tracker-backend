@@ -1,0 +1,26 @@
+﻿[
+  {
+    "keyword": "category1",
+    "isIncome": true,
+    "icon": "icon data 1",
+    "iconColor": "#654321"
+  },
+  {
+    "keyword": "category2",
+    "isIncome": true,
+    "icon": "icon data 2",
+    "iconColor": "#654321"
+  },
+  {
+    "keyword": "category4",
+    "isIncome": false,
+    "icon": "icon data 4",
+    "iconColor": "#123456"
+  },
+  {
+    "keyword": "category5",
+    "isIncome": false,
+    "icon": "icon data 5",
+    "iconColor": "#123456"
+  }
+]

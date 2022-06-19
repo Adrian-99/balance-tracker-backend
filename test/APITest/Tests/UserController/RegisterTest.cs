@@ -11,7 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace APITest.UserController
+namespace APITest.Tests.UserController
 {
     public class RegisterTest : AbstractTestClass
     {

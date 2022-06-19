@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace APITest.JwtService
+namespace APITest.Tests.JwtService
 {
     public class JwtServiceTest : AbstractTestClass
     {
