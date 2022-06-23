@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data.Encryption
 {
-    internal abstract class EncryptionConverter<T> : ValueConverter<T, string>
+    public abstract class EncryptionConverter<T> : ValueConverter<T, string>
     {
         private static RSA privateKeyRSA = RSA.Create();
         private static RSA publicKeyRSA = RSA.Create();
@@ -18,7 +18,7 @@ namespace Infrastructure.Data.Encryption
             base(from => Encrypt(from, toString), to => Decrypt(to, fromString))
         {
             var privateKeyString = File.ReadAllText(encryptionSettings.PrivateKeyPath);
-            if (encryptionSettings.PrivateKeyPassword != null)
+            if (!string.IsNullOrEmpty(encryptionSettings.PrivateKeyPassword))
             {
                 privateKeyRSA.ImportFromEncryptedPem(privateKeyString, encryptionSettings.PrivateKeyPassword);
             }

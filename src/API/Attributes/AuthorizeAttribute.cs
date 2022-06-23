@@ -2,7 +2,6 @@
 using Application.Dtos.Outgoing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Newtonsoft.Json;
 
 namespace API.Attributes
 {
@@ -38,7 +37,7 @@ namespace API.Attributes
             {
                 context.Result = new JsonResult(new ActionResultDto(
                     StatusCodes.Status403Forbidden,
-                    "Forbidden - email verification required"
+                    "Forbidden - verified email required"
                     // TODO: Add translation key
                 ))
                 { ContentType = "application/json", StatusCode = StatusCodes.Status403Forbidden };

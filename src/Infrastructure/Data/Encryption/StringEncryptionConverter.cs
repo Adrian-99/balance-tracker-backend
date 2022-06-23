@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data.Encryption
 {
-    internal class StringEncryptionConverter : EncryptionConverter<string>
+    public class StringEncryptionConverter : EncryptionConverter<string>
     {
         public StringEncryptionConverter(EncryptionSettings encryptionSettings) :
             base(s => s, s => s, encryptionSettings)
