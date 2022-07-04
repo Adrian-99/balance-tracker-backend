@@ -21,22 +21,24 @@ namespace APITest.Tests.UserController
         public async Task GetUserSettings()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL);
-            var responseContent = JsonConvert.DeserializeObject<UserSettingsDto>(await response.Content.ReadAsStringAsync());
+            var responseContent = await GetResponseContentAsync<ApiResponse<UserSettingsDto>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(responseContent);
-            Assert.AreEqual(40, responseContent.UsernameMaxLength);
-            Assert.AreEqual(7, responseContent.UsernameAllowedChangeFrequencyDays);
-            Assert.AreEqual(30, responseContent.FirstNameMaxLength);
-            Assert.AreEqual(35, responseContent.LastNameMaxLength);
-            Assert.AreEqual(8, responseContent.PasswordMinLength);
-            Assert.AreEqual(45, responseContent.PasswordMaxLength);
-            Assert.AreEqual(true, responseContent.PasswordSmallLetterRequired);
-            Assert.AreEqual(true, responseContent.PasswordBigLetterRequired);
-            Assert.AreEqual(true, responseContent.PasswordDigitRequired);
-            Assert.AreEqual(true, responseContent.PasswordSpecialCharacterRequired);
-            Assert.AreEqual(true, responseContent.PasswordForbidSameAsUsername);
-            Assert.AreEqual(true, responseContent.PasswordForbidSameAsCurrent);
+            Assert.IsTrue(responseContent.Successful);
+
+            Assert.AreEqual(40, responseContent.Data.UsernameMaxLength);
+            Assert.AreEqual(7, responseContent.Data.UsernameAllowedChangeFrequencyDays);
+            Assert.AreEqual(30, responseContent.Data.FirstNameMaxLength);
+            Assert.AreEqual(35, responseContent.Data.LastNameMaxLength);
+            Assert.AreEqual(8, responseContent.Data.PasswordMinLength);
+            Assert.AreEqual(45, responseContent.Data.PasswordMaxLength);
+            Assert.IsTrue(responseContent.Data.PasswordSmallLetterRequired);
+            Assert.IsTrue(responseContent.Data.PasswordBigLetterRequired);
+            Assert.IsTrue(responseContent.Data.PasswordDigitRequired);
+            Assert.IsTrue(responseContent.Data.PasswordSpecialCharacterRequired);
+            Assert.IsTrue(responseContent.Data.PasswordForbidSameAsUsername);
+            Assert.IsTrue(responseContent.Data.PasswordForbidSameAsCurrent);
         }
     }
 }

@@ -33,17 +33,18 @@ namespace APITest.Tests.UserController
             GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
 
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
-            var responseContent = JsonConvert.DeserializeObject<UserDataDto>(await response.Content.ReadAsStringAsync());
+            var responseContent = await GetResponseContentAsync<ApiResponse<UserDataDto>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(responseContent);
+            Assert.IsTrue(responseContent.Successful);
 
-            Assert.AreEqual(user.Username, responseContent.Username);
-            Assert.AreEqual(user.LastUsernameChangeAt, responseContent.LastUsernameChangeAt);
-            Assert.AreEqual(user.Email, responseContent.Email);
-            Assert.IsTrue(responseContent.IsEmailVerified);
-            Assert.AreEqual(user.FirstName, responseContent.FirstName);
-            Assert.AreEqual(user.LastName, responseContent.LastName);
+            Assert.AreEqual(user.Username, responseContent.Data.Username);
+            Assert.AreEqual(user.LastUsernameChangeAt, responseContent.Data.LastUsernameChangeAt);
+            Assert.AreEqual(user.Email, responseContent.Data.Email);
+            Assert.IsTrue(responseContent.Data.IsEmailVerified);
+            Assert.AreEqual(user.FirstName, responseContent.Data.FirstName);
+            Assert.AreEqual(user.LastName, responseContent.Data.LastName);
         }
 
         [Test]
@@ -56,17 +57,18 @@ namespace APITest.Tests.UserController
             GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
 
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
-            var responseContent = JsonConvert.DeserializeObject<UserDataDto>(await response.Content.ReadAsStringAsync());
+            var responseContent = await GetResponseContentAsync<ApiResponse<UserDataDto>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(responseContent);
+            Assert.IsTrue(responseContent.Successful);
 
-            Assert.AreEqual(user.Username, responseContent.Username);
-            Assert.AreEqual(user.LastUsernameChangeAt, responseContent.LastUsernameChangeAt);
-            Assert.AreEqual(user.Email, responseContent.Email);
-            Assert.IsFalse(responseContent.IsEmailVerified);
-            Assert.AreEqual(user.FirstName, responseContent.FirstName);
-            Assert.AreEqual(user.LastName, responseContent.LastName);
+            Assert.AreEqual(user.Username, responseContent.Data.Username);
+            Assert.AreEqual(user.LastUsernameChangeAt, responseContent.Data.LastUsernameChangeAt);
+            Assert.AreEqual(user.Email, responseContent.Data.Email);
+            Assert.IsFalse(responseContent.Data.IsEmailVerified);
+            Assert.AreEqual(user.FirstName, responseContent.Data.FirstName);
+            Assert.AreEqual(user.LastName, responseContent.Data.LastName);
         }
 
         [Test]
@@ -75,8 +77,11 @@ namespace APITest.Tests.UserController
             var accessToken = "someTotallyWrongAccessToken";
 
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsFalse(responseContent.Successful);
         }
     }
 }

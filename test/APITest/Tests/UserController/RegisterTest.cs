@@ -1,4 +1,5 @@
 using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
@@ -40,9 +41,13 @@ namespace APITest.Tests.UserController
             var usersCountBefore = databaseContext.Users.Count();
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, userRegisterDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var lastUser = databaseContext.Users.LastOrDefault();
 
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsTrue(responseContent.Successful);
+
             Assert.AreEqual(usersCountBefore + 1, databaseContext.Users.Count());
             Assert.NotNull(lastUser);
 
@@ -70,9 +75,13 @@ namespace APITest.Tests.UserController
             var usersCountBefore = databaseContext.Users.Count();
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, userRegisterDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var lastUser = databaseContext.Users.LastOrDefault();
 
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsTrue(responseContent.Successful);
+
             Assert.AreEqual(usersCountBefore + 1, databaseContext.Users.Count());
             Assert.NotNull(lastUser);
 
@@ -225,8 +234,12 @@ namespace APITest.Tests.UserController
             var usersCountBefore = databaseContext.Users.Count();
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, userRegisterDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsFalse(responseContent.Successful);
+
             Assert.AreEqual(usersCountBefore, databaseContext.Users.Count());
 
             mailServiceMock.Verify(s => s.SendEmailVerificationEmailAsync(It.IsAny<User>()), Times.Never());

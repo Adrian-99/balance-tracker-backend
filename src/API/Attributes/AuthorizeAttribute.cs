@@ -25,8 +25,7 @@ namespace API.Attributes
 
             if (context.HttpContext.Items[Constants.AUTHORIZED_USERNAME] == null)
             {
-                context.Result = new JsonResult(new ActionResultDto(
-                    StatusCodes.Status401Unauthorized,
+                context.Result = new JsonResult(ApiResponse<string>.Error(
                     "Unauthorized"
                     // TODO: Add translation key
                 ))
@@ -35,8 +34,7 @@ namespace API.Attributes
 
             if (requireVerifiedEmail && (bool)context.HttpContext.Items[Constants.IS_EMAIL_VERIFIED] == false)
             {
-                context.Result = new JsonResult(new ActionResultDto(
-                    StatusCodes.Status403Forbidden,
+                context.Result = new JsonResult(ApiResponse<string>.Error(
                     "Forbidden - verified email required"
                     // TODO: Add translation key
                 ))

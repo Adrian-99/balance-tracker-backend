@@ -8,6 +8,7 @@ namespace API.Controllers
     [Route("api/category")]
     [ApiController]
     [Produces("application/json")]
+    [ProducesErrorResponseType(typeof(ApiResponse<string>))]
     public class CategoryController : ControllerBase
     {
         private ICategoryService categoryService;
@@ -23,11 +24,10 @@ namespace API.Controllers
         [Authorize(false)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesErrorResponseType(typeof(ActionResultDto))]
-        public async Task<List<CategoryDto>> GetAll()
+        public async Task<ActionResult<ApiResponse<List<CategoryDto>>>> GetAll()
         {
             var categories = await categoryService.GetAllAsync();
-            return categoryMapper.FromCategoryToCategoryDto(categories);
+            return Ok(ApiResponse<List<CategoryDto>>.Success(categoryMapper.FromCategoryToCategoryDto(categories)));
         }
     }
 }

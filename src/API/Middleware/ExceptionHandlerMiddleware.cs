@@ -30,14 +30,12 @@ namespace API.Middleware
         {
             logger.LogError($"{exception.Message}\n{exception.StackTrace}");
 
-            int statusCode = StatusCodes.Status500InternalServerError;
-            var result = JsonConvert.SerializeObject(new ActionResultDto(
-                statusCode,
+            var result = JsonConvert.SerializeObject(ApiResponse<string>.Error(
                 "Internal server error"
                 // TODO: Add translation key
             ));
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = statusCode;
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
             return context.Response.WriteAsync(result);
         }

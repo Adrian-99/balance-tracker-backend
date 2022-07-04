@@ -35,15 +35,17 @@ namespace APITest.Tests.UserController
             var refreshTokenDto = new RefreshTokenDto(refreshToken1);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, refreshTokenDto);
-            var responseContent = JsonConvert.DeserializeObject<TokensDto>(await response.Content.ReadAsStringAsync());
+            var responseContent = await GetResponseContentAsync<ApiResponse<TokensDto>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(responseContent);
-            Assert.NotNull(responseContent.AccessToken);
-            Assert.NotNull(responseContent.RefreshToken);
+            Assert.IsTrue(responseContent.Successful);
 
-            Assert.AreEqual(user.Username, jwtService.ValidateAccessToken(responseContent.AccessToken));
-            Assert.AreEqual(user.Username, jwtService.ValidateRefreshToken(responseContent.RefreshToken));
+            Assert.NotNull(responseContent.Data.AccessToken);
+            Assert.NotNull(responseContent.Data.RefreshToken);
+
+            Assert.AreEqual(user.Username, jwtService.ValidateAccessToken(responseContent.Data.AccessToken));
+            Assert.AreEqual(user.Username, jwtService.ValidateRefreshToken(responseContent.Data.RefreshToken));
         }
 
         [Test]
@@ -52,8 +54,11 @@ namespace APITest.Tests.UserController
             var refreshTokenDto = new RefreshTokenDto("someTotallyWrongRefreshToken");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, refreshTokenDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsFalse(responseContent.Successful);
         }
 
         [Test]
@@ -67,8 +72,11 @@ namespace APITest.Tests.UserController
             var refreshTokenDto = new RefreshTokenDto(accessToken);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, refreshTokenDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsFalse(responseContent.Successful);
         }
     }
 }

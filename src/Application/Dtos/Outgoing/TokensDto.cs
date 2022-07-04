@@ -15,13 +15,10 @@ namespace Application.Dtos.Outgoing
         [Required]
         public string RefreshToken { get; }
 
-        public string? TranslationKey { get; }
-
-        public TokensDto(string accessToken, string refreshToken, string? translationKey = null)
+        public TokensDto(string accessToken, string refreshToken)
         {
             AccessToken = accessToken;
             RefreshToken = refreshToken;
-            TranslationKey = translationKey;
         }
     }
 }

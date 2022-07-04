@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -24,6 +25,8 @@ namespace APITest.Tests.UserController
         private Mock<IMailService> mailServiceMock;
         private User user;
 
+        public int ApiResponse { get; private set; }
+
         protected override void PrepareTestData()
         {
             DataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
@@ -46,9 +49,13 @@ namespace APITest.Tests.UserController
             var resetPasswordRequestDto = new ResetPasswordRequestDto(user.Username);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsTrue(responseContent.Successful);
+
             Assert.NotNull(userAfter.ResetPasswordCode);
             Assert.NotNull(userAfter.ResetPasswordCodeCreatedAt);
 
@@ -61,9 +68,13 @@ namespace APITest.Tests.UserController
             var resetPasswordRequestDto = new ResetPasswordRequestDto(user.Email);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsTrue(responseContent.Successful);
+
             Assert.NotNull(userAfter.ResetPasswordCode);
             Assert.NotNull(userAfter.ResetPasswordCodeCreatedAt);
 
@@ -76,8 +87,11 @@ namespace APITest.Tests.UserController
             var resetPasswordRequestDto = new ResetPasswordRequestDto("someTotallyWrongUsername");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsTrue(responseContent.Successful);
 
             mailServiceMock.Verify(s => s.SendResetPasswordEmailAsync(It.IsAny<User>()), Times.Never());
         }
@@ -88,8 +102,11 @@ namespace APITest.Tests.UserController
             var resetPasswordRequestDto = new ResetPasswordRequestDto("someTotallyWrongEmail@domain.com");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsTrue(responseContent.Successful);
 
             mailServiceMock.Verify(s => s.SendResetPasswordEmailAsync(It.IsAny<User>()), Times.Never());
         }
@@ -98,15 +115,19 @@ namespace APITest.Tests.UserController
         public async Task ResetPasswordRequest_ReplacingExistingCode()
         {
             var otherUserBefore = (from user in databaseContext.Users
-                                    where user.ResetPasswordCode != null && user.ResetPasswordCodeCreatedAt != null
-                                    select user).First();
+                                   where user.ResetPasswordCode != null && user.ResetPasswordCodeCreatedAt != null
+                                   select user).First();
 
             var resetPasswordRequestDto = new ResetPasswordRequestDto(otherUserBefore.Username);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, resetPasswordRequestDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var otherUserAfter = TestUtils.GetUserById(databaseContext, otherUserBefore.Id);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsTrue(responseContent.Successful);
+
             Assert.NotNull(otherUserAfter.ResetPasswordCode);
             Assert.NotNull(otherUserAfter.ResetPasswordCodeCreatedAt);
             Assert.AreNotEqual(otherUserBefore.ResetPasswordCode, otherUserAfter.ResetPasswordCode);

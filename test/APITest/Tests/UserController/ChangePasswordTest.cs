@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
@@ -34,9 +35,13 @@ namespace APITest.Tests.UserController
             var changePasswordDto = new ChangePasswordDto(CURRENT_PASSWORD, "$omeN3wPa$$word");
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changePasswordDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsTrue(responseContent.Successful);
+
             Assert.AreNotEqual(user.PasswordHash, userAfter.PasswordHash);
             Assert.AreNotEqual(user.PasswordSalt, userAfter.PasswordSalt);
             Assert.IsNull(userAfter.ResetPasswordCode);
@@ -50,9 +55,13 @@ namespace APITest.Tests.UserController
             var changePasswordDto = new ChangePasswordDto(CURRENT_PASSWORD, "$omeN3wPa$$word");
 
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, null, changePasswordDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsFalse(responseContent.Successful);
+
             Assert.AreEqual(user.PasswordHash, userAfter.PasswordHash);
             Assert.AreEqual(user.PasswordSalt, userAfter.PasswordSalt);
             Assert.AreEqual(user.ResetPasswordCode, userAfter.ResetPasswordCode);
@@ -135,9 +144,13 @@ namespace APITest.Tests.UserController
         private async Task AssertBadRequest(ChangePasswordDto changePasswordDto)
         {
             var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changePasswordDto);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsFalse(responseContent.Successful);
+
             Assert.AreEqual(user.PasswordHash, userAfter.PasswordHash);
             Assert.AreEqual(user.PasswordSalt, userAfter.PasswordSalt);
             Assert.AreEqual(user.ResetPasswordCode, userAfter.ResetPasswordCode);

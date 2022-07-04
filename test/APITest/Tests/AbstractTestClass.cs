@@ -66,6 +66,11 @@ namespace APITest.Tests
             return response;
         }
 
+        protected async Task<ResponseType?> GetResponseContentAsync<ResponseType>(HttpResponseMessage response)
+        {
+            return JsonConvert.DeserializeObject<ResponseType>(await response.Content.ReadAsStringAsync());
+        }
+
         private void CreateNewScope()
         {
             serviceProvider = customWebApplicationFactory.Services.CreateScope().ServiceProvider;

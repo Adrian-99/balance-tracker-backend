@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Dtos.Outgoing;
+using Application.Interfaces;
 using Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
@@ -29,16 +30,22 @@ namespace APITest.Tests.UserController
             GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
 
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsTrue(responseContent.Successful);
         }
 
         [Test]
         public async Task ValidateToken_WithInvalidToken()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, "someTotallyWrongAccessToken");
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.NotNull(responseContent);
+            Assert.IsFalse(responseContent.Successful);
         }
     }
 }
