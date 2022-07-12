@@ -1,5 +1,5 @@
-﻿using Application;
-using Application.Interfaces;
+﻿using Application.Interfaces;
+using Application.Utilities;
 
 namespace API.Middleware
 {

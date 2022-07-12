@@ -1,10 +1,9 @@
 ﻿using API.Attributes;
-using Application;
 using Application.Dtos.Ingoing;
 using Application.Dtos.Outgoing;
-using Application.Exceptions;
 using Application.Interfaces;
 using Application.Settings;
+using Application.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace balance_tracker_backend.Controllers
@@ -15,11 +14,10 @@ namespace balance_tracker_backend.Controllers
     [ProducesErrorResponseType(typeof(ApiResponse<string>))]
     public class UserController : ControllerBase
     {
-        private IUserMapper userMapper;
-        private IUserService userService;
-        private IPasswordService passwordService;
-        private IJwtService jwtService;
-
+        private readonly IUserMapper userMapper;
+        private readonly IUserService userService;
+        private readonly IPasswordService passwordService;
+        private readonly IJwtService jwtService;
         private readonly UserSettings userSettings;
 
         public UserController(IUserMapper userMapper,
@@ -42,20 +40,13 @@ namespace balance_tracker_backend.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ApiResponse<string>>> Register([FromBody] UserRegisterDto userRegisterDto)
         {
-            try
-            {
-                await userService.ValidateUserDetailsAsync(userRegisterDto.Username,
-                                                           userRegisterDto.Email,
-                                                           userRegisterDto.FirstName,
-                                                           userRegisterDto.LastName);
-                passwordService.CheckPasswordComplexity(userRegisterDto.Password, userRegisterDto.Username);
-                var user = userMapper.FromUserRegisterDtoToUser(userRegisterDto);
-                await userService.RegisterAsync(user);
-            }
-            catch (DataValidationException ex)
-            {
-                return BadRequest(ApiResponse<string>.Error(ex.Message, ex.ErrorTranslationKey));
-            }
+            await userService.ValidateUserDetailsAsync(userRegisterDto.Username,
+                                                        userRegisterDto.Email,
+                                                        userRegisterDto.FirstName,
+                                                        userRegisterDto.LastName);
+            passwordService.CheckPasswordComplexity(userRegisterDto.Password, userRegisterDto.Username);
+            var user = userMapper.FromUserRegisterDtoToUser(userRegisterDto);
+            await userService.RegisterAsync(user);
             return Created("", ApiResponse<string>.Success("User successfully registered", "success.user.register"));
         }
 
@@ -206,17 +197,7 @@ namespace balance_tracker_backend.Controllers
                     ));
             }
 
-            try
-            {
-                passwordService.CheckPasswordComplexity(resetPasswordDto.NewPassword, user);
-            }
-            catch (DataValidationException ex)
-            {
-                return BadRequest(ApiResponse<string>.Error(
-                    ex.Message,
-                    ex.ErrorTranslationKey
-                    ));
-            }
+            passwordService.CheckPasswordComplexity(resetPasswordDto.NewPassword, user);
 
             await userService.ChangePasswordAsync(user, resetPasswordDto.NewPassword);
 
@@ -243,17 +224,7 @@ namespace balance_tracker_backend.Controllers
                     ));
             }
 
-            try
-            {
-                passwordService.CheckPasswordComplexity(changePasswordDto.NewPassword, user);
-            }
-            catch (DataValidationException ex)
-            {
-                return BadRequest(ApiResponse<string>.Error(
-                    ex.Message,
-                    ex.ErrorTranslationKey
-                    ));
-            }
+            passwordService.CheckPasswordComplexity(changePasswordDto.NewPassword, user);
 
             await userService.ChangePasswordAsync(user, changePasswordDto.NewPassword);
 
@@ -302,22 +273,12 @@ namespace balance_tracker_backend.Controllers
                 changeUserDataDto.LastName != user.LastName)
             {
                 var previousUsername = user.Username;
-                try
-                {
-                    await userService.ValidateUserDetailsAsync(changeUserDataDto.Username,
-                                                               changeUserDataDto.Email,
-                                                               changeUserDataDto.FirstName,
-                                                               changeUserDataDto.LastName,
-                                                               user.Username.ToLower() != changeUserDataDto.Username.ToLower(),
-                                                               isEmailChanged);
-                }
-                catch (DataValidationException ex)
-                {
-                    return BadRequest(ApiResponse<string>.Error(
-                        ex.Message,
-                        ex.ErrorTranslationKey
-                        ));
-                }
+                await userService.ValidateUserDetailsAsync(changeUserDataDto.Username,
+                                                            changeUserDataDto.Email,
+                                                            changeUserDataDto.FirstName,
+                                                            changeUserDataDto.LastName,
+                                                            user.Username.ToLower() != changeUserDataDto.Username.ToLower(),
+                                                            isEmailChanged);
 
                 var updatedUser = await userService.ChangeUserDataAsync(user, changeUserDataDto);
                 jwtService.RevokeTokens(previousUsername);

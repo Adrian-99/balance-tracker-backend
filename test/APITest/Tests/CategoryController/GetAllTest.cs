@@ -1,5 +1,6 @@
 ﻿using Application.Dtos.Outgoing;
 using Application.Interfaces;
+using Application.Utilities;
 using Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -20,7 +21,7 @@ namespace APITest.Tests.CategoryController
 
         protected override void PrepareTestData()
         {
-            DataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
+            TestDataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
         }
 
         [Test]
@@ -37,12 +38,12 @@ namespace APITest.Tests.CategoryController
             Assert.IsTrue(responseContent.Successful);
             Assert.AreEqual(6, responseContent.Data.Count);
             Assert.NotNull(responseContent.Data[0].Id);
-            Assert.AreEqual("category1", responseContent.Data[0].Keyword);
+            Assert.AreEqual("incomeCategory1", responseContent.Data[0].Keyword);
             Assert.AreEqual(true, responseContent.Data[0].IsIncome);
             Assert.AreEqual("icon data 1", responseContent.Data[0].Icon);
             Assert.AreEqual("#654321", responseContent.Data[0].IconColor);
             Assert.NotNull(responseContent.Data[1].Id);
-            Assert.AreEqual("category2", responseContent.Data[1].Keyword);
+            Assert.AreEqual("incomeCategory2", responseContent.Data[1].Keyword);
             Assert.AreEqual(true, responseContent.Data[1].IsIncome);
             Assert.AreEqual("icon data 2", responseContent.Data[1].Icon);
             Assert.AreEqual("#654321", responseContent.Data[1].IconColor);
@@ -52,12 +53,12 @@ namespace APITest.Tests.CategoryController
             Assert.AreEqual("icon data 3", responseContent.Data[2].Icon);
             Assert.AreEqual("#654321", responseContent.Data[2].IconColor);
             Assert.NotNull(responseContent.Data[3].Id);
-            Assert.AreEqual("category4", responseContent.Data[3].Keyword);
+            Assert.AreEqual("costCategory1", responseContent.Data[3].Keyword);
             Assert.AreEqual(false, responseContent.Data[3].IsIncome);
             Assert.AreEqual("icon data 4", responseContent.Data[3].Icon);
             Assert.AreEqual("#123456", responseContent.Data[3].IconColor);
             Assert.NotNull(responseContent.Data[4].Id);
-            Assert.AreEqual("category5", responseContent.Data[4].Keyword);
+            Assert.AreEqual("costCategory2", responseContent.Data[4].Keyword);
             Assert.AreEqual(false, responseContent.Data[4].IsIncome);
             Assert.AreEqual("icon data 5", responseContent.Data[4].Icon);
             Assert.AreEqual("#123456", responseContent.Data[4].IconColor);

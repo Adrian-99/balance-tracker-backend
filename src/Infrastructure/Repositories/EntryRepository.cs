@@ -26,5 +26,15 @@ namespace Infrastructure.Repositories
                     where entry.CategoryId.Equals(categoryId)
                     select entry).ToListAsync();
         }
+
+        public Task<List<Entry>> GetAllByUserIdAsync(Guid userId)
+        {
+            return (from entry in databaseContext.Entries
+                        .Include(e => e.Category)
+                        .Include(e => e.EntryTags)
+                        .ThenInclude(et => et.Tag)
+                    where entry.UserId.Equals(userId)
+                    select entry).ToListAsync();
+        }
     }
 }

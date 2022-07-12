@@ -1,12 +1,12 @@
 ﻿[
   {
-    "keyword": "category1",
+    "keyword": "incomeCategory1",
     "isIncome": true,
     "icon": "icon data 1",
     "iconColor": "#654321"
   },
   {
-    "keyword": "category2",
+    "keyword": "incomeCategory2",
     "isIncome": true,
     "icon": "icon data 2",
     "iconColor": "#654321"
@@ -18,13 +18,13 @@
     "iconColor": "#654321"
   },
   {
-    "keyword": "category4",
+    "keyword": "costCategory1",
     "isIncome": false,
     "icon": "icon data 4",
     "iconColor": "#123456"
   },
   {
-    "keyword": "category5",
+    "keyword": "costCategory2",
     "isIncome": false,
     "icon": "icon data 5",
     "iconColor": "#123456"

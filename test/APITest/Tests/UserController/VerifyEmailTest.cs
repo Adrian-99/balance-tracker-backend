@@ -1,6 +1,7 @@
 ﻿using Application.Dtos.Ingoing;
 using Application.Dtos.Outgoing;
 using Application.Interfaces;
+using Application.Utilities;
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
@@ -26,7 +27,7 @@ namespace APITest.Tests.UserController
 
         protected override void PrepareTestData()
         {
-            DataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
+            TestDataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
             user = (from user in databaseContext.Users
                     where !user.IsEmailVerified
                     select user).First();

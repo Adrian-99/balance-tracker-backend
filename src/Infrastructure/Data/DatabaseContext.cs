@@ -42,7 +42,16 @@ namespace Infrastructure.Data
             //modelBuilder.HasCollation(CASE_INSENSITIVE_COLLATION, locale: "en-u-ks-primary", provider: "icu", deterministic: false);
 
             modelBuilder.Entity<User>()
-                .HasIndex(u => new { u.Username, u.Email, u.EmailVerificationCode, u.ResetPasswordCode })
+                .HasIndex(u => u.Username)
+                .IsUnique(true);
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique(true);
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.EmailVerificationCode)
+                .IsUnique(true);
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.ResetPasswordCode)
                 .IsUnique(true);
             modelBuilder.Entity<User>()
                 .Property(u => u.Username)

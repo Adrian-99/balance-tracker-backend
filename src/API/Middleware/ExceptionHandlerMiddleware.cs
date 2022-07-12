@@ -1,4 +1,5 @@
-﻿using Application.Dtos.Outgoing;
+﻿using Application.Exceptions;
+using Application.Utilities;
 using Newtonsoft.Json;
 
 namespace API.Middleware
@@ -20,6 +21,10 @@ namespace API.Middleware
             {
                 await next.Invoke(context);
             }
+            catch (DataValidationException ex)
+            {
+                await HandleDataValidationExceptionAsync(context, ex).ConfigureAwait(false);
+            }
             catch (Exception ex)
             {
                 await HandleExceptionMessageAsync(context, ex).ConfigureAwait(false);
@@ -33,9 +38,23 @@ namespace API.Middleware
             var result = JsonConvert.SerializeObject(ApiResponse<string>.Error(
                 "Internal server error"
                 // TODO: Add translation key
-            ));
+                ));
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+            return context.Response.WriteAsync(result);
+        }
+
+        private Task HandleDataValidationExceptionAsync(HttpContext context, DataValidationException exception)
+        {
+            logger.LogWarning($"Data validation exception: {exception.Message}");
+
+            var result = JsonConvert.SerializeObject(ApiResponse<string>.Error(
+                exception.Message,
+                exception.ErrorTranslationKey
+                ));
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
             return context.Response.WriteAsync(result);
         }

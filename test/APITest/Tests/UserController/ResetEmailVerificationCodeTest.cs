@@ -1,5 +1,5 @@
-﻿using Application.Dtos.Outgoing;
-using Application.Interfaces;
+﻿using Application.Interfaces;
+using Application.Utilities;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
@@ -24,7 +24,7 @@ namespace APITest.Tests.UserController
 
         protected override void PrepareTestData()
         {
-            DataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
+            TestDataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
         }
 
         protected override void PrepareMocks(IServiceCollection services)

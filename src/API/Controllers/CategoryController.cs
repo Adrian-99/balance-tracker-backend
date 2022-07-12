@@ -1,6 +1,8 @@
 ﻿using API.Attributes;
 using Application.Dtos.Outgoing;
 using Application.Interfaces;
+using Application.Mappers;
+using Application.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -11,13 +13,11 @@ namespace API.Controllers
     [ProducesErrorResponseType(typeof(ApiResponse<string>))]
     public class CategoryController : ControllerBase
     {
-        private ICategoryService categoryService;
-        private ICategoryMapper categoryMapper;
+        private readonly ICategoryService categoryService;
 
-        public CategoryController(ICategoryService categoryService, ICategoryMapper categoryMapper)
+        public CategoryController(ICategoryService categoryService)
         {
             this.categoryService = categoryService;
-            this.categoryMapper = categoryMapper;
         }
 
         [HttpGet]
@@ -27,7 +27,7 @@ namespace API.Controllers
         public async Task<ActionResult<ApiResponse<List<CategoryDto>>>> GetAll()
         {
             var categories = await categoryService.GetAllAsync();
-            return Ok(ApiResponse<List<CategoryDto>>.Success(categoryMapper.FromCategoryToCategoryDto(categories)));
+            return Ok(ApiResponse<List<CategoryDto>>.Success(CategoryMapper.FromCategoryToCategoryDto(categories)));
         }
     }
 }

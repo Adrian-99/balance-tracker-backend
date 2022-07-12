@@ -5,13 +5,13 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Application.Dtos.Outgoing
+namespace Application.Utilities
 {
     public class ApiResponse<T>
     {
-        public bool Successful { get; }
-        public string? TranslationKey { get; }
-        public T Data { get; }
+        public bool Successful { get; protected set; }
+        public string? TranslationKey { get; protected set; }
+        public T Data { get; protected set; }
 
         public ApiResponse(bool successful, string? translationKey, T data)
         {

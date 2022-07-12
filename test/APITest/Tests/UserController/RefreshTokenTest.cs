@@ -1,6 +1,7 @@
 ﻿using Application.Dtos.Ingoing;
 using Application.Dtos.Outgoing;
 using Application.Interfaces;
+using Application.Utilities;
 using Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -21,7 +22,7 @@ namespace APITest.Tests.UserController
 
         protected override void PrepareTestData()
         {
-            DataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
+            TestDataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
         }
 
         [Test]

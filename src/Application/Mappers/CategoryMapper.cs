@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.Outgoing;
-using Application.Interfaces;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -9,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Application.Mappers
 {
-    internal class CategoryMapper : ICategoryMapper
+    public class CategoryMapper
     {
-        public CategoryDto FromCategoryToCategoryDto(Category category)
+        public static CategoryDto FromCategoryToCategoryDto(Category category)
         {
             return new CategoryDto(
                 category.Id,
@@ -22,7 +21,7 @@ namespace Application.Mappers
                 );
         }
 
-        public List<CategoryDto> FromCategoryToCategoryDto(List<Category> categories)
+        public static List<CategoryDto> FromCategoryToCategoryDto(List<Category> categories)
         {
             return categories.Select(category => FromCategoryToCategoryDto(category)).ToList();
         }

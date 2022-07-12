@@ -19,9 +19,9 @@ namespace Application
             services.AddScoped<IMailService, MailService>();
             services.AddSingleton<IJwtService, JwtService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IEntryService, EntryService>();
 
             services.AddScoped<IUserMapper, UserMapper>();
-            services.AddScoped<ICategoryMapper, CategoryMapper>();
         }
     }
 }

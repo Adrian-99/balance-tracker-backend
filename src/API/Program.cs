@@ -2,7 +2,6 @@ using API.Middleware;
 using Application;
 using Application.Settings;
 using Domain.Interfaces;
-using Infrastructure.Data;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,13 +77,6 @@ app.Lifetime.ApplicationStarted.Register(async () =>
         scope.ServiceProvider.GetRequiredService<ICategoryRepository>(),
         scope.ServiceProvider.GetRequiredService<IEntryRepository>()
         );
-    if (app.Environment.IsDevelopment())
-    {
-        DataSeeder.SeedAll(
-            app.Configuration,
-            scope.ServiceProvider.GetRequiredService<DatabaseContext>()
-            );
-    }
 });
 
 app.UseHttpsRedirection();

@@ -15,7 +15,7 @@ namespace APITest.Tests.JwtService
     {
         protected override void PrepareTestData()
         {
-            DataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
+            TestDataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
         }
 
         [Test]

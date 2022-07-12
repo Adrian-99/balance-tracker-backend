@@ -12,13 +12,8 @@ namespace Infrastructure.Repositories
 {
     public class UserRepository : GenericRepository<User, Guid>, IUserRepository
     {
-        private readonly DatabaseContext databaseContext;
 
-        public UserRepository(DatabaseContext databaseContext)
-            : base(databaseContext)
-        {
-            this.databaseContext = databaseContext;
-        }
+        public UserRepository(DatabaseContext databaseContext) : base(databaseContext) { }
 
         public async Task<User?> GetByUsernameIgnoreCaseAsync(string username)
         {
