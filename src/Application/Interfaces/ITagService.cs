@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Interfaces
+namespace Application.Interfaces
 {
-    public interface ITagRepository : IGenericRepository<Tag, Guid>
+    public interface ITagService
     {
         public Task<List<Tag>> GetAll(Guid userId);
     }

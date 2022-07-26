@@ -73,7 +73,10 @@ namespace Infrastructure.Data
                 .HasConversion(optionalStringEncryptionConverter);
 
             modelBuilder.Entity<Category>()
-                .HasIndex(c => new { c.OrderOnList, c.Keyword })
+                .HasIndex(c => c.Keyword)
+                .IsUnique(true);
+            modelBuilder.Entity<Category>()
+                .HasIndex(c => c.OrderOnList)
                 .IsUnique(true);
 
             modelBuilder.Entity<EntryTag>()
@@ -104,6 +107,9 @@ namespace Infrastructure.Data
             modelBuilder.Entity<Tag>()
                 .Property(t => t.Name)
                 .HasConversion(stringEncryptionConverter);
+            modelBuilder.Entity<Tag>()
+                .HasIndex(t => new { t.UserId, t.Name })
+                .IsUnique(true);
 
             modelBuilder.Entity<EntryTag>()
                 .HasOne(et => et.Tag)

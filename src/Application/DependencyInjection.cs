@@ -20,6 +20,7 @@ namespace Application
             services.AddSingleton<IJwtService, JwtService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IEntryService, EntryService>();
+            services.AddScoped<ITagService, TagService>();
 
             services.AddScoped<IUserMapper, UserMapper>();
         }
