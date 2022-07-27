@@ -29,6 +29,7 @@ namespace API.Attributes
                     // TODO: Add translation key
                 ))
                 { ContentType = "application/json", StatusCode = StatusCodes.Status401Unauthorized };
+                return;
             }
 
             if (requireVerifiedEmail && (bool)context.HttpContext.Items[Constants.IS_EMAIL_VERIFIED] == false)
@@ -38,6 +39,7 @@ namespace API.Attributes
                     // TODO: Add translation key
                 ))
                 { ContentType = "application/json", StatusCode = StatusCodes.Status403Forbidden };
+                return;
             }
         }
     }

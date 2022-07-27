@@ -25,5 +25,12 @@ namespace Infrastructure.Repositories
                     where tag.UserId.Equals(userId)
                     select tag).ToListAsync();
         }
+
+        public Task<Tag?> GetByName(Guid userId, string name)
+        {
+            return (from tag in databaseContext.Tags
+                    where tag.UserId.Equals(userId) && tag.Name.Equals(name)
+                    select tag).FirstOrDefaultAsync();
+        }
     }
 }

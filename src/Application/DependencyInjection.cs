@@ -23,6 +23,7 @@ namespace Application
             services.AddScoped<ITagService, TagService>();
 
             services.AddScoped<IUserMapper, UserMapper>();
+            services.AddScoped<IEntryMapper, EntryMapper>();
         }
     }
 }

@@ -22,6 +22,7 @@ namespace Infrastructure
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IEntryRepository, EntryRepository>();
+            services.AddScoped<IEntryTagRepository, EntryTagRepository>();
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
         }

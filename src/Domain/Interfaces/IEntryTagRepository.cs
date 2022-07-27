@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface ITagRepository : IGenericRepository<Tag, Guid>
+    public interface IEntryTagRepository
     {
-        Task<List<Tag>> GetAll(Guid userId);
-        Task<Tag?> GetByName(Guid userId, string name);
+        Task<EntryTag> AddAsync(EntryTag entryTag);
+        Task DeleteAsync(Guid entryId, Guid tagId);
     }
 }

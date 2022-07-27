@@ -1,4 +1,4 @@
-﻿using Application.Dtos.Outgoing;
+﻿using Application.Dtos;
 using Application.Interfaces;
 using Application.Utilities;
 using Application.Utilities.Pagination;

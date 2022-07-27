@@ -12,5 +12,6 @@ namespace Application.Interfaces
     public interface IEntryService
     {
         Task<Page<Entry>> GetAllPagedAsync(Guid userId, Pageable pageable, EntryFilter entryFilter);
+        Task<Entry> CreateAsync(Entry entry, List<string> tagNames);
     }
 }
