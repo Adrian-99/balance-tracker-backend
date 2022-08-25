@@ -9,6 +9,7 @@ namespace Application.Interfaces
 {
     public interface ITagService
     {
-        public Task<List<Tag>> GetAll(Guid userId);
+        Task<List<Tag>> GetAllAsync(Guid userId);
+        Task<Tag> CreateAsync(Tag tag);
     }
 }

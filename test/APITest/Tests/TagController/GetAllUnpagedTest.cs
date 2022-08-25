@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Dtos;
+using Application.Interfaces;
 using Application.Utilities;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
@@ -31,14 +32,14 @@ namespace APITest.Tests.TagController
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            var responseContent = await GetResponseContentAsync<ApiResponse<List<string>>>(response);
+            var responseContent = await GetResponseContentAsync<ApiResponse<List<TagDto>>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(3, responseContent.Data.Count);
-            Assert.AreEqual("secondTag", responseContent.Data[0]);
-            Assert.AreEqual("Tag number 3", responseContent.Data[1]);
-            Assert.AreEqual("tag1", responseContent.Data[2]);
+            Assert.AreEqual("secondTag", responseContent.Data[0].Name);
+            Assert.AreEqual("Tag number 3", responseContent.Data[1].Name);
+            Assert.AreEqual("tag1", responseContent.Data[2].Name);
         }
 
         [Test]
@@ -51,12 +52,12 @@ namespace APITest.Tests.TagController
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            var responseContent = await GetResponseContentAsync<ApiResponse<List<string>>>(response);
+            var responseContent = await GetResponseContentAsync<ApiResponse<List<TagDto>>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(1, responseContent.Data.Count);
-            Assert.AreEqual("tag of another user", responseContent.Data[0]);
+            Assert.AreEqual("tag of another user", responseContent.Data[0].Name);
         }
 
         [Test]

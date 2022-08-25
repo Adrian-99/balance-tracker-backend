@@ -10,6 +10,6 @@ namespace Domain.Interfaces
     public interface ITagRepository : IGenericRepository<Tag, Guid>
     {
         Task<List<Tag>> GetAll(Guid userId);
-        Task<Tag?> GetByName(Guid userId, string name);
+        Task<Tag?> GetByNameIgnoreCase(Guid userId, string name);
     }
 }

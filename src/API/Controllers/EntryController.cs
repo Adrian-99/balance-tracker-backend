@@ -48,7 +48,7 @@ namespace API.Controllers
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
             var entry = await entryMapper.FromEntryDtoToEntryAsync(entryDto, user.Id);
-            await entryService.CreateAsync(entry, entryDto.Tags);
+            await entryService.CreateAsync(entry, entryDto.Tags.Select(t => t.Name).ToList());
             return Created("", ApiResponse<string>.Success("Entry successfully created", ""));
         }
     }

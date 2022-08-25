@@ -24,9 +24,9 @@ namespace Application.Dtos
         public string CategoryKeyword { get; }
 
         [Required]
-        public List<string> Tags { get; }
+        public List<TagDto> Tags { get; }
 
-        public EntryDto(DateTime date, decimal value, string name, string? description, string categoryKeyword, List<string> tags)
+        public EntryDto(DateTime date, decimal value, string name, string? description, string categoryKeyword, List<TagDto> tags)
         {
             Date = date;
             Value = value;

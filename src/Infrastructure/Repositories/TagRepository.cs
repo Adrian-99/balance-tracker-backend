@@ -26,10 +26,11 @@ namespace Infrastructure.Repositories
                     select tag).ToListAsync();
         }
 
-        public Task<Tag?> GetByName(Guid userId, string name)
+        public Task<Tag?> GetByNameIgnoreCase(Guid userId, string name)
         {
+            var nameLowerCase = name.ToLower();
             return (from tag in databaseContext.Tags
-                    where tag.UserId.Equals(userId) && tag.Name.Equals(name)
+                    where tag.UserId.Equals(userId) && tag.Name.ToLower().Equals(nameLowerCase)
                     select tag).FirstOrDefaultAsync();
         }
     }

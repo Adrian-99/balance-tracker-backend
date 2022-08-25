@@ -49,21 +49,21 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual("Previous one broken down, bought again", responseContent.Data[0].Description);
             Assert.AreEqual("otherCost", responseContent.Data[0].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[0].Tags.Count);
-            Assert.AreEqual("Tag number 3", responseContent.Data[0].Tags[0]);
+            Assert.AreEqual("Tag number 3", responseContent.Data[0].Tags[0].Name);
             Assert.AreEqual(new DateTime(2022, 6, 25, 6, 34, 54, DateTimeKind.Utc), responseContent.Data[1].Date);
             Assert.AreEqual(2.5M, responseContent.Data[1].Value);
             Assert.AreEqual("bread rolls", responseContent.Data[1].Name);
             Assert.IsNull(responseContent.Data[1].Description);
             Assert.AreEqual("costCategory2", responseContent.Data[1].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[1].Tags.Count);
-            Assert.AreEqual("secondTag", responseContent.Data[1].Tags[0]);
+            Assert.AreEqual("secondTag", responseContent.Data[1].Tags[0].Name);
             Assert.AreEqual(new DateTime(2022, 6, 12, 14, 5, 21, DateTimeKind.Utc), responseContent.Data[2].Date);
             Assert.AreEqual(100.0M, responseContent.Data[2].Value);
             Assert.AreEqual("found some money", responseContent.Data[2].Name);
             Assert.AreEqual("Yay!", responseContent.Data[2].Description);
             Assert.AreEqual("otherIncome", responseContent.Data[2].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[2].Tags.Count);
-            Assert.AreEqual("tag1", responseContent.Data[2].Tags[0]);
+            Assert.AreEqual("tag1", responseContent.Data[2].Tags[0].Name);
             Assert.AreEqual(new DateTime(2022, 6, 10, 12, 0, 5, DateTimeKind.Utc), responseContent.Data[3].Date);
             Assert.AreEqual(3200.0M, responseContent.Data[3].Value);
             Assert.AreEqual("Salary", responseContent.Data[3].Name);
@@ -76,15 +76,15 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual("Product 1 has been bought", responseContent.Data[4].Description);
             Assert.AreEqual("otherCost", responseContent.Data[4].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[4].Tags.Count);
-            Assert.AreEqual("Tag number 3", responseContent.Data[4].Tags[0]);
+            Assert.AreEqual("Tag number 3", responseContent.Data[4].Tags[0].Name);
             Assert.AreEqual(new DateTime(2022, 5, 12, 17, 21, 21, DateTimeKind.Utc), responseContent.Data[5].Date);
             Assert.AreEqual(17.65M, responseContent.Data[5].Value);
             Assert.AreEqual("Bills", responseContent.Data[5].Name);
             Assert.AreEqual("Monthly bills", responseContent.Data[5].Description);
             Assert.AreEqual("costCategory2", responseContent.Data[5].CategoryKeyword);
             Assert.AreEqual(2, responseContent.Data[5].Tags.Count);
-            Assert.AreEqual("tag1", responseContent.Data[5].Tags[0]);
-            Assert.AreEqual("Tag number 3", responseContent.Data[5].Tags[1]);
+            Assert.AreEqual("tag1", responseContent.Data[5].Tags[0].Name);
+            Assert.AreEqual("Tag number 3", responseContent.Data[5].Tags[1].Name);
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual("Yay!", responseContent.Data[0].Description);
             Assert.AreEqual("otherIncome", responseContent.Data[0].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[0].Tags.Count);
-            Assert.AreEqual("tag1", responseContent.Data[0].Tags[0]);
+            Assert.AreEqual("tag1", responseContent.Data[0].Tags[0].Name);
             Assert.AreEqual(new DateTime(2022, 6, 10, 12, 0, 5, DateTimeKind.Utc), responseContent.Data[1].Date);
             Assert.AreEqual(3200.0M, responseContent.Data[1].Value);
             Assert.AreEqual("Salary", responseContent.Data[1].Name);
@@ -140,15 +140,15 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual("Monthly bills", responseContent.Data[0].Description);
             Assert.AreEqual("costCategory2", responseContent.Data[0].CategoryKeyword);
             Assert.AreEqual(2, responseContent.Data[0].Tags.Count);
-            Assert.AreEqual("tag1", responseContent.Data[0].Tags[0]);
-            Assert.AreEqual("Tag number 3", responseContent.Data[0].Tags[1]);
+            Assert.AreEqual("tag1", responseContent.Data[0].Tags[0].Name);
+            Assert.AreEqual("Tag number 3", responseContent.Data[0].Tags[1].Name);
             Assert.AreEqual(new DateTime(2022, 6, 2, 20, 15, 24, DateTimeKind.Utc), responseContent.Data[1].Date);
             Assert.AreEqual(60.45M, responseContent.Data[1].Value);
             Assert.AreEqual("Product 1", responseContent.Data[1].Name);
             Assert.AreEqual("Product 1 has been bought", responseContent.Data[1].Description);
             Assert.AreEqual("otherCost", responseContent.Data[1].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[1].Tags.Count);
-            Assert.AreEqual("Tag number 3", responseContent.Data[1].Tags[0]);
+            Assert.AreEqual("Tag number 3", responseContent.Data[1].Tags[0].Name);
         }
 
         [Test]
@@ -179,7 +179,7 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual("Yay!", responseContent.Data[1].Description);
             Assert.AreEqual("otherIncome", responseContent.Data[1].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[1].Tags.Count);
-            Assert.AreEqual("tag1", responseContent.Data[1].Tags[0]);
+            Assert.AreEqual("tag1", responseContent.Data[1].Tags[0].Name);
         }
 
         [Test]
@@ -204,15 +204,15 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual("Monthly bills", responseContent.Data[0].Description);
             Assert.AreEqual("costCategory2", responseContent.Data[0].CategoryKeyword);
             Assert.AreEqual(2, responseContent.Data[0].Tags.Count);
-            Assert.AreEqual("tag1", responseContent.Data[0].Tags[0]);
-            Assert.AreEqual("Tag number 3", responseContent.Data[0].Tags[1]);
+            Assert.AreEqual("tag1", responseContent.Data[0].Tags[0].Name);
+            Assert.AreEqual("Tag number 3", responseContent.Data[0].Tags[1].Name);
             Assert.AreEqual(new DateTime(2022, 6, 25, 6, 34, 54, DateTimeKind.Utc), responseContent.Data[1].Date);
             Assert.AreEqual(2.5M, responseContent.Data[1].Value);
             Assert.AreEqual("bread rolls", responseContent.Data[1].Name);
             Assert.IsNull(responseContent.Data[1].Description);
             Assert.AreEqual("costCategory2", responseContent.Data[1].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[1].Tags.Count);
-            Assert.AreEqual("secondTag", responseContent.Data[1].Tags[0]);
+            Assert.AreEqual("secondTag", responseContent.Data[1].Tags[0].Name);
         }
 
         [Test]
@@ -237,7 +237,7 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual("Previous one broken down, bought again", responseContent.Data[0].Description);
             Assert.AreEqual("otherCost", responseContent.Data[0].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[0].Tags.Count);
-            Assert.AreEqual("Tag number 3", responseContent.Data[0].Tags[0]);
+            Assert.AreEqual("Tag number 3", responseContent.Data[0].Tags[0].Name);
             Assert.AreEqual(new DateTime(2022, 6, 10, 12, 0, 5, DateTimeKind.Utc), responseContent.Data[1].Date);
             Assert.AreEqual(3200.0M, responseContent.Data[1].Value);
             Assert.AreEqual("Salary", responseContent.Data[1].Name);
@@ -250,7 +250,7 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual("Product 1 has been bought", responseContent.Data[2].Description);
             Assert.AreEqual("otherCost", responseContent.Data[2].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[2].Tags.Count);
-            Assert.AreEqual("Tag number 3", responseContent.Data[2].Tags[0]);
+            Assert.AreEqual("Tag number 3", responseContent.Data[2].Tags[0].Name);
         }
 
         [Test]
@@ -293,7 +293,7 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual("Yay!", responseContent.Data[0].Description);
             Assert.AreEqual("otherIncome", responseContent.Data[0].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[0].Tags.Count);
-            Assert.AreEqual("tag1", responseContent.Data[0].Tags[0]);
+            Assert.AreEqual("tag1", responseContent.Data[0].Tags[0].Name);
             Assert.AreEqual(new DateTime(2022, 6, 10, 12, 0, 5, DateTimeKind.Utc), responseContent.Data[1].Date);
             Assert.AreEqual(3200.0M, responseContent.Data[1].Value);
             Assert.AreEqual("Salary", responseContent.Data[1].Name);
@@ -306,7 +306,7 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual("Product 1 has been bought", responseContent.Data[2].Description);
             Assert.AreEqual("otherCost", responseContent.Data[2].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[2].Tags.Count);
-            Assert.AreEqual("Tag number 3", responseContent.Data[2].Tags[0]);
+            Assert.AreEqual("Tag number 3", responseContent.Data[2].Tags[0].Name);
         }
 
         [Test]
@@ -331,22 +331,22 @@ namespace APITest.Tests.EntryController
             Assert.IsNull(responseContent.Data[0].Description);
             Assert.AreEqual("costCategory2", responseContent.Data[0].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[0].Tags.Count);
-            Assert.AreEqual("secondTag", responseContent.Data[0].Tags[0]);
+            Assert.AreEqual("secondTag", responseContent.Data[0].Tags[0].Name);
             Assert.AreEqual(new DateTime(2022, 6, 12, 14, 5, 21, DateTimeKind.Utc), responseContent.Data[1].Date);
             Assert.AreEqual(100.0M, responseContent.Data[1].Value);
             Assert.AreEqual("found some money", responseContent.Data[1].Name);
             Assert.AreEqual("Yay!", responseContent.Data[1].Description);
             Assert.AreEqual("otherIncome", responseContent.Data[1].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[1].Tags.Count);
-            Assert.AreEqual("tag1", responseContent.Data[1].Tags[0]);
+            Assert.AreEqual("tag1", responseContent.Data[1].Tags[0].Name);
             Assert.AreEqual(new DateTime(2022, 5, 12, 17, 21, 21, DateTimeKind.Utc), responseContent.Data[2].Date);
             Assert.AreEqual(17.65M, responseContent.Data[2].Value);
             Assert.AreEqual("Bills", responseContent.Data[2].Name);
             Assert.AreEqual("Monthly bills", responseContent.Data[2].Description);
             Assert.AreEqual("costCategory2", responseContent.Data[2].CategoryKeyword);
             Assert.AreEqual(2, responseContent.Data[2].Tags.Count);
-            Assert.AreEqual("tag1", responseContent.Data[2].Tags[0]);
-            Assert.AreEqual("Tag number 3", responseContent.Data[2].Tags[1]);
+            Assert.AreEqual("tag1", responseContent.Data[2].Tags[0].Name);
+            Assert.AreEqual("Tag number 3", responseContent.Data[2].Tags[1].Name);
         }
 
         [Test]
@@ -371,22 +371,22 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual("Previous one broken down, bought again", responseContent.Data[0].Description);
             Assert.AreEqual("otherCost", responseContent.Data[0].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[0].Tags.Count);
-            Assert.AreEqual("Tag number 3", responseContent.Data[0].Tags[0]);
+            Assert.AreEqual("Tag number 3", responseContent.Data[0].Tags[0].Name);
             Assert.AreEqual(new DateTime(2022, 6, 2, 20, 15, 24, DateTimeKind.Utc), responseContent.Data[1].Date);
             Assert.AreEqual(60.45M, responseContent.Data[1].Value);
             Assert.AreEqual("Product 1", responseContent.Data[1].Name);
             Assert.AreEqual("Product 1 has been bought", responseContent.Data[1].Description);
             Assert.AreEqual("otherCost", responseContent.Data[1].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[1].Tags.Count);
-            Assert.AreEqual("Tag number 3", responseContent.Data[1].Tags[0]);
+            Assert.AreEqual("Tag number 3", responseContent.Data[1].Tags[0].Name);
             Assert.AreEqual(new DateTime(2022, 5, 12, 17, 21, 21, DateTimeKind.Utc), responseContent.Data[2].Date);
             Assert.AreEqual(17.65M, responseContent.Data[2].Value);
             Assert.AreEqual("Bills", responseContent.Data[2].Name);
             Assert.AreEqual("Monthly bills", responseContent.Data[2].Description);
             Assert.AreEqual("costCategory2", responseContent.Data[2].CategoryKeyword);
             Assert.AreEqual(2, responseContent.Data[2].Tags.Count);
-            Assert.AreEqual("tag1", responseContent.Data[2].Tags[0]);
-            Assert.AreEqual("Tag number 3", responseContent.Data[2].Tags[1]);
+            Assert.AreEqual("tag1", responseContent.Data[2].Tags[0].Name);
+            Assert.AreEqual("Tag number 3", responseContent.Data[2].Tags[1].Name);
         }
 
         [Test]
@@ -415,7 +415,7 @@ namespace APITest.Tests.EntryController
             Assert.IsNull(responseContent.Data[0].Description);
             Assert.AreEqual("costCategory2", responseContent.Data[0].CategoryKeyword);
             Assert.AreEqual(1, responseContent.Data[0].Tags.Count);
-            Assert.AreEqual("tag of another user", responseContent.Data[0].Tags[0]);
+            Assert.AreEqual("tag of another user", responseContent.Data[0].Tags[0].Name);
         }
 
         [Test]

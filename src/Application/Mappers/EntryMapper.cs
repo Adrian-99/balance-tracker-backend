@@ -28,7 +28,7 @@ namespace Application.Mappers
                 entry.Name,
                 entry.Description,
                 entry.Category.Keyword,
-                entry.EntryTags.Select(et => et.Tag.Name).ToList()
+                entry.EntryTags.Select(et => TagMapper.FromTagToTagDto(et.Tag)).ToList()
                 );
         }
 
