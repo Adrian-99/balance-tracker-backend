@@ -1,4 +1,5 @@
-﻿using Application.Dtos;
+﻿using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,6 @@ namespace Application.Interfaces
     public interface IEntryMapper
     {
         EntryDto FromEntryToEntryDto(Entry entry);
-        Task<Entry> FromEntryDtoToEntryAsync(EntryDto entryDto, Guid userId);
+        Task<Entry> FromEditEntryDtoToEntryAsync(EditEntryDto editEntryDto, Guid userId);
     }
 }

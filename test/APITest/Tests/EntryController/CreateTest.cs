@@ -1,4 +1,4 @@
-﻿using Application.Dtos;
+﻿using Application.Dtos.Ingoing;
 using Application.Interfaces;
 using Application.Utilities;
 using Domain.Entities;
@@ -37,7 +37,7 @@ namespace APITest.Tests.EntryController
         [Test]
         public async Task Create_WithCorrectDataWithoutTags()
         {
-            var entryDto = new EntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", new List<TagDto>());
+            var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", new List<string>());
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
@@ -66,10 +66,8 @@ namespace APITest.Tests.EntryController
         [Test]
         public async Task Create_WithCorrectDataWithTags()
         {
-            var tagDtos = new List<TagDto>();
-            tagDtos.Add(new TagDto("tag1"));
-            tagDtos.Add(new TagDto("secondTag"));
-            var entryDto = new EntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", tagDtos);
+            var tags = new List<string>() { "tag1", "secondTag" };
+            var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", tags);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
@@ -79,7 +77,7 @@ namespace APITest.Tests.EntryController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(entriesCountBefore + 1, databaseContext.Entries.Count());
-            Assert.AreEqual(entryTagsCountBefore + tagDtos.Count, databaseContext.EntryTags.Count());
+            Assert.AreEqual(entryTagsCountBefore + tags.Count, databaseContext.EntryTags.Count());
 
             var lastEntry = databaseContext.Entries
                 .Include(e => e.Category)
@@ -92,15 +90,15 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual(entryDto.Description, lastEntry.Description);
             Assert.AreEqual(user.Id, lastEntry.UserId);
             Assert.AreEqual(entryDto.CategoryKeyword, lastEntry.Category.Keyword);
-            Assert.AreEqual(tagDtos.Count, lastEntry.EntryTags.Count);
-            Assert.AreEqual(tagDtos[0].Name, lastEntry.EntryTags.ToList()[0].Tag.Name);
-            Assert.AreEqual(tagDtos[1].Name, lastEntry.EntryTags.ToList()[1].Tag.Name);
+            Assert.AreEqual(tags.Count, lastEntry.EntryTags.Count);
+            Assert.AreEqual(tags[0], lastEntry.EntryTags.ToList()[0].Tag.Name);
+            Assert.AreEqual(tags[1], lastEntry.EntryTags.ToList()[1].Tag.Name);
         }
 
         [Test]
         public async Task Create_WithInvalidCategory()
         {
-            var entryDto = new EntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "NonExistantCategory", new List<TagDto>());
+            var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "NonExistantCategory", new List<string>());
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
@@ -116,10 +114,8 @@ namespace APITest.Tests.EntryController
         [Test]
         public async Task Create_WithInvalidTag()
         {
-            var tagDtos = new List<TagDto>();
-            tagDtos.Add(new TagDto("tag1"));
-            tagDtos.Add(new TagDto("tag of another user"));
-            var entryDto = new EntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", tagDtos);
+            var tags = new List<string>() { "tag1", "tag of another user" };
+            var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", tags);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
@@ -135,7 +131,7 @@ namespace APITest.Tests.EntryController
         [Test]
         public async Task Create_Unauthorized()
         {
-            var entryDto = new EntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", new List<TagDto>());
+            var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", new List<string>());
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, "someTotallyWrongAccessToken", entryDto);
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -154,7 +150,7 @@ namespace APITest.Tests.EntryController
             user = databaseContext.Users.Where(u => !u.IsEmailVerified).First();
             GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
 
-            var entryDto = new EntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", new List<TagDto>());
+            var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", new List<string>());
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);

@@ -5,10 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Dtos
+namespace Application.Dtos.Outgoing
 {
     public class EntryDto
     {
+        [Required]
+        public Guid Id { get; }
+
         [Required]
         public DateTime Date { get; }
 
@@ -26,8 +29,15 @@ namespace Application.Dtos
         [Required]
         public List<TagDto> Tags { get; }
 
-        public EntryDto(DateTime date, decimal value, string name, string? description, string categoryKeyword, List<TagDto> tags)
+        public EntryDto(Guid id,
+                        DateTime date,
+                        decimal value,
+                        string name,
+                        string? description,
+                        string categoryKeyword,
+                        List<TagDto> tags)
         {
+            Id = id;
             Date = date;
             Value = value;
             Name = name;

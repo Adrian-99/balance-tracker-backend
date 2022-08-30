@@ -1,5 +1,6 @@
 ﻿using API.Attributes;
-using Application.Dtos;
+using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Application.Interfaces;
 using Application.Mappers;
 using Application.Utilities;
@@ -44,11 +45,11 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<ApiResponse<string>>> Create([FromBody] EntryDto entryDto)
+        public async Task<ActionResult<ApiResponse<string>>> Create([FromBody] EditEntryDto editEntryDto)
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
-            var entry = await entryMapper.FromEntryDtoToEntryAsync(entryDto, user.Id);
-            await entryService.CreateAsync(entry, entryDto.Tags.Select(t => t.Name).ToList());
+            var entry = await entryMapper.FromEditEntryDtoToEntryAsync(editEntryDto, user.Id);
+            await entryService.CreateAsync(entry, editEntryDto.TagNames);
             return Created("", ApiResponse<string>.Success("Entry successfully created", ""));
         }
     }

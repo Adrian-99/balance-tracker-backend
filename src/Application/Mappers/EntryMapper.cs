@@ -1,4 +1,5 @@
-﻿using Application.Dtos;
+﻿using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Application.Exceptions;
 using Application.Interfaces;
 using Domain.Entities;
@@ -23,6 +24,7 @@ namespace Application.Mappers
         public EntryDto FromEntryToEntryDto(Entry entry)
         {
             return new EntryDto(
+                entry.Id,
                 entry.Date,
                 entry.Value,
                 entry.Name,
@@ -32,23 +34,23 @@ namespace Application.Mappers
                 );
         }
 
-        public async Task<Entry> FromEntryDtoToEntryAsync(EntryDto entryDto, Guid userId)
+        public async Task<Entry> FromEditEntryDtoToEntryAsync(EditEntryDto editEntryDto, Guid userId)
         {
-            var category = await categoryRepository.GetByKeywordAsync(entryDto.CategoryKeyword);
+            var category = await categoryRepository.GetByKeywordAsync(editEntryDto.CategoryKeyword);
             if (category != null)
             {
                 var entry = new Entry();
-                entry.Date = entryDto.Date;
-                entry.Value = entryDto.Value;
-                entry.Name = entryDto.Name;
-                entry.Description = entryDto.Description;
+                entry.Date = editEntryDto.Date;
+                entry.Value = editEntryDto.Value;
+                entry.Name = editEntryDto.Name;
+                entry.Description = editEntryDto.Description;
                 entry.UserId = userId;
                 entry.CategoryId = category.Id;
                 return entry;
             }
             else
             {
-                throw new DataValidationException("Category with keyword \"" + entryDto.CategoryKeyword + "\" not found");
+                throw new DataValidationException("Category with keyword \"" + editEntryDto.CategoryKeyword + "\" not found");
             }
         }
     }
