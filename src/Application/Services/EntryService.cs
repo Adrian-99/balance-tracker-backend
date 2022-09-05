@@ -38,7 +38,7 @@ namespace Application.Services
             {
                 foreach (var tagName in tagNames)
                 {
-                    var tag = await tagRepository.GetByNameIgnoreCase(entry.UserId, tagName);
+                    var tag = await tagRepository.GetByNameIgnoreCaseAsync(entry.UserId, tagName);
                     if (tag != null)
                     {
                         tagIds.Add(tag.Id);

@@ -19,19 +19,18 @@ namespace Infrastructure.Repositories
             this.databaseContext = databaseContext;
         }
 
-        public Task<List<Tag>> GetAll(Guid userId)
+        public Task<List<Tag>> GetAllAsync(Guid userId)
         {
             return (from tag in databaseContext.Tags
                     where tag.UserId.Equals(userId)
                     select tag).ToListAsync();
         }
 
-        public Task<Tag?> GetByNameIgnoreCase(Guid userId, string name)
+        public async Task<Tag?> GetByNameIgnoreCaseAsync(Guid userId, string name)
         {
-            var nameLowerCase = name.ToLower();
-            return (from tag in databaseContext.Tags
-                    where tag.UserId.Equals(userId) && tag.Name.ToLower().Equals(nameLowerCase)
-                    select tag).FirstOrDefaultAsync();
+            var nameToLower = name.ToLower();
+            var userTags = await GetAllAsync(userId);
+            return userTags.FirstOrDefault(t => t.Name.ToLower().Equals(nameToLower));
         }
     }
 }

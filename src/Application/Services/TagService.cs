@@ -21,14 +21,14 @@ namespace Application.Services
 
         public async Task<List<Tag>> GetAllAsync(Guid userId)
         {
-            var tags = await tagRepository.GetAll(userId);
+            var tags = await tagRepository.GetAllAsync(userId);
             tags.Sort((tag1, tag2) => tag1.Name.ToLower().CompareTo(tag2.Name.ToLower()));
             return tags;
         }
 
         public async Task<Tag> CreateAsync(Tag tag)
         {
-            if ((await tagRepository.GetByNameIgnoreCase(tag.UserId, tag.Name)) != null)
+            if ((await tagRepository.GetByNameIgnoreCaseAsync(tag.UserId, tag.Name)) != null)
             {
                 throw new DataValidationException(
                     $"Tag with name {tag.Name} already exists"
