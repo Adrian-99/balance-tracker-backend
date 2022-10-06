@@ -24,6 +24,8 @@ namespace Application
 
             services.AddScoped<IUserMapper, UserMapper>();
             services.AddScoped<IEntryMapper, EntryMapper>();
+
+            services.AddSingleton<CategoriesLoader>();
         }
     }
 }

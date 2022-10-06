@@ -1,4 +1,5 @@
-﻿using Application.Dtos.Outgoing;
+﻿using Application;
+using Application.Dtos.Outgoing;
 using Application.Interfaces;
 using Application.Utilities;
 using Application.Utilities.Pagination;
@@ -22,7 +23,7 @@ namespace APITest.Tests.EntryController
 
         protected override void PrepareTestData()
         {
-            TestDataSeeder.SeedAll(GetService<IConfiguration>(), databaseContext);
+            TestDataSeeder.SeedAll(GetService<CategoriesLoader>(), GetService<IConfiguration>(), databaseContext);
             var user = databaseContext.Users.Where(u => u.IsEmailVerified).First();
             GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
         }
@@ -31,9 +32,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithNoParams()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
-            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
@@ -97,9 +98,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithSmallSecondPage()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?pageNumber=2&pageSize=2", accessToken);
-            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
@@ -130,9 +131,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithSortByDateAsc()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?pageSize=2&sortBy=date", accessToken);
-            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
@@ -165,9 +166,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithSortByValueDesc()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?pageSize=2&sortBy=-value", accessToken);
-            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
@@ -198,9 +199,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithSortByNameAsc()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?pageSize=2&sortBy=name", accessToken);
-            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
@@ -233,9 +234,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithSearchValue()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?searchValue=pro", accessToken);
-            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
@@ -274,9 +275,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithSearchValueWithNoResults()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?searchValue=nonExistantString", accessToken);
-            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
@@ -292,9 +293,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithDateRange()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?dateFrom=2022-06-02&dateTo=2022-06-12", accessToken);
-            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
@@ -333,9 +334,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithCategoriesKeywords()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?categoriesKeywords=costcategory2,otherincome", accessToken);
-            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
@@ -376,9 +377,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithTagsNames()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?tagsNames=Tag number 3,tag of another user", accessToken);
-            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
@@ -423,9 +424,9 @@ namespace APITest.Tests.EntryController
             GetService<IJwtService>().GenerateTokens(anotherUser, out anotherAccessToken, out _);
 
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, anotherAccessToken);
-            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
-
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
@@ -449,9 +450,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithWrongSortBy()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?sortBy=someTotallyWrongValue", accessToken);
-            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
-
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             Assert.NotNull(responseContent);
             Assert.IsFalse(responseContent.Successful);
         }
@@ -460,9 +461,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_WithWrongDateRange()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?dateFrom=2022-06-15&dateTo=2022-06-01", accessToken);
-            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
-
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             Assert.NotNull(responseContent);
             Assert.IsFalse(responseContent.Successful);
         }
@@ -471,9 +472,9 @@ namespace APITest.Tests.EntryController
         public async Task GetAllPaged_Unauthorized()
         {
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, "someTotallyWrongAccessToken");
-            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
-
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             Assert.NotNull(responseContent);
             Assert.IsFalse(responseContent.Successful);
         }

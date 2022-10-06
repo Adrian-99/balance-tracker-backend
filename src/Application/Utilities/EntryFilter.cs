@@ -50,7 +50,11 @@ namespace Application.Utilities
 
             if (!string.IsNullOrEmpty(SearchValue))
             {
-                entries = entries.FindAll(entry => Utils.AnySourceContainsIgnoreCase(SearchValue, entry.Name, entry.Description));
+                entries = entries.FindAll(entry => Utils.AnySourceContainsIgnoreCase(
+                    SearchValue,
+                    entry.Name,
+                    EncryptionUtils.DecryptWithAES(entry.DescriptionContent, entry.DescriptionKey, entry.DescriptionIV)
+                    ));
             }
             if (DateFrom != null)
             {

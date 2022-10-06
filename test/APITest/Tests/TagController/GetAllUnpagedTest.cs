@@ -1,4 +1,5 @@
-﻿using Application.Dtos;
+﻿using Application;
+using Application.Dtos;
 using Application.Interfaces;
 using Application.Utilities;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,7 @@ namespace APITest.Tests.TagController
 
         protected override void PrepareTestData()
         {
-            TestDataSeeder.SeedAll(GetService<IConfiguration>(), databaseContext);
+            TestDataSeeder.SeedAll(GetService<CategoriesLoader>(), GetService<IConfiguration>(), databaseContext);
         }
 
         [Test]

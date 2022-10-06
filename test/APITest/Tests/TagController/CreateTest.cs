@@ -1,4 +1,5 @@
-﻿using Application.Dtos;
+﻿using Application;
+using Application.Dtos;
 using Application.Interfaces;
 using Application.Utilities;
 using Domain.Entities;
@@ -24,7 +25,7 @@ namespace APITest.Tests.TagController
 
         protected override void PrepareTestData()
         {
-            TestDataSeeder.SeedAll(GetService<IConfiguration>(), databaseContext);
+            TestDataSeeder.SeedAll(GetService<CategoriesLoader>(), GetService<IConfiguration>(), databaseContext);
             user = databaseContext.Users.Where(u => u.IsEmailVerified).First();
             GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
             tagsCountBefore = databaseContext.Tags.Count();

@@ -1,19 +1,24 @@
-﻿using Application.Services;
+﻿using Application;
+using Application.Services;
+using Application.Utilities;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
+using System.Threading;
 
 namespace APITest.Tests
 {
     public static class TestDataSeeder
     {
-        public static void SeedAll(IConfiguration configuration, DatabaseContext databaseContext)
+        public static void SeedAll(CategoriesLoader categoriesLoader,
+                                   IConfiguration configuration,
+                                   DatabaseContext databaseContext)
         {
             SeedUsers(configuration, databaseContext);
             SeedTags(databaseContext);
-            SeedEntries(databaseContext);
+            SeedEntries(categoriesLoader, databaseContext);
         }
 
         public static void SeedUsers(IConfiguration configuration, DatabaseContext databaseContext)
@@ -99,22 +104,29 @@ namespace APITest.Tests
             }
         }
 
-        private static void SeedEntries(DatabaseContext databaseContext)
+        private static void SeedEntries(CategoriesLoader categoriesLoader, DatabaseContext databaseContext)
         {
             if (databaseContext.Entries.Count() == 0)
             {
+                categoriesLoader.WaitForLoadingToFinish();
+
                 var categories = databaseContext.Categories.ToList();
                 var user1 = databaseContext.Users.Where(u => u.IsEmailVerified).First();
                 var user1Tags = databaseContext.Tags.Where(t => t.UserId.Equals(user1.Id)).ToList();
                 var user2 = databaseContext.Users.Where(u => !u.IsEmailVerified).First();
                 var user2Tags = databaseContext.Tags.Where(t => t.UserId.Equals(user2.Id)).ToList();
 
+                string? encryptionKey = null, encryptionIV = null, encryptedDescription = null;
+
+                encryptedDescription = EncryptionUtils.EncryptWithAES("Monthly bills", out encryptionKey, out encryptionIV);
                 var entry1 = databaseContext.Entries.Add(new Entry
                 {
                     Date = new DateTime(2022, 5, 12, 17, 21, 21, DateTimeKind.Utc),
                     Value = 17.65M,
                     Name = "Bills",
-                    Description = "Monthly bills",
+                    DescriptionContent = encryptedDescription,
+                    DescriptionKey = encryptionKey,
+                    DescriptionIV = encryptionIV,
                     UserId = user1.Id,
                     CategoryId = categories.ElementAt(4).Id
                 });
@@ -129,12 +141,15 @@ namespace APITest.Tests
                     EntryId = entry1.Entity.Id
                 });
 
+                encryptedDescription = EncryptionUtils.EncryptWithAES("Product 1 has been bought", out encryptionKey, out encryptionIV);
                 var entry2 = databaseContext.Entries.Add(new Entry
                 {
                     Date = new DateTime(2022, 6, 2, 20, 15, 24, DateTimeKind.Utc),
                     Value = 60.45M,
                     Name = "Product 1",
-                    Description = "Product 1 has been bought",
+                    DescriptionContent = encryptedDescription,
+                    DescriptionKey = encryptionKey,
+                    DescriptionIV = encryptionIV,
                     UserId = user1.Id,
                     CategoryId = categories.ElementAt(5).Id
                 });
@@ -144,12 +159,15 @@ namespace APITest.Tests
                     EntryId = entry2.Entity.Id
                 });
 
+                encryptedDescription = EncryptionUtils.EncryptWithAES("Salary for producing in 06/22", out encryptionKey, out encryptionIV);
                 databaseContext.Entries.Add(new Entry
                 {
                     Date = new DateTime(2022, 6, 10, 12, 0, 5, DateTimeKind.Utc),
                     Value = 3200.0M,
                     Name = "Salary",
-                    Description = "Salary for producing in 06/22",
+                    DescriptionContent = encryptedDescription,
+                    DescriptionKey = encryptionKey,
+                    DescriptionIV = encryptionIV,
                     UserId = user1.Id,
                     CategoryId = categories.ElementAt(0).Id
                 });
@@ -168,12 +186,15 @@ namespace APITest.Tests
                     EntryId = entry4.Entity.Id
                 });
 
+                encryptedDescription = EncryptionUtils.EncryptWithAES("Yay!", out encryptionKey, out encryptionIV);
                 var entry5 = databaseContext.Entries.Add(new Entry
                 {
                     Date = new DateTime(2022, 6, 12, 14, 5, 21, DateTimeKind.Utc),
                     Value = 100.0M,
                     Name = "found some money",
-                    Description = "Yay!",
+                    DescriptionContent = encryptedDescription,
+                    DescriptionKey = encryptionKey,
+                    DescriptionIV = encryptionIV,
                     UserId = user1.Id,
                     CategoryId = categories.ElementAt(2).Id
                 });
@@ -183,12 +204,15 @@ namespace APITest.Tests
                     EntryId = entry5.Entity.Id
                 });
 
+                encryptedDescription = EncryptionUtils.EncryptWithAES("Previous one broken down, bought again", out encryptionKey, out encryptionIV);
                 var entry6 = databaseContext.Entries.Add(new Entry
                 {
                     Date = new DateTime(2022, 7, 2, 15, 4, 3, DateTimeKind.Utc),
                     Value = 60.45M,
                     Name = "Product 1",
-                    Description = "Previous one broken down, bought again",
+                    DescriptionContent = encryptedDescription,
+                    DescriptionKey = encryptionKey,
+                    DescriptionIV = encryptionIV,
                     UserId = user1.Id,
                     CategoryId = categories.ElementAt(5).Id
                 });

@@ -98,7 +98,10 @@ namespace Infrastructure.Data
                 .Property(e => e.Name)
                 .HasConversion(stringEncryptionConverter);
             modelBuilder.Entity<Entry>()
-                .Property(e => e.Description)
+                .Property(e => e.DescriptionKey)
+                .HasConversion(optionalStringEncryptionConverter);
+            modelBuilder.Entity<Entry>()
+                .Property(e => e.DescriptionIV)
                 .HasConversion(optionalStringEncryptionConverter);
 
             modelBuilder.Entity<Tag>()

@@ -71,7 +71,7 @@ if (app.Environment.IsDevelopment())
 app.Lifetime.ApplicationStarted.Register(async () =>
 {
     var scope = app.Services.CreateScope();
-    await new CategoriesLoader().LoadAsync(
+    await scope.ServiceProvider.GetService<CategoriesLoader>().LoadAsync(
         scope.ServiceProvider.GetRequiredService<ILogger<CategoriesLoader>>(),
         app.Configuration,
         scope.ServiceProvider.GetRequiredService<ICategoryRepository>(),

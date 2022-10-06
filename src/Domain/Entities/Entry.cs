@@ -20,7 +20,11 @@ namespace Domain.Entities
         [Required]
         public string Name { get; set; }
 
-        public string? Description { get; set; }
+        public string? DescriptionContent { get; set; }
+
+        public string? DescriptionKey { get; set; }
+
+        public string? DescriptionIV { get; set; }
 
         [Required]
         public Guid UserId { get; set; }

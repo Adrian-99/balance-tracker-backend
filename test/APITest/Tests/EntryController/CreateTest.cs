@@ -1,4 +1,5 @@
-﻿using Application.Dtos.Ingoing;
+﻿using Application;
+using Application.Dtos.Ingoing;
 using Application.Interfaces;
 using Application.Utilities;
 using Domain.Entities;
@@ -26,7 +27,7 @@ namespace APITest.Tests.EntryController
 
         protected override void PrepareTestData()
         {
-            TestDataSeeder.SeedAll(GetService<IConfiguration>(), databaseContext);
+            TestDataSeeder.SeedAll(GetService<CategoriesLoader>(), GetService<IConfiguration>(), databaseContext);
             user = databaseContext.Users.Where(u => u.IsEmailVerified).First();
             GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
 
@@ -37,7 +38,7 @@ namespace APITest.Tests.EntryController
         [Test]
         public async Task Create_WithCorrectDataWithoutTags()
         {
-            var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", new List<string>());
+            var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", "New entry description", "costCategory1", new List<string>());
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
@@ -57,7 +58,10 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual(entryDto.Date, lastEntry.Date);
             Assert.AreEqual(entryDto.Value, lastEntry.Value);
             Assert.AreEqual(entryDto.Name, lastEntry.Name);
-            Assert.AreEqual(entryDto.Description, lastEntry.Description);
+            Assert.AreEqual(
+                entryDto.Description,
+                EncryptionUtils.DecryptWithAES(lastEntry.DescriptionContent, lastEntry.DescriptionKey, lastEntry.DescriptionIV)
+                );
             Assert.AreEqual(user.Id, lastEntry.UserId);
             Assert.AreEqual(entryDto.CategoryKeyword, lastEntry.Category.Keyword);
             Assert.AreEqual(0, lastEntry.EntryTags.Count);
@@ -87,7 +91,10 @@ namespace APITest.Tests.EntryController
             Assert.AreEqual(entryDto.Date, lastEntry.Date);
             Assert.AreEqual(entryDto.Value, lastEntry.Value);
             Assert.AreEqual(entryDto.Name, lastEntry.Name);
-            Assert.AreEqual(entryDto.Description, lastEntry.Description);
+            Assert.AreEqual(
+                entryDto.Description,
+                EncryptionUtils.DecryptWithAES(lastEntry.DescriptionContent, lastEntry.DescriptionKey, lastEntry.DescriptionIV)
+                );
             Assert.AreEqual(user.Id, lastEntry.UserId);
             Assert.AreEqual(entryDto.CategoryKeyword, lastEntry.Category.Keyword);
             Assert.AreEqual(tags.Count, lastEntry.EntryTags.Count);
