@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Application.Mappers
 {
-    public class TagMapper
+    public static class TagMapper
     {
         public static TagDto FromTagToTagDto(Tag tag)
         {

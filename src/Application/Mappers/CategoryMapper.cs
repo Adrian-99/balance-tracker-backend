@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Application.Mappers
 {
-    public class CategoryMapper
+    public static class CategoryMapper
     {
         public static CategoryDto FromCategoryToCategoryDto(Category category)
         {

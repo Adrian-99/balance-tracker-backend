@@ -17,15 +17,15 @@ namespace Application.Services
     {
         private readonly MailSettings mailSettings;
         private readonly FrontendSettings frontendSettings;
-        private readonly EmailVerificationCodeSettings emailVerificationCodeSettings;
-        private readonly ResetPasswordCodeSettings resetPasswordCodeSettings;
+        private readonly UserEmailVerificationCodeSettings emailVerificationCodeSettings;
+        private readonly UserResetPasswordCodeSettings resetPasswordCodeSettings;
 
         public MailService(IConfiguration configuration)
         {
             mailSettings = MailSettings.Get(configuration);
             frontendSettings = FrontendSettings.Get(configuration);
-            emailVerificationCodeSettings = EmailVerificationCodeSettings.Get(configuration);
-            resetPasswordCodeSettings = ResetPasswordCodeSettings.Get(configuration);
+            emailVerificationCodeSettings = UserEmailVerificationCodeSettings.Get(configuration);
+            resetPasswordCodeSettings = UserResetPasswordCodeSettings.Get(configuration);
         }
 
         public Task SendEmailVerificationEmailAsync(User user)

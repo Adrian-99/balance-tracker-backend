@@ -14,6 +14,5 @@ namespace Application.Interfaces
     {
         User FromUserRegisterDtoToUser(UserRegisterDto userRegisterDto);
         UserDataDto FromUserToUserDataDto(User user);
-        UserSettingsDto FromUserSettingsToUserSettingsDto(UserSettings userSettings);
     }
 }

@@ -18,7 +18,7 @@ namespace balance_tracker_backend.Controllers
         private readonly IUserService userService;
         private readonly IPasswordService passwordService;
         private readonly IJwtService jwtService;
-        private readonly UserSettings userSettings;
+        private readonly UserUsernameSettings userUsernameSettings;
 
         public UserController(IUserMapper userMapper,
             IUserService userService,
@@ -31,7 +31,7 @@ namespace balance_tracker_backend.Controllers
             this.passwordService = passwordService;
             this.jwtService = jwtService;
 
-            userSettings = UserSettings.Get(configuration);
+            userUsernameSettings = UserUsernameSettings.Get(configuration);
         }
 
         [HttpPost("register")]
@@ -260,10 +260,10 @@ namespace balance_tracker_backend.Controllers
             var isEmailChanged = user.Email != changeUserDataDto.Email.ToLower();
 
             if (isUsernameChanged &&
-                Utils.IsWithinTimeframe(user.LastUsernameChangeAt, userSettings.Username.AllowedChangeFrequencyDays, Utils.DateTimeUnit.DAYS))
+                Utils.IsWithinTimeframe(user.LastUsernameChangeAt, userUsernameSettings.AllowedChangeFrequencyDays, Utils.DateTimeUnit.DAYS))
             {
                 return BadRequest(ApiResponse<string>.Error(
-                    $"Next allowed username change at {user.LastUsernameChangeAt.AddDays(userSettings.Username.AllowedChangeFrequencyDays)}"
+                    $"Next allowed username change at {user.LastUsernameChangeAt.AddDays(userUsernameSettings.AllowedChangeFrequencyDays)}"
                     ));
             }
 
@@ -292,15 +292,6 @@ namespace balance_tracker_backend.Controllers
                     ),
                 isEmailChanged ? "success.user.data.emailChanged" : "success.user.data.emailNotChanged"
                 ));
-        }
-
-        [HttpGet("settings")]
-        [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<ApiResponse<UserSettingsDto>> GetUserSettings()
-        {
-            var userSettingsDto = userMapper.FromUserSettingsToUserSettingsDto(userSettings);
-            return Ok(ApiResponse<UserSettingsDto>.Success(userSettingsDto));
         }
     }
 }

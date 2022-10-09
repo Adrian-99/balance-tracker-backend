@@ -40,21 +40,5 @@ namespace Application.Mappers
                                    user.FirstName,
                                    user.LastName);
         }
-
-        public UserSettingsDto FromUserSettingsToUserSettingsDto(UserSettings userSettings)
-        {
-            return new UserSettingsDto(userSettings.Username.MaxLength,
-                                       userSettings.Username.AllowedChangeFrequencyDays,
-                                       userSettings.FirstName.MaxLength,
-                                       userSettings.LastName.MaxLength,
-                                       userSettings.Password.MinLength,
-                                       userSettings.Password.MaxLength,
-                                       userSettings.Password.SmallLetterRequired,
-                                       userSettings.Password.BigLetterRequired,
-                                       userSettings.Password.DigitRequired,
-                                       userSettings.Password.SpecialCharacterRequired,
-                                       userSettings.Password.ForbidSameAsUsername,
-                                       userSettings.Password.ForbidSameAsCurrent);
-        }
     }
 }

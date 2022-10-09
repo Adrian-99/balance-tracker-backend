@@ -12,11 +12,11 @@ namespace Application.Services
 {
     public class PasswordService : IPasswordService
     {
-        private readonly PasswordSettings passwordSettings;
+        private readonly UserPasswordSettings passwordSettings;
 
         public PasswordService(IConfiguration configuration)
         {
-            passwordSettings = PasswordSettings.Get(configuration);
+            passwordSettings = UserPasswordSettings.Get(configuration);
         }
 
         public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
