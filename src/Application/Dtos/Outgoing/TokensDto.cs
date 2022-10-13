@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Application.Utilities;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,10 +17,17 @@ namespace Application.Dtos.Outgoing
         [Required]
         public string RefreshToken { get; }
 
+        [JsonConstructor]
         public TokensDto(string accessToken, string refreshToken)
         {
             AccessToken = accessToken;
             RefreshToken = refreshToken;
+        }
+
+        public TokensDto(JwtTokens jwtTokens)
+        {
+            AccessToken = jwtTokens.AccessToken;
+            RefreshToken = jwtTokens.RefreshToken;
         }
     }
 }

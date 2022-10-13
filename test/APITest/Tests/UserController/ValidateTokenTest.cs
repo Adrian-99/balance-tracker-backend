@@ -25,11 +25,10 @@ namespace APITest.Tests.UserController
         [Test]
         public async Task ValidateToken_WithValidToken()
         {
-            string accessToken;
             var user = databaseContext.Users.First();
-            GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
+            var tokens = GetService<IJwtService>().GenerateTokens(user);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
+            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, tokens.AccessToken);
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);

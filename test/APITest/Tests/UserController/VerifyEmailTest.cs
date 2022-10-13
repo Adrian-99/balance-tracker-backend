@@ -23,7 +23,7 @@ namespace APITest.Tests.UserController
         private const string URL = "/api/user/verify-email";
 
         private User user;
-        private string unverifiedUserAccessToken;
+        private JwtTokens unverifiedUserTokens;
 
         protected override void PrepareTestData()
         {
@@ -31,7 +31,7 @@ namespace APITest.Tests.UserController
             user = (from user in databaseContext.Users
                     where !user.IsEmailVerified
                     select user).First();
-            GetService<IJwtService>().GenerateTokens(user, out unverifiedUserAccessToken, out _);
+            unverifiedUserTokens = GetService<IJwtService>().GenerateTokens(user);
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace APITest.Tests.UserController
         {
             var verifyEmailDto = new VerifyEmailDto(user.EmailVerificationCode);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserTokens.AccessToken, verifyEmailDto);
             var responseContent = await GetResponseContentAsync<ApiResponse<TokensDto>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
@@ -56,7 +56,7 @@ namespace APITest.Tests.UserController
             var jwtService = GetService<IJwtService>();
             Assert.AreEqual(userAfter.Username, jwtService.ValidateAccessToken(responseContent.Data.AccessToken));
             Assert.AreEqual(userAfter.Username, jwtService.ValidateRefreshToken(responseContent.Data.RefreshToken));
-            Assert.IsNull(jwtService.ValidateAccessToken(unverifiedUserAccessToken));
+            Assert.IsNull(jwtService.ValidateAccessToken(unverifiedUserTokens.AccessToken));
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace APITest.Tests.UserController
         {
             var verifyEmailDto = new VerifyEmailDto(user.EmailVerificationCode.ToLower());
 
-            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserTokens.AccessToken, verifyEmailDto);
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
@@ -75,7 +75,7 @@ namespace APITest.Tests.UserController
             Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
             Assert.AreEqual(user.EmailVerificationCodeCreatedAt, userAfter.EmailVerificationCodeCreatedAt);
 
-            Assert.AreEqual(userAfter.Username, GetService<IJwtService>().ValidateAccessToken(unverifiedUserAccessToken));
+            Assert.AreEqual(userAfter.Username, GetService<IJwtService>().ValidateAccessToken(unverifiedUserTokens.AccessToken));
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace APITest.Tests.UserController
         {
             var verifyEmailDto = new VerifyEmailDto("someTotallyIncorrectCode123");
 
-            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserTokens.AccessToken, verifyEmailDto);
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
@@ -94,7 +94,7 @@ namespace APITest.Tests.UserController
             Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
             Assert.AreEqual(user.EmailVerificationCodeCreatedAt, userAfter.EmailVerificationCodeCreatedAt);
 
-            Assert.AreEqual(userAfter.Username, GetService<IJwtService>().ValidateAccessToken(unverifiedUserAccessToken));
+            Assert.AreEqual(userAfter.Username, GetService<IJwtService>().ValidateAccessToken(unverifiedUserTokens.AccessToken));
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace APITest.Tests.UserController
 
             var verifyEmailDto = new VerifyEmailDto(user.EmailVerificationCode);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserAccessToken, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, unverifiedUserTokens.AccessToken, verifyEmailDto);
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
@@ -116,7 +116,7 @@ namespace APITest.Tests.UserController
             Assert.AreEqual(user.EmailVerificationCode, userAfter.EmailVerificationCode);
             Assert.AreEqual(user.EmailVerificationCodeCreatedAt, userAfter.EmailVerificationCodeCreatedAt);
 
-            Assert.AreEqual(userAfter.Username, GetService<IJwtService>().ValidateAccessToken(unverifiedUserAccessToken));
+            Assert.AreEqual(userAfter.Username, GetService<IJwtService>().ValidateAccessToken(unverifiedUserTokens.AccessToken));
         }
 
         [Test]
@@ -144,10 +144,9 @@ namespace APITest.Tests.UserController
 
             var verifyEmailDto = new VerifyEmailDto(user.EmailVerificationCode);
 
-            string accessToken;
-            GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
+            var tokens = GetService<IJwtService>().GenerateTokens(user);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, verifyEmailDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, tokens.AccessToken, verifyEmailDto);
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
@@ -155,7 +154,7 @@ namespace APITest.Tests.UserController
             Assert.NotNull(responseContent);
             Assert.IsFalse(responseContent.Successful);
 
-            Assert.AreEqual(userAfter.Username, GetService<IJwtService>().ValidateAccessToken(accessToken));
+            Assert.AreEqual(userAfter.Username, GetService<IJwtService>().ValidateAccessToken(tokens.AccessToken));
         }
     }
 }

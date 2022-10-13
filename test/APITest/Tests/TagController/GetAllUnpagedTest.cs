@@ -26,11 +26,10 @@ namespace APITest.Tests.TagController
         [Test]
         public async Task GetAllUnpaged()
         {
-            string accessToken;
             var user = databaseContext.Users.Where(u => u.IsEmailVerified).First();
-            GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
+            var tokens = GetService<IJwtService>().GenerateTokens(user);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
+            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, tokens.AccessToken);
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<ApiResponse<List<TagDto>>>(response);
@@ -46,11 +45,10 @@ namespace APITest.Tests.TagController
         [Test]
         public async Task GetAllUnpaged_ForUserWithUnverifiedEmail()
         {
-            string accessToken;
             var user = databaseContext.Users.Where(u => !u.IsEmailVerified).First();
-            GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
+            var tokens = GetService<IJwtService>().GenerateTokens(user);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
+            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, tokens.AccessToken);
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<ApiResponse<List<TagDto>>>(response);

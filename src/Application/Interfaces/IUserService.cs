@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.Ingoing;
+using Application.Utilities;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -12,20 +13,18 @@ namespace Application.Interfaces
     public interface IUserService
     {
         Task<User> GetAuthorizedUserAsync(HttpContext httpContext);
-        Task ValidateUserDetailsAsync(string username,
-                                      string email,
-                                      string? firstName,
-                                      string? lastName,
-                                      bool checkIfUsernameTaken = true,
-                                      bool checkIfEmailTaken = true);
         Task<User> RegisterAsync(User user);
-        Task<User?> VerifyEmailAsync(User user, string emailVerificationCode);
+        Task<JwtTokens> VerifyEmailAsync(User user, string emailVerificationCode);
         Task<User> ResetEmailVerificationCodeAsync(User user);
-        Task<User?> AuthenticateAsync(string usernameOrEmail, string password);
-        Task<User?> GetUserByUsernameIgnoreCaseAsync(string username);
+        Task<JwtTokens> AuthenticateAsync(string usernameOrEmail, string password);
+        Task<JwtTokens> RefreshTokenAsync(string refreshToken);
         Task GenerateResetPasswordCodeAsync(string usernameOrEmail);
-        Task<User?> ValidateResetPasswordCodeAsync(string resetPasswordCode);
-        Task<User> ChangePasswordAsync(User user, string newPassword);
-        Task<User> ChangeUserDataAsync(User user, ChangeUserDataDto newData);
+        Task ResetPasswordAsync(string resetPasswordCode, string newPassword);
+        Task<User> ChangePasswordAsync(User user, string currentPassword, string newPassword);
+        Task<JwtTokens> ChangeUserDataAsync(User user,
+                                            string newUsername,
+                                            string newEmail,
+                                            string? newFirstName,
+                                            string? newLastName);
     }
 }

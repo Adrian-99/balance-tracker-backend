@@ -30,10 +30,9 @@ namespace APITest.Tests.UserController
             var user = (from u in databaseContext.Users
                         where u.IsEmailVerified
                         select u).First();
-            string accessToken;
-            GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
+            var tokens = GetService<IJwtService>().GenerateTokens(user);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
+            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, tokens.AccessToken);
             var responseContent = await GetResponseContentAsync<ApiResponse<UserDataDto>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -54,10 +53,9 @@ namespace APITest.Tests.UserController
             var user = (from u in databaseContext.Users
                         where !u.IsEmailVerified
                         select u).First();
-            string accessToken;
-            GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
+            var tokens = GetService<IJwtService>().GenerateTokens(user);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
+            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, tokens.AccessToken);
             var responseContent = await GetResponseContentAsync<ApiResponse<UserDataDto>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);

@@ -40,7 +40,7 @@ namespace Application.Mappers
             var category = await categoryRepository.GetByKeywordAsync(editEntryDto.CategoryKeyword);
             if (category != null)
             {
-                string? descriptionKey = null, descriptionIV = null;
+                string? descriptionKey, descriptionIV;
                 var descriptionContent = EncryptionUtils.EncryptWithAES(
                     editEntryDto.Description,
                     out descriptionKey,

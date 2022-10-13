@@ -20,14 +20,14 @@ namespace APITest.Tests.TagController
         private static readonly string URL = "api/tag";
 
         private User user;
-        private string accessToken;
+        private JwtTokens tokens;
         private int tagsCountBefore;
 
         protected override void PrepareTestData()
         {
             TestDataSeeder.SeedAll(GetService<CategoriesLoader>(), GetService<IConfiguration>(), databaseContext);
             user = databaseContext.Users.Where(u => u.IsEmailVerified).First();
-            GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
+            tokens = GetService<IJwtService>().GenerateTokens(user);
             tagsCountBefore = databaseContext.Tags.Count();
         }
 
@@ -36,7 +36,7 @@ namespace APITest.Tests.TagController
         {
             var tagDto = new TagDto("new tag");
 
-            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, tagDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, tagDto);
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
@@ -55,7 +55,22 @@ namespace APITest.Tests.TagController
         {
             var tagDto = new TagDto("Tag1");
 
-            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, tagDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, tagDto);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
+            Assert.NotNull(responseContent);
+            Assert.IsFalse(responseContent.Successful);
+
+            Assert.AreEqual(tagsCountBefore, databaseContext.Tags.Count());
+        }
+
+        [Test]
+        public async Task Create_WithTooLongTagName()
+        {
+            var tagDto = new TagDto("TagWithVeryLongNameThatExceedsLimit");
+
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, tagDto);
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
@@ -84,11 +99,11 @@ namespace APITest.Tests.TagController
         public async Task Create_ForUserWithUnverifiedEmail()
         {
             user = databaseContext.Users.Where(u => !u.IsEmailVerified).First();
-            GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
+            tokens = GetService<IJwtService>().GenerateTokens(user);
 
             var tagDto = new TagDto("new tag");
 
-            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, tagDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, tagDto);
             Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);

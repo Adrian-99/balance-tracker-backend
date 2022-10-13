@@ -2,7 +2,6 @@
 using Application.Dtos.Ingoing;
 using Application.Dtos.Outgoing;
 using Application.Interfaces;
-using Application.Settings;
 using Application.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +17,6 @@ namespace balance_tracker_backend.Controllers
         private readonly IUserService userService;
         private readonly IPasswordService passwordService;
         private readonly IJwtService jwtService;
-        private readonly UserUsernameSettings userUsernameSettings;
 
         public UserController(IUserMapper userMapper,
             IUserService userService,
@@ -30,8 +28,6 @@ namespace balance_tracker_backend.Controllers
             this.userService = userService;
             this.passwordService = passwordService;
             this.jwtService = jwtService;
-
-            userUsernameSettings = UserUsernameSettings.Get(configuration);
         }
 
         [HttpPost("register")]
@@ -40,10 +36,6 @@ namespace balance_tracker_backend.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ApiResponse<string>>> Register([FromBody] UserRegisterDto userRegisterDto)
         {
-            await userService.ValidateUserDetailsAsync(userRegisterDto.Username,
-                                                        userRegisterDto.Email,
-                                                        userRegisterDto.FirstName,
-                                                        userRegisterDto.LastName);
             passwordService.CheckPasswordComplexity(userRegisterDto.Password, userRegisterDto.Username);
             var user = userMapper.FromUserRegisterDtoToUser(userRegisterDto);
             await userService.RegisterAsync(user);
@@ -59,34 +51,11 @@ namespace balance_tracker_backend.Controllers
         public async Task<ActionResult<ApiResponse<TokensDto>>> VerifyEmail([FromBody] VerifyEmailDto verifyEmailDto)
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
-
-            if (user.IsEmailVerified)
-            {
-                return Conflict(ApiResponse<string>.Error("Email already verified"));
-            }
-
-            var updatedUser = await userService.VerifyEmailAsync(user, verifyEmailDto.EmailVerificationCode);
-
-            if (updatedUser != null)
-            {
-                string newAccessToken, newRefreshToken;
-                jwtService.GenerateTokens(updatedUser, out newAccessToken, out newRefreshToken);
-
-                return Ok(ApiResponse<TokensDto>.Success(
-                    new TokensDto(
-                        newAccessToken,
-                        newRefreshToken
-                        ),
-                    "success.user.verifyEmail"
-                    ));
-            } 
-            else
-            {
-                return BadRequest(ApiResponse<string>.Error(
-                    "Invalid email verification code",
-                    "error.user.verifyEmail.invalidCode"
-                    ));
-            }
+            var newTokens = await userService.VerifyEmailAsync(user, verifyEmailDto.EmailVerificationCode);
+            return Ok(ApiResponse<TokensDto>.Success(
+                new TokensDto(newTokens),
+                "success.user.verifyEmail"
+                ));
         }
 
         [HttpPost("verify-email/reset-code")]
@@ -97,14 +66,7 @@ namespace balance_tracker_backend.Controllers
         public async Task<ActionResult<ApiResponse<string>>> ResetEmailVerificationCode()
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
-
-            if (user.IsEmailVerified)
-            {
-                return Conflict(ApiResponse<string>.Error("Email already verified"));
-            }
-
             await userService.ResetEmailVerificationCodeAsync(user);
-
             return Ok(ApiResponse<string>.Success(
                 "New email verification code generated and sent through mail",
                 "success.user.resetEmailVerificationCode"
@@ -117,19 +79,8 @@ namespace balance_tracker_backend.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ApiResponse<TokensDto>>> Authenticate([FromBody] AuthenticateDto authenticateDto)
         {
-            var user = await userService.AuthenticateAsync(authenticateDto.UsernameOrEmail, authenticateDto.Password);
-
-            if (user == null)
-            {
-                return Unauthorized(ApiResponse<string>.Error(
-                    "Wrong username or password",
-                    "error.user.authenticate.wrongCredentials"
-                    ));
-            }
-
-            string accessToken, refreshToken;
-            jwtService.GenerateTokens(user, out accessToken, out refreshToken);
-            return Ok(ApiResponse<TokensDto>.Success(new TokensDto(accessToken, refreshToken)));
+            var tokens = await userService.AuthenticateAsync(authenticateDto.UsernameOrEmail, authenticateDto.Password);
+            return Ok(ApiResponse<TokensDto>.Success(new TokensDto(tokens)));
         }
 
         [HttpGet("validate-token")]
@@ -147,17 +98,8 @@ namespace balance_tracker_backend.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ApiResponse<TokensDto>>> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
         {
-            var username = jwtService.ValidateRefreshToken(refreshTokenDto.RefreshToken);
-
-            if (username == null)
-            {
-                return BadRequest(ApiResponse<string>.Error("Invalid refresh token"));
-            }
-
-            var user = await userService.GetUserByUsernameIgnoreCaseAsync(username);
-            string accessToken, refreshToken;
-            jwtService.GenerateTokens(user, out accessToken, out refreshToken);
-            return Ok(ApiResponse<TokensDto>.Success(new TokensDto(accessToken, refreshToken)));
+            var newTokens = await userService.RefreshTokenAsync(refreshTokenDto.RefreshToken);
+            return Ok(ApiResponse<TokensDto>.Success(new TokensDto(newTokens)));
         }
 
         [HttpDelete("revoke-tokens")]
@@ -188,19 +130,7 @@ namespace balance_tracker_backend.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ApiResponse<string>>> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
         {
-            var user = await userService.ValidateResetPasswordCodeAsync(resetPasswordDto.ResetPasswordCode);
-            if (user == null)
-            {
-                return BadRequest(ApiResponse<string>.Error(
-                    "Invalid reset password code",
-                    "error.user.resetPassword.invalidCode"
-                    ));
-            }
-
-            passwordService.CheckPasswordComplexity(resetPasswordDto.NewPassword, user);
-
-            await userService.ChangePasswordAsync(user, resetPasswordDto.NewPassword);
-
+            await userService.ResetPasswordAsync(resetPasswordDto.ResetPasswordCode, resetPasswordDto.NewPassword);
             return Ok(ApiResponse<string>.Success(
                 "Password successfully changed",
                 "success.user.resetPassword"
@@ -215,19 +145,7 @@ namespace balance_tracker_backend.Controllers
         public async Task<ActionResult<ApiResponse<string>>> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
-
-            if (!passwordService.VerifyPasswordHash(changePasswordDto.CurrentPassword, user.PasswordHash, user.PasswordSalt))
-            {
-                return BadRequest(ApiResponse<string>.Error(
-                    "Wrong current password",
-                    "error.user.changePassword.wrongCurrentPassword"
-                    ));
-            }
-
-            passwordService.CheckPasswordComplexity(changePasswordDto.NewPassword, user);
-
-            await userService.ChangePasswordAsync(user, changePasswordDto.NewPassword);
-
+            await userService.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
             return Ok(ApiResponse<string>.Success(
                 "Password successfully changed",
                 "success.user.changePassword"
@@ -253,43 +171,16 @@ namespace balance_tracker_backend.Controllers
         public async Task<ActionResult<TokensDto>> ChangeUserData([FromBody] ChangeUserDataDto changeUserDataDto)
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
-            string? newAccessToken = null;
-            string? newRefreshToken = null;
-
-            var isUsernameChanged = !user.Username.Equals(changeUserDataDto.Username);
-            var isEmailChanged = user.Email != changeUserDataDto.Email.ToLower();
-
-            if (isUsernameChanged &&
-                Utils.IsWithinTimeframe(user.LastUsernameChangeAt, userUsernameSettings.AllowedChangeFrequencyDays, Utils.DateTimeUnit.DAYS))
-            {
-                return BadRequest(ApiResponse<string>.Error(
-                    $"Next allowed username change at {user.LastUsernameChangeAt.AddDays(userUsernameSettings.AllowedChangeFrequencyDays)}"
-                    ));
-            }
-
-            if (isUsernameChanged ||
-                isEmailChanged ||
-                changeUserDataDto.FirstName != user.FirstName ||
-                changeUserDataDto.LastName != user.LastName)
-            {
-                var previousUsername = user.Username;
-                await userService.ValidateUserDetailsAsync(changeUserDataDto.Username,
-                                                            changeUserDataDto.Email,
-                                                            changeUserDataDto.FirstName,
-                                                            changeUserDataDto.LastName,
-                                                            user.Username.ToLower() != changeUserDataDto.Username.ToLower(),
-                                                            isEmailChanged);
-
-                var updatedUser = await userService.ChangeUserDataAsync(user, changeUserDataDto);
-                jwtService.RevokeTokens(previousUsername);
-                jwtService.GenerateTokens(updatedUser, out newAccessToken, out newRefreshToken);
-            }
-
+            var isEmailChanged = !user.Email.ToLower().Equals(changeUserDataDto.Email.ToLower());
+            var newTokens = await userService.ChangeUserDataAsync(
+                user,
+                changeUserDataDto.Username,
+                changeUserDataDto.Email,
+                changeUserDataDto.FirstName,
+                changeUserDataDto.LastName
+                );
             return Ok(ApiResponse<TokensDto>.Success(
-                new TokensDto(
-                    newAccessToken,
-                    newRefreshToken
-                    ),
+                new TokensDto(newTokens),
                 isEmailChanged ? "success.user.data.emailChanged" : "success.user.data.emailNotChanged"
                 ));
         }

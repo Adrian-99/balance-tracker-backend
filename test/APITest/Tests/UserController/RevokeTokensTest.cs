@@ -26,22 +26,21 @@ namespace APITest.Tests.UserController
         public async Task RevokeTokens_WithCorrectToken()
         {
             var user = databaseContext.Users.First();
-            string accessToken, refreshToken;
             var jwtService = GetService<IJwtService>();
-            jwtService.GenerateTokens(user, out accessToken, out refreshToken);
+            var tokens = jwtService.GenerateTokens(user);
 
-            Assert.AreEqual(user.Username, jwtService.ValidateAccessToken(accessToken));
-            Assert.AreEqual(user.Username, jwtService.ValidateRefreshToken(refreshToken));
+            Assert.AreEqual(user.Username, jwtService.ValidateAccessToken(tokens.AccessToken));
+            Assert.AreEqual(user.Username, jwtService.ValidateRefreshToken(tokens.RefreshToken));
 
-            var response = await SendHttpRequestAsync(HttpMethod.Delete, URL, accessToken);
+            var response = await SendHttpRequestAsync(HttpMethod.Delete, URL, tokens.AccessToken);
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
-            Assert.IsNull(jwtService.ValidateAccessToken(accessToken));
-            Assert.IsNull(jwtService.ValidateRefreshToken(refreshToken));
+            Assert.IsNull(jwtService.ValidateAccessToken(tokens.AccessToken));
+            Assert.IsNull(jwtService.ValidateRefreshToken(tokens.RefreshToken));
         }
 
         [Test]

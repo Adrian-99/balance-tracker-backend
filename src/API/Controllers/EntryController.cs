@@ -48,6 +48,7 @@ namespace API.Controllers
         public async Task<ActionResult<ApiResponse<string>>> Create([FromBody] EditEntryDto editEntryDto)
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
+            entryService.ValidateDescription(editEntryDto.Description);
             var entry = await entryMapper.FromEditEntryDtoToEntryAsync(editEntryDto, user.Id);
             await entryService.CreateAsync(entry, editEntryDto.TagNames);
             return Created("", ApiResponse<string>.Success("Entry successfully created", ""));

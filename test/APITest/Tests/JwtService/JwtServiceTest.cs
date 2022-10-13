@@ -21,25 +21,23 @@ namespace APITest.Tests.JwtService
         [Test]
         public void GenerateTokens()
         {
-            string accessToken, refreshToken;
             var user = databaseContext.Users.First();
             var jwtService = GetService<IJwtService>();
 
-            jwtService.GenerateTokens(user, out accessToken, out refreshToken);
+            var tokens = jwtService.GenerateTokens(user);
 
-            Assert.NotNull(accessToken);
-            Assert.NotNull(refreshToken);
+            Assert.NotNull(tokens.AccessToken);
+            Assert.NotNull(tokens.RefreshToken);
         }
 
         [Test]
         public void ValidateAccessToken_WithValidToken()
         {
-            string accessToken;
             var user = databaseContext.Users.First();
             var jwtService = GetService<IJwtService>();
-            jwtService.GenerateTokens(user, out accessToken, out _);
+            var tokens = jwtService.GenerateTokens(user);
 
-            var result = jwtService.ValidateAccessToken(accessToken);
+            var result = jwtService.ValidateAccessToken(tokens.AccessToken);
 
             Assert.AreEqual(user.Username, result);
         }
@@ -49,7 +47,7 @@ namespace APITest.Tests.JwtService
         {
             var user = databaseContext.Users.First();
             var jwtService = GetService<IJwtService>();
-            jwtService.GenerateTokens(user, out _, out _);
+            jwtService.GenerateTokens(user);
 
             var result = jwtService.ValidateAccessToken("someTotallyWrongAccessToken");
 
@@ -59,36 +57,34 @@ namespace APITest.Tests.JwtService
         [Test]
         public void ValidateAccessToken_WithOldToken()
         {
-            string accessToken1, accessToken2;
             var user = databaseContext.Users.First();
             var jwtService = GetService<IJwtService>();
-            jwtService.GenerateTokens(user, out accessToken1, out _);
+            var tokens1 = jwtService.GenerateTokens(user);
 
-            var result1 = jwtService.ValidateAccessToken(accessToken1);
+            var result1 = jwtService.ValidateAccessToken(tokens1.AccessToken);
             Assert.AreEqual(user.Username, result1);
 
             Thread.Sleep(1000);
-            jwtService.GenerateTokens(user, out accessToken2, out _);
+            var tokens2 = jwtService.GenerateTokens(user);
 
-            var result2 = jwtService.ValidateAccessToken(accessToken2);
+            var result2 = jwtService.ValidateAccessToken(tokens2.AccessToken);
             Assert.AreEqual(user.Username, result2);
 
-            var result3 = jwtService.ValidateAccessToken(accessToken1);
+            var result3 = jwtService.ValidateAccessToken(tokens1.AccessToken);
             Assert.IsNull(result3);
 
-            var result4 = jwtService.ValidateAccessToken(accessToken2);
+            var result4 = jwtService.ValidateAccessToken(tokens2.AccessToken);
             Assert.IsNull(result4);
         }
 
         [Test]
         public void ValidateRefreshToken_WithValidToken()
         {
-            string refreshToken;
             var user = databaseContext.Users.First();
             var jwtService = GetService<IJwtService>();
-            jwtService.GenerateTokens(user, out _, out refreshToken);
+            var tokens = jwtService.GenerateTokens(user);
 
-            var result = jwtService.ValidateRefreshToken(refreshToken);
+            var result = jwtService.ValidateRefreshToken(tokens.RefreshToken);
 
             Assert.AreEqual(user.Username, result);
         }
@@ -98,7 +94,7 @@ namespace APITest.Tests.JwtService
         {
             var user = databaseContext.Users.First();
             var jwtService = GetService<IJwtService>();
-            jwtService.GenerateTokens(user, out _, out _);
+            jwtService.GenerateTokens(user);
 
             var result = jwtService.ValidateRefreshToken("someTotallyWrongAccessToken");
 
@@ -108,24 +104,23 @@ namespace APITest.Tests.JwtService
         [Test]
         public void ValidateRefreshToken_WithOldToken()
         {
-            string refreshToken1, refreshToken2;
             var user = databaseContext.Users.First();
             var jwtService = GetService<IJwtService>();
-            jwtService.GenerateTokens(user, out _, out refreshToken1);
+            var tokens1 = jwtService.GenerateTokens(user);
 
-            var result1 = jwtService.ValidateRefreshToken(refreshToken1);
+            var result1 = jwtService.ValidateRefreshToken(tokens1.RefreshToken);
             Assert.AreEqual(user.Username, result1);
 
             Thread.Sleep(1000);
-            jwtService.GenerateTokens(user, out _, out refreshToken2);
+            var tokens2 = jwtService.GenerateTokens(user);
 
-            var result2 = jwtService.ValidateRefreshToken(refreshToken2);
+            var result2 = jwtService.ValidateRefreshToken(tokens2.RefreshToken);
             Assert.AreEqual(user.Username, result2);
 
-            var result3 = jwtService.ValidateRefreshToken(refreshToken1);
+            var result3 = jwtService.ValidateRefreshToken(tokens1.RefreshToken);
             Assert.IsNull(result3);
 
-            var result4 = jwtService.ValidateRefreshToken(refreshToken2);
+            var result4 = jwtService.ValidateRefreshToken(tokens2.RefreshToken);
             Assert.IsNull(result4);
         }
     }

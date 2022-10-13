@@ -20,13 +20,13 @@ namespace APITest.Tests.UserController
         private static readonly string URL = "/api/user/password/change";
         private static readonly string CURRENT_PASSWORD = "User1!@#";
         private User user;
-        private string accessToken;
+        private JwtTokens tokens;
 
         protected override void PrepareTestData()
         {
             TestDataSeeder.SeedUsers(GetService<IConfiguration>(), databaseContext);
             user = databaseContext.Users.First();
-            GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
+            tokens = GetService<IJwtService>().GenerateTokens(user);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace APITest.Tests.UserController
         {
             var changePasswordDto = new ChangePasswordDto(CURRENT_PASSWORD, "$omeN3wPa$$word");
 
-            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changePasswordDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, tokens.AccessToken, changePasswordDto);
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 
@@ -46,7 +46,7 @@ namespace APITest.Tests.UserController
             Assert.AreNotEqual(user.PasswordSalt, userAfter.PasswordSalt);
             Assert.IsNull(userAfter.ResetPasswordCode);
             Assert.IsNull(userAfter.ResetPasswordCodeCreatedAt);
-            Assert.AreEqual(userAfter, await GetService<IUserService>().AuthenticateAsync(user.Username, changePasswordDto.NewPassword));
+            Assert.DoesNotThrowAsync(() => GetService<IUserService>().AuthenticateAsync(user.Username, changePasswordDto.NewPassword));
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace APITest.Tests.UserController
 
         private async Task AssertBadRequest(ChangePasswordDto changePasswordDto)
         {
-            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, accessToken, changePasswordDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Patch, URL, tokens.AccessToken, changePasswordDto);
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, user.Id);
 

@@ -21,7 +21,7 @@ namespace APITest.Tests.EntryController
         private static readonly string URL = "api/entry";
 
         private User user;
-        private string accessToken;
+        private JwtTokens tokens;
         private int entriesCountBefore;
         private int entryTagsCountBefore;
 
@@ -29,7 +29,7 @@ namespace APITest.Tests.EntryController
         {
             TestDataSeeder.SeedAll(GetService<CategoriesLoader>(), GetService<IConfiguration>(), databaseContext);
             user = databaseContext.Users.Where(u => u.IsEmailVerified).First();
-            GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
+            tokens = GetService<IJwtService>().GenerateTokens(user);
 
             entriesCountBefore = databaseContext.Entries.Count();
             entryTagsCountBefore = databaseContext.EntryTags.Count();
@@ -40,7 +40,7 @@ namespace APITest.Tests.EntryController
         {
             var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", "New entry description", "costCategory1", new List<string>());
 
-            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, entryDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
@@ -73,7 +73,7 @@ namespace APITest.Tests.EntryController
             var tags = new List<string>() { "tag1", "secondTag" };
             var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", tags);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, entryDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
@@ -107,7 +107,51 @@ namespace APITest.Tests.EntryController
         {
             var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "NonExistantCategory", new List<string>());
 
-            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, entryDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, entryDto);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
+            Assert.NotNull(responseContent);
+            Assert.IsFalse(responseContent.Successful);
+
+            Assert.AreEqual(entriesCountBefore, databaseContext.Entries.Count());
+            Assert.AreEqual(entryTagsCountBefore, databaseContext.EntryTags.Count());
+        }
+
+        [Test]
+        public async Task Create_WithTooLongName()
+        {
+            var entryDto = new EditEntryDto(
+                DateTime.UtcNow,
+                15.68M,
+                "New entry but it has so long name that it exceeds the limit",
+                null,
+                "costCategory1",
+                new List<string>());
+
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, entryDto);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
+            Assert.NotNull(responseContent);
+            Assert.IsFalse(responseContent.Successful);
+
+            Assert.AreEqual(entriesCountBefore, databaseContext.Entries.Count());
+            Assert.AreEqual(entryTagsCountBefore, databaseContext.EntryTags.Count());
+        }
+
+        [Test]
+        public async Task Create_WithTooLongDescription()
+        {
+            var entryDto = new EditEntryDto(
+                DateTime.UtcNow,
+                15.68M,
+                "New entry",
+                "New entry description\nIt is really long\nWell, maybe not that much, but certainly longer than the limit allows",
+                "costCategory1",
+                new List<string>());
+
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
@@ -124,7 +168,7 @@ namespace APITest.Tests.EntryController
             var tags = new List<string>() { "tag1", "tag of another user" };
             var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", tags);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, entryDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
@@ -155,11 +199,11 @@ namespace APITest.Tests.EntryController
         public async Task Create_ForUserWithUnverifiedEmail()
         {
             user = databaseContext.Users.Where(u => !u.IsEmailVerified).First();
-            GetService<IJwtService>().GenerateTokens(user, out accessToken, out _);
+            tokens = GetService<IJwtService>().GenerateTokens(user);
 
             var entryDto = new EditEntryDto(DateTime.UtcNow, 15.68M, "New entry", null, "costCategory1", new List<string>());
 
-            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken, entryDto);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);

@@ -21,9 +21,9 @@ namespace API.Middleware
             {
                 await next.Invoke(context);
             }
-            catch (DataValidationException ex)
+            catch (ResponseStatusException ex)
             {
-                await HandleDataValidationExceptionAsync(context, ex).ConfigureAwait(false);
+                await HandleResponseStatusExceptionAsync(context, ex).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -45,16 +45,16 @@ namespace API.Middleware
             return context.Response.WriteAsync(result);
         }
 
-        private Task HandleDataValidationExceptionAsync(HttpContext context, DataValidationException exception)
+        private Task HandleResponseStatusExceptionAsync(HttpContext context, ResponseStatusException exception)
         {
-            logger.LogWarning($"Data validation exception: {exception.Message}");
+            logger.LogWarning($"{exception.GetType().Name}: {exception.Message}");
 
             var result = JsonConvert.SerializeObject(ApiResponse<string>.Error(
                 exception.Message,
                 exception.ErrorTranslationKey
                 ));
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            context.Response.StatusCode = exception.StatusCode;
 
             return context.Response.WriteAsync(result);
         }

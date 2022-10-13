@@ -28,12 +28,11 @@ namespace APITest.Tests.UserController
         [Test]
         public async Task RefreshToken_WithValidToken()
         {
-            string refreshToken1;
             var user = databaseContext.Users.First();
             var jwtService = GetService<IJwtService>();
-            jwtService.GenerateTokens(user, out _, out refreshToken1);
+            var tokens = jwtService.GenerateTokens(user);
 
-            var refreshTokenDto = new RefreshTokenDto(refreshToken1);
+            var refreshTokenDto = new RefreshTokenDto(tokens.RefreshToken);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, refreshTokenDto);
             var responseContent = await GetResponseContentAsync<ApiResponse<TokensDto>>(response);
@@ -65,12 +64,11 @@ namespace APITest.Tests.UserController
         [Test]
         public async Task RefreshToken_WithAccessToken()
         {
-            string accessToken;
             var user = databaseContext.Users.First();
             var jwtService = GetService<IJwtService>();
-            jwtService.GenerateTokens(user, out accessToken, out _);
+            var tokens = jwtService.GenerateTokens(user);
 
-            var refreshTokenDto = new RefreshTokenDto(accessToken);
+            var refreshTokenDto = new RefreshTokenDto(tokens.AccessToken);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, null, refreshTokenDto);
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);

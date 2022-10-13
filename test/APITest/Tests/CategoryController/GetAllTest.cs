@@ -27,10 +27,9 @@ namespace APITest.Tests.CategoryController
         [Test]
         public async Task GetAll_Authorized()
         {
-            string accessToken;
-            GetService<IJwtService>().GenerateTokens(databaseContext.Users.First(), out accessToken, out _);
+            var tokens = GetService<IJwtService>().GenerateTokens(databaseContext.Users.First());
 
-            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, accessToken);
+            var response = await SendHttpRequestAsync(HttpMethod.Get, URL, tokens.AccessToken);
             var responseContent = await GetResponseContentAsync<ApiResponse<List<CategoryDto>>>(response);
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);

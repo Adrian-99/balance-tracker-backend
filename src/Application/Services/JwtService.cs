@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.Settings;
+using Application.Utilities;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -18,14 +19,14 @@ namespace Application.Services
     {
         private readonly JwtSettings jwtSettings;
 
-        private static Dictionary<string, Tuple<string, string>> validTokens = new Dictionary<string, Tuple<string, string>>();
+        private static Dictionary<string, JwtTokens> validTokens = new Dictionary<string, JwtTokens>();
 
         public JwtService(IConfiguration configuration)
         {
             jwtSettings = JwtSettings.Get(configuration);
         }
 
-        public void GenerateTokens(User user, out string accessToken, out string refreshToken)
+        public JwtTokens GenerateTokens(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -55,7 +56,6 @@ namespace Application.Services
                 DateTime.Now.AddMinutes(jwtSettings.AccessTokenValidMinutes),
                 credentials
                 );
-            accessToken = tokenHandler.WriteToken(accessJwtToken);
 
             var refreshTokenClaims = new[]
             {
@@ -70,13 +70,14 @@ namespace Application.Services
                 credentials
                 );
 
-            refreshToken = tokenHandler.WriteToken(refreshJwtToken);
-
             if (validTokens.ContainsKey(user.Username))
             {
                 validTokens.Remove(user.Username);
             }
-            validTokens.Add(user.Username, new Tuple<string, string>(accessToken, refreshToken));
+
+            var tokens = new JwtTokens(tokenHandler.WriteToken(accessJwtToken), tokenHandler.WriteToken(refreshJwtToken));
+            validTokens.Add(user.Username, tokens);
+            return tokens;
         }
 
         public string? ValidateAccessToken(string accessToken)
@@ -92,7 +93,7 @@ namespace Application.Services
                 var username = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 if (username != null && validTokens.ContainsKey(username))
                 {
-                    if (validTokens[username].Item1.Equals(accessToken))
+                    if (validTokens[username].AccessToken.Equals(accessToken))
                     {
                         isEmailVerified = claims.First(c => c.Type == ClaimTypes.AuthorizationDecision).Value.Equals("true");
                         return username;
@@ -114,7 +115,7 @@ namespace Application.Services
                 var username = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 if (validTokens.ContainsKey(username))
                 {
-                    if (validTokens[username].Item2.Equals(refreshToken))
+                    if (validTokens[username].RefreshToken.Equals(refreshToken))
                     {
                         return username;
                     }

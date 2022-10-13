@@ -38,13 +38,12 @@ namespace APITest.Tests.UserController
         [Test]
         public async Task ResetEmailVerificationCode_ForUserWithUnverifiedEmail()
         {
-            string accessToken;
             var userWithUnverifiedEmail = (from user in databaseContext.Users
                                        where !user.IsEmailVerified
                                        select user).First();
-            GetService<IJwtService>().GenerateTokens(userWithUnverifiedEmail, out accessToken, out _);
+            var tokens = GetService<IJwtService>().GenerateTokens(userWithUnverifiedEmail);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken);
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, userWithUnverifiedEmail.Id);
 
@@ -74,13 +73,12 @@ namespace APITest.Tests.UserController
         [Test]
         public async Task ResetEmailVerificationCode_ForUserWithVerifiedEmail()
         {
-            string accessToken;
             var userWithVerifiedEmail = (from user in databaseContext.Users
                                          where user.IsEmailVerified
                                          select user).First();
-            GetService<IJwtService>().GenerateTokens(userWithVerifiedEmail, out accessToken, out _);
+            var tokens = GetService<IJwtService>().GenerateTokens(userWithVerifiedEmail);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, accessToken);
+            var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken);
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);
             var userAfter = TestUtils.GetUserById(databaseContext, userWithVerifiedEmail.Id);
 

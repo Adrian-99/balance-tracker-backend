@@ -46,7 +46,7 @@ namespace APITest.Tests.UserController
             Assert.AreNotEqual(user.PasswordSalt, userAfter.PasswordSalt);
             Assert.IsNull(userAfter.ResetPasswordCode);
             Assert.IsNull(userAfter.ResetPasswordCodeCreatedAt);
-            Assert.AreEqual(userAfter, await GetService<IUserService>().AuthenticateAsync(user.Username, resetPasswordDto.NewPassword));
+            Assert.DoesNotThrowAsync(() => GetService<IUserService>().AuthenticateAsync(user.Username, resetPasswordDto.NewPassword));
         }
 
         [Test]
