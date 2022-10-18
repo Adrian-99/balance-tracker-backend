@@ -10,14 +10,11 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-    public class TagRepository : GenericRepository<Tag, Guid>, ITagRepository
+    public class TagRepository : GenericUserRelatedRepository<Tag, Guid>, ITagRepository
     {
-        private readonly DatabaseContext databaseContext;
-
-        public TagRepository(DatabaseContext databaseContext) : base(databaseContext)
-        {
-            this.databaseContext = databaseContext;
-        }
+        public TagRepository(DatabaseContext databaseContext)
+            : base(databaseContext)
+        { }
 
         public Task<List<Tag>> GetAllAsync(Guid userId)
         {

@@ -12,13 +12,9 @@ namespace Infrastructure.Repositories
 {
     public class CategoryRepository : GenericRepository<Category, Guid>, ICategoryRepository
     {
-        private readonly DatabaseContext databaseContext;
-
         public CategoryRepository(DatabaseContext databaseContext)
             : base(databaseContext)
-        {
-            this.databaseContext = databaseContext;
-        }
+        { }
 
         public override Task<List<Category>> GetAllAsync()
         {

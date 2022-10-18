@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface IEntryRepository : IGenericRepository<Entry, Guid>
+    public interface IEntryRepository : IGenericUserRelatedRepository<Entry, Guid>
     {
         Task<List<Entry>> GetAllByCategoryIdAsync(Guid categoryId);
         Task<List<Entry>> GetAllByUserIdAsync(Guid userId);

@@ -47,13 +47,59 @@ namespace Application.Services
             {
                 foreach (var tagId in tagIds)
                 {
-                    var entryTag = new EntryTag();
-                    entryTag.EntryId = addedEntry.Id;
-                    entryTag.TagId = tagId;
-                    await entryTagRepository.AddAsync(entryTag);
+                    await AddNewEntryTagAsync(addedEntry.Id, tagId);
                 }
             }
             return addedEntry;
+        }
+
+        public async Task<Entry> UpdateAsync(Guid id, Entry entry, List<string> tagNames)
+        {
+            var tagIds = await ValidateAndGetTagIdsAsync(entry, tagNames);
+            entry.Id = id;
+            var updatedEntry = await entryRepository.UpdateAsync(entry);
+            var entryTags = await entryTagRepository.GetAllByEntryIdAsync(entry.Id);
+            if (tagIds.Count > 0)
+            {
+                var entryTagsToDelete = new List<EntryTag>();
+                var entryTagIdsToAdd = new List<Guid>(tagIds);
+                foreach (var entryTag in entryTags)
+                {
+                    if (tagIds.Contains(entryTag.TagId))
+                    {
+                        entryTagIdsToAdd.Remove(entryTag.TagId);
+                    }
+                    else
+                    {
+                        entryTagsToDelete.Add(entryTag);
+                    }
+                }
+                if (entryTagsToDelete.Count > 0)
+                {
+                    foreach (var entryTag in entryTagsToDelete)
+                    {
+                        await entryTagRepository.DeleteAsync(entryTag.EntryId, entryTag.TagId);
+                    }
+                }
+                if (entryTagIdsToAdd.Count > 0)
+                {
+                    foreach (var tagId in entryTagIdsToAdd)
+                    {
+                        await AddNewEntryTagAsync(updatedEntry.Id, tagId);
+                    }
+                }
+            }
+            else
+            {
+                if (entryTags.Count > 0)
+                {
+                    foreach (var entryTag in entryTags)
+                    {
+                        await entryTagRepository.DeleteAsync(entryTag.EntryId, entryTag.TagId);
+                    }
+                }
+            }
+            return updatedEntry;
         }
 
         public void ValidateDescription(string? entryDescription)
@@ -64,6 +110,14 @@ namespace Application.Services
                     $"Entry description must not be longer than {entrySettings.Description.MaxLength} characters"
                     // TODO: Add translation key
                     );
+            }
+        }
+
+        public async Task AssertEntryExistsAsync(Guid entryId, Guid userId)
+        {
+            if (!await entryRepository.CheckIfExistsByIdAsync(entryId, userId))
+            {
+                throw new EntityNotFoundException("Entry", entryId.ToString());
             }
         }
 
@@ -94,6 +148,14 @@ namespace Application.Services
                 }
             }
             return tagIds;
+        }
+
+        private async Task AddNewEntryTagAsync(Guid entryId, Guid tagId)
+        {
+            var entryTag = new EntryTag();
+            entryTag.EntryId = entryId;
+            entryTag.TagId = tagId;
+            await entryTagRepository.AddAsync(entryTag);
         }
     }
 }

@@ -9,16 +9,12 @@ using System.Threading.Tasks;
 namespace Domain.Entities
 {
     [Table("Tags")]
-    public class Tag : AbstractEntity<Guid>
+    public class Tag : AbstractUserRelatedEntity<Guid>
     {
         [Required]
         public string Name { get; set; }
 
-        [Required]
-        public Guid UserId { get; set; }
 
-
-        public virtual User User { get; set; }
         public virtual ICollection<EntryTag> EntryTags { get; set; }
     }
 }

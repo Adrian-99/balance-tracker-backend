@@ -14,7 +14,7 @@ namespace Infrastructure.Repositories
         : IGenericRepository<Entity, PrimaryKey>
         where Entity : AbstractEntity<PrimaryKey>
     {
-        private readonly DatabaseContext databaseContext;
+        protected readonly DatabaseContext databaseContext;
 
         public GenericRepository(DatabaseContext databaseContext)
         {

@@ -12,7 +12,9 @@ namespace Application.Interfaces
     public interface IEntryService
     {
         Task<Page<Entry>> GetAllPagedAsync(Guid userId, Pageable pageable, EntryFilter entryFilter);
-        void ValidateDescription(string? entryDescription);
         Task<Entry> CreateAsync(Entry entry, List<string> tagNames);
+        Task<Entry> UpdateAsync(Guid id, Entry entry, List<string> tagNames);
+        void ValidateDescription(string? entryDescription);
+        Task AssertEntryExistsAsync(Guid entryId, Guid userId);
     }
 }

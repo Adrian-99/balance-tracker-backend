@@ -51,7 +51,24 @@ namespace API.Controllers
             entryService.ValidateDescription(editEntryDto.Description);
             var entry = await entryMapper.FromEditEntryDtoToEntryAsync(editEntryDto, user.Id);
             await entryService.CreateAsync(entry, editEntryDto.TagNames);
-            return Created("", ApiResponse<string>.Success("Entry successfully created", ""));
+            return Created("", ApiResponse<string>.Success("Entry successfully created"));
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(true)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponse<string>>> Edit([FromRoute] Guid id, [FromBody] EditEntryDto editEntryDto)
+        {
+            var user = await userService.GetAuthorizedUserAsync(HttpContext);
+            await entryService.AssertEntryExistsAsync(id, user.Id);
+            entryService.ValidateDescription(editEntryDto.Description);
+            var entry = await entryMapper.FromEditEntryDtoToEntryAsync(editEntryDto, user.Id);
+            await entryService.UpdateAsync(id, entry, editEntryDto.TagNames);
+            return Ok(ApiResponse<string>.Success("Entry successfully updated"));
         }
     }
 }

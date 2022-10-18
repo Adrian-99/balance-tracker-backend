@@ -10,15 +10,11 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-    public class EntryRepository : GenericRepository<Entry, Guid>, IEntryRepository
+    public class EntryRepository : GenericUserRelatedRepository<Entry, Guid>, IEntryRepository
     {
-        private readonly DatabaseContext databaseContext;
-
         public EntryRepository(DatabaseContext databaseContext)
             : base(databaseContext)
-        {
-            this.databaseContext = databaseContext;
-        }
+        { }
 
         public Task<List<Entry>> GetAllByCategoryIdAsync(Guid categoryId)
         {

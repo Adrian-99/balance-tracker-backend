@@ -19,11 +19,16 @@ namespace Infrastructure.Repositories
             this.databaseContext = databaseContext;
         }
 
+        public Task<List<EntryTag>> GetAllByEntryIdAsync(Guid entryId)
+        {
+            return (from entryTag in databaseContext.EntryTags
+                    where entryTag.EntryId.Equals(entryId)
+                    select entryTag).ToListAsync();
+        }
+
         public async Task<EntryTag> AddAsync(EntryTag entryTag)
         {
-            var addedEntryTag = await databaseContext
-                .EntryTags
-                .AddAsync(entryTag);
+            var addedEntryTag = await databaseContext.EntryTags.AddAsync(entryTag);
             await databaseContext.SaveChangesAsync();
             return addedEntryTag.Entity;
         }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Domain.Entities
 {
     [Table("Entries")]
-    public class Entry : AbstractEntity<Guid>
+    public class Entry : AbstractUserRelatedEntity<Guid>
     {
         [Required]
         public DateTime Date { get; set; }
@@ -26,14 +26,11 @@ namespace Domain.Entities
 
         public string? DescriptionIV { get; set; }
 
-        [Required]
-        public Guid UserId { get; set; }
 
         [Required]
         public Guid CategoryId { get; set; }
 
 
-        public virtual User User { get; set; }
         public virtual Category Category { get; set; }
         public virtual ICollection<EntryTag> EntryTags { get; set; }
     }
