@@ -30,16 +30,12 @@ namespace Infrastructure.Repositories
             return addedEntity.Entity;
         }
 
-        public virtual async Task DeleteAsync(PrimaryKey id)
+        public virtual async Task DeleteAsync(Entity entity)
         {
-            var entity = await GetByIdAsync(id);
-            if (entity != null)
-            {
-                databaseContext
-                    .Set<Entity>()
-                    .Remove(entity);
-                await databaseContext.SaveChangesAsync();
-            }
+            databaseContext
+                .Set<Entity>()
+                .Remove(entity);
+            await databaseContext.SaveChangesAsync();
         }
 
         public virtual Task<List<Entity>> GetAllAsync()

@@ -70,5 +70,18 @@ namespace API.Controllers
             await entryService.UpdateAsync(id, entry, editEntryDto.TagNames);
             return Ok(ApiResponse<string>.Success("Entry successfully updated"));
         }
+
+        [HttpDelete("{id}")]
+        [Authorize(true)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponse<string>>> Delete([FromRoute] Guid id)
+        {
+            var user = await userService.GetAuthorizedUserAsync(HttpContext);
+            await entryService.DeleteAsync(id, user.Id);
+            return Ok(ApiResponse<string>.Success("Entry successfully deleted"));
+        }
     }
 }

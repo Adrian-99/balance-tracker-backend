@@ -11,6 +11,7 @@ namespace Domain.Interfaces
     {
         Task<List<EntryTag>> GetAllByEntryIdAsync(Guid entryId);
         Task<EntryTag> AddAsync(EntryTag entryTag);
-        Task DeleteAsync(Guid entryId, Guid tagId);
+        Task DeleteAsync(EntryTag entryTag);
+        Task DeleteAllByEntryIdAsync(Guid entryId);
     }
 }

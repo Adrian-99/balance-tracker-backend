@@ -14,6 +14,7 @@ namespace Application.Interfaces
         Task<Page<Entry>> GetAllPagedAsync(Guid userId, Pageable pageable, EntryFilter entryFilter);
         Task<Entry> CreateAsync(Entry entry, List<string> tagNames);
         Task<Entry> UpdateAsync(Guid id, Entry entry, List<string> tagNames);
+        Task DeleteAsync(Guid id, Guid userId);
         void ValidateDescription(string? entryDescription);
         Task AssertEntryExistsAsync(Guid entryId, Guid userId);
     }

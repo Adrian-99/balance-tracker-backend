@@ -78,7 +78,7 @@ namespace Application.Services
                 {
                     foreach (var entryTag in entryTagsToDelete)
                     {
-                        await entryTagRepository.DeleteAsync(entryTag.EntryId, entryTag.TagId);
+                        await entryTagRepository.DeleteAsync(entryTag);
                     }
                 }
                 if (entryTagIdsToAdd.Count > 0)
@@ -95,11 +95,25 @@ namespace Application.Services
                 {
                     foreach (var entryTag in entryTags)
                     {
-                        await entryTagRepository.DeleteAsync(entryTag.EntryId, entryTag.TagId);
+                        await entryTagRepository.DeleteAsync(entryTag);
                     }
                 }
             }
             return updatedEntry;
+        }
+
+        public async Task DeleteAsync(Guid id, Guid userId)
+        {
+            var entry = await entryRepository.GetByIdAsync(id, userId);
+            if (entry != null)
+            {
+                await entryTagRepository.DeleteAllByEntryIdAsync(id);
+                await entryRepository.DeleteAsync(entry);
+            }
+            else
+            {
+                throw new EntityNotFoundException("Entry", id.ToString());
+            }
         }
 
         public void ValidateDescription(string? entryDescription)

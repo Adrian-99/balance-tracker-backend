@@ -11,6 +11,7 @@ namespace Domain.Interfaces
         : IGenericRepository<Entity, PrimaryKey>
         where Entity : AbstractUserRelatedEntity<PrimaryKey>
     {
+        Task<Entity?> GetByIdAsync(PrimaryKey entityId, Guid userId);
         Task<bool> CheckIfExistsByIdAsync(PrimaryKey entityId, Guid userId);
     }
 }

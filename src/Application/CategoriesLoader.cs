@@ -53,7 +53,7 @@ namespace Application
                                     entry.CategoryId = existingCategory.IsIncome ? otherIncomeCategory.Id : otherCostCategory.Id;
                                     await entryRepository.UpdateAsync(entry);
                                 }
-                                await categoryRepository.DeleteAsync(existingCategory.Id);
+                                await categoryRepository.DeleteAsync(existingCategory);
                                 deletedCount++;
                             }
                         }

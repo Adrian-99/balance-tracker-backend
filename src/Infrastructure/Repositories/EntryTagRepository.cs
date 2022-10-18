@@ -33,14 +33,18 @@ namespace Infrastructure.Repositories
             return addedEntryTag.Entity;
         }
 
-        public async Task DeleteAsync(Guid entryId, Guid tagId)
+        public async Task DeleteAsync(EntryTag entryTag)
         {
-            var entryTag = await (from et in databaseContext.EntryTags
-                                  where et.EntryId.Equals(entryId) && et.TagId.Equals(tagId)
-                                  select et).FirstOrDefaultAsync();
-            if (entryTag != null)
+            databaseContext.EntryTags.Remove(entryTag);
+            await databaseContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteAllByEntryIdAsync(Guid entryId)
+        {
+            var entryTags = await GetAllByEntryIdAsync(entryId);
+            if (entryTags.Count > 0)
             {
-                databaseContext.EntryTags.Remove(entryTag);
+                databaseContext.EntryTags.RemoveRange(entryTags);
                 await databaseContext.SaveChangesAsync();
             }
         }

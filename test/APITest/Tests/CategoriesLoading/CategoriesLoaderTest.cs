@@ -131,7 +131,7 @@ namespace APITest.Tests.CategoriesLoading
             categoryRepositoryMock.Verify(cr => cr.AddAsync(It.Is<Category>(c => CategoriesMatcher(c, costCategory2))), Times.Once);
             categoryRepositoryMock.Verify(cr => cr.AddAsync(It.Is<Category>(c => CategoriesMatcher(c, otherCostCategory))), Times.Once);
             categoryRepositoryMock.Verify(cr => cr.UpdateAsync(It.IsAny<Category>()), Times.Never);
-            categoryRepositoryMock.Verify(cr => cr.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+            categoryRepositoryMock.Verify(cr => cr.DeleteAsync(It.IsAny<Category>()), Times.Never);
         }
 
         [Test]
@@ -157,7 +157,7 @@ namespace APITest.Tests.CategoriesLoading
 
             categoryRepositoryMock.Verify(cr => cr.AddAsync(It.IsAny<Category>()), Times.Never);
             categoryRepositoryMock.Verify(cr => cr.UpdateAsync(It.IsAny<Category>()), Times.Never);
-            categoryRepositoryMock.Verify(cr => cr.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+            categoryRepositoryMock.Verify(cr => cr.DeleteAsync(It.IsAny<Category>()), Times.Never);
         }
 
         [Test]
@@ -229,8 +229,8 @@ namespace APITest.Tests.CategoriesLoading
             categoryRepositoryMock.Verify(cr => cr.AddAsync(It.Is<Category>(c => CategoriesMatcher(c, costCategory2))), Times.Once);
             categoryRepositoryMock.Verify(cr => cr.UpdateAsync(It.Is<Category>(c => CategoriesMatcher(c, incomeCategory1))), Times.Once);
             categoryRepositoryMock.Verify(cr => cr.UpdateAsync(It.Is<Category>(c => CategoriesMatcher(c, costCategory1))), Times.Once);
-            categoryRepositoryMock.Verify(cr => cr.DeleteAsync(existingIncomeCategory3.Id), Times.Once);
-            categoryRepositoryMock.Verify(cr => cr.DeleteAsync(existingCostCategory3.Id), Times.Once);
+            categoryRepositoryMock.Verify(cr => cr.DeleteAsync(existingIncomeCategory3), Times.Once);
+            categoryRepositoryMock.Verify(cr => cr.DeleteAsync(existingCostCategory3), Times.Once);
 
             entryRepositoryMock.Verify(er => er.UpdateAsync(It.Is<Entry>(
                 e => e.Id.Equals(existingEntry1.Id) && e.CategoryId.Equals(existingOtherIncomeCategory.Id)
@@ -258,7 +258,7 @@ namespace APITest.Tests.CategoriesLoading
 
             categoryRepositoryMock.Verify(cr => cr.AddAsync(It.IsAny<Category>()), Times.Never);
             categoryRepositoryMock.Verify(cr => cr.UpdateAsync(It.IsAny<Category>()), Times.Never);
-            categoryRepositoryMock.Verify(cr => cr.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+            categoryRepositoryMock.Verify(cr => cr.DeleteAsync(It.IsAny<Category>()), Times.Never);
         }
 
         private bool CategoriesMatcher(Category category1, Category category2)

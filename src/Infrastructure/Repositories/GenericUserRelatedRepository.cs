@@ -17,6 +17,13 @@ namespace Infrastructure.Repositories
         public GenericUserRelatedRepository(DatabaseContext databaseContext) : base(databaseContext)
         { }
 
+        public Task<Entity?> GetByIdAsync(PrimaryKey entityId, Guid userId)
+        {
+            return (from entity in databaseContext.Set<Entity>()
+                    where entity.Id.Equals(entityId) && entity.UserId.Equals(userId)
+                    select entity).FirstOrDefaultAsync();
+        }
+
         public async Task<bool> CheckIfExistsByIdAsync(PrimaryKey entityId, Guid userId)
         {
             var existingEntity = await (from entity in databaseContext.Set<Entity>()
