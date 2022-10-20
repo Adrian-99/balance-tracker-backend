@@ -51,7 +51,7 @@ namespace API.Controllers
             entryService.ValidateDescription(editEntryDto.Description);
             var entry = await entryMapper.FromEditEntryDtoToEntryAsync(editEntryDto, user.Id);
             await entryService.CreateAsync(entry, editEntryDto.TagNames);
-            return Created("", ApiResponse<string>.Success("Entry successfully created"));
+            return Created("", ApiResponse<string>.Success("Entry successfully created", "success.entry.create"));
         }
 
         [HttpPut("{id}")]
@@ -68,7 +68,7 @@ namespace API.Controllers
             entryService.ValidateDescription(editEntryDto.Description);
             var entry = await entryMapper.FromEditEntryDtoToEntryAsync(editEntryDto, user.Id);
             await entryService.UpdateAsync(id, entry, editEntryDto.TagNames);
-            return Ok(ApiResponse<string>.Success("Entry successfully updated"));
+            return Ok(ApiResponse<string>.Success("Entry successfully updated", "success.entry.edit"));
         }
 
         [HttpDelete("{id}")]
@@ -81,7 +81,7 @@ namespace API.Controllers
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
             await entryService.DeleteAsync(id, user.Id);
-            return Ok(ApiResponse<string>.Success("Entry successfully deleted"));
+            return Ok(ApiResponse<string>.Success("Entry successfully deleted", "success.entry.delete"));
         }
     }
 }
