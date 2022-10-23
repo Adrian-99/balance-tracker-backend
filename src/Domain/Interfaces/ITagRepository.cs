@@ -9,7 +9,7 @@ namespace Domain.Interfaces
 {
     public interface ITagRepository : IGenericUserRelatedRepository<Tag, Guid>
     {
-        Task<List<Tag>> GetAllAsync(Guid userId);
+        Task<List<Tag>> GetAllAsync(Guid userId, bool includeEntryTags = false);
         Task<Tag?> GetByNameIgnoreCaseAsync(Guid userId, string name);
     }
 }

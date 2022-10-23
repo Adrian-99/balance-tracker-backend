@@ -1,5 +1,5 @@
 ﻿using Application;
-using Application.Dtos;
+using Application.Dtos.Ingoing;
 using Application.Interfaces;
 using Application.Utilities;
 using Domain.Entities;
@@ -34,7 +34,7 @@ namespace APITest.Tests.TagController
         [Test]
         public async Task Create_WithCorrectData()
         {
-            var tagDto = new TagDto("new tag");
+            var tagDto = new EditTagDto("new tag");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, tagDto);
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
@@ -53,7 +53,7 @@ namespace APITest.Tests.TagController
         [Test]
         public async Task Create_WithExistingTagName()
         {
-            var tagDto = new TagDto("Tag1");
+            var tagDto = new EditTagDto("Tag1");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, tagDto);
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
@@ -68,7 +68,7 @@ namespace APITest.Tests.TagController
         [Test]
         public async Task Create_WithTooLongTagName()
         {
-            var tagDto = new TagDto("TagWithVeryLongNameThatExceedsLimit");
+            var tagDto = new EditTagDto("TagWithVeryLongNameThatExceedsLimit");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, tagDto);
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
@@ -83,7 +83,7 @@ namespace APITest.Tests.TagController
         [Test]
         public async Task Create_Unauthorized()
         {
-            var tagDto = new TagDto("new tag");
+            var tagDto = new EditTagDto("new tag");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, "totallyWrongAccessToken", tagDto);
             Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -101,7 +101,7 @@ namespace APITest.Tests.TagController
             user = databaseContext.Users.Where(u => !u.IsEmailVerified).First();
             tokens = GetService<IJwtService>().GenerateTokens(user);
 
-            var tagDto = new TagDto("new tag");
+            var tagDto = new EditTagDto("new tag");
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, tagDto);
             Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);

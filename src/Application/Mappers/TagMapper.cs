@@ -1,4 +1,5 @@
-﻿using Application.Dtos;
+﻿using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,18 +13,13 @@ namespace Application.Mappers
     {
         public static TagDto FromTagToTagDto(Tag tag)
         {
-            return new TagDto(tag.Name);
+            return new TagDto(tag.Name, tag.EntryTags?.Count);
         }
 
-        public static List<TagDto> FromTagToTagDto(List<Tag> tags)
-        {
-            return tags.Select(t => FromTagToTagDto(t)).ToList();
-        }
-
-        public static Tag FromTagDtoToTag(Guid userId, TagDto tagDto)
+        public static Tag FromEditTagDtoToTag(Guid userId, EditTagDto editTagDto)
         {
             var tag = new Tag();
-            tag.Name = tagDto.Name;
+            tag.Name = editTagDto.Name;
             tag.UserId = userId;
             return tag;
         }

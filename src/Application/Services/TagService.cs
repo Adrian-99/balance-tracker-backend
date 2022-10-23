@@ -1,6 +1,8 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces;
 using Application.Settings;
+using Application.Utilities;
+using Application.Utilities.Pagination;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +30,12 @@ namespace Application.Services
             var tags = await tagRepository.GetAllAsync(userId);
             tags.Sort((tag1, tag2) => tag1.Name.ToLower().CompareTo(tag2.Name.ToLower()));
             return tags;
+        }
+        public async Task<Page<Tag>> GetAllPagedAsync(Guid userId, Pageable pageable, TagFilter tagFilter)
+        {
+            var tags = await tagRepository.GetAllAsync(userId, true);
+            var filteredTags = tagFilter.Apply(tags);
+            return Page<Tag>.New(pageable, filteredTags);
         }
 
         public async Task<Tag> CreateAsync(Tag tag)

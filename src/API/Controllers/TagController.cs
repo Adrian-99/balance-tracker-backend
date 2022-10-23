@@ -1,8 +1,10 @@
 ﻿using API.Attributes;
-using Application.Dtos;
+using Application.Dtos.Ingoing;
+using Application.Dtos.Outgoing;
 using Application.Interfaces;
 using Application.Mappers;
 using Application.Utilities;
+using Application.Utilities.Pagination;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -22,15 +24,28 @@ namespace API.Controllers
             this.tagService = tagService;
         }
 
-        [HttpGet]
+        [HttpGet("name")]
         [Authorize(false)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ApiResponse<List<TagDto>>>> GetAllUnpaged()
+        public async Task<ActionResult<ApiResponse<List<string>>>> GetAllNames()
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
             var tags = await tagService.GetAllAsync(user.Id);
-            return Ok(ApiResponse<List<TagDto>>.Success(TagMapper.FromTagToTagDto(tags)));
+            return Ok(ApiResponse<List<string>>.Success(tags.Select(t => t.Name).ToList()));
+        }
+
+        [HttpGet]
+        [Authorize(false)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<Page<TagDto>>> GetAllPaged([FromQuery] Pageable pageable,
+                                                                  [FromQuery] TagFilter tagFilter)
+        {
+            var user = await userService.GetAuthorizedUserAsync(HttpContext);
+            var tagsPage = await tagService.GetAllPagedAsync(user.Id, pageable, tagFilter);
+            return Ok(tagsPage.Map(TagMapper.FromTagToTagDto));
         }
 
         [HttpPost]
@@ -39,10 +54,10 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<ApiResponse<string>>> Create([FromBody] TagDto tagDto)
+        public async Task<ActionResult<ApiResponse<string>>> Create([FromBody] EditTagDto tagDto)
         {
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
-            var tag = TagMapper.FromTagDtoToTag(user.Id, tagDto);
+            var tag = TagMapper.FromEditTagDtoToTag(user.Id, tagDto);
             await tagService.CreateAsync(tag);
             return Created("", ApiResponse<string>.Success("Tag successfully created", ""));
         }

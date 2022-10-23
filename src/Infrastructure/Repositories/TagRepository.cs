@@ -16,11 +16,20 @@ namespace Infrastructure.Repositories
             : base(databaseContext)
         { }
 
-        public Task<List<Tag>> GetAllAsync(Guid userId)
+        public Task<List<Tag>> GetAllAsync(Guid userId, bool includeEntryTags = false)
         {
-            return (from tag in databaseContext.Tags
-                    where tag.UserId.Equals(userId)
-                    select tag).ToListAsync();
+            if (includeEntryTags)
+            {
+                return (from tag in databaseContext.Tags.Include(t => t.EntryTags)
+                        where tag.UserId.Equals(userId)
+                        select tag).ToListAsync();
+            }
+            else
+            {
+                return (from tag in databaseContext.Tags
+                        where tag.UserId.Equals(userId)
+                        select tag).ToListAsync();
+            }
         }
 
         public async Task<Tag?> GetByNameIgnoreCaseAsync(Guid userId, string name)

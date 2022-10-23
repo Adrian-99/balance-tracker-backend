@@ -30,7 +30,7 @@ namespace Application.Utilities
 
         public List<Entry> Apply(List<Entry> entries)
         {
-            if (!string.IsNullOrEmpty(SortBy) &&
+            if (string.IsNullOrEmpty(SortBy) ||
                 !Utils.EqualsAnyIgnoreCase(SortBy, DATE, VALUE, NAME, $"-{DATE}", $"-{VALUE}", $"-{NAME}"))
             {
                 throw new DataValidationException("Invalid sortBy value");

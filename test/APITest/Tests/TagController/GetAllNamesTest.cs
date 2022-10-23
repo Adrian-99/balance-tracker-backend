@@ -1,5 +1,5 @@
 ﻿using Application;
-using Application.Dtos;
+using Application.Dtos.Ingoing;
 using Application.Interfaces;
 using Application.Utilities;
 using Microsoft.Extensions.Configuration;
@@ -14,9 +14,9 @@ using System.Threading.Tasks;
 
 namespace APITest.Tests.TagController
 {
-    public class GetAllUnpagedTest : AbstractTestClass
+    public class GetAllNamesTest : AbstractTestClass
     {
-        private static readonly string URL = "/api/tag";
+        private static readonly string URL = "/api/tag/name";
 
         protected override void PrepareTestData()
         {
@@ -32,14 +32,14 @@ namespace APITest.Tests.TagController
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, tokens.AccessToken);
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            var responseContent = await GetResponseContentAsync<ApiResponse<List<TagDto>>>(response);
+            var responseContent = await GetResponseContentAsync<ApiResponse<List<string>>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(3, responseContent.Data.Count);
-            Assert.AreEqual("secondTag", responseContent.Data[0].Name);
-            Assert.AreEqual("Tag number 3", responseContent.Data[1].Name);
-            Assert.AreEqual("tag1", responseContent.Data[2].Name);
+            Assert.AreEqual("secondTag", responseContent.Data[0]);
+            Assert.AreEqual("Tag number 3", responseContent.Data[1]);
+            Assert.AreEqual("tag1", responseContent.Data[2]);
         }
 
         [Test]
@@ -51,12 +51,12 @@ namespace APITest.Tests.TagController
             var response = await SendHttpRequestAsync(HttpMethod.Get, URL, tokens.AccessToken);
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            var responseContent = await GetResponseContentAsync<ApiResponse<List<TagDto>>>(response);
+            var responseContent = await GetResponseContentAsync<ApiResponse<List<string>>>(response);
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(1, responseContent.Data.Count);
-            Assert.AreEqual("tag of another user", responseContent.Data[0].Name);
+            Assert.AreEqual("tag of another user", responseContent.Data[0]);
         }
 
         [Test]

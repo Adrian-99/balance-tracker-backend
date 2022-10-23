@@ -5,16 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Dtos
+namespace Application.Dtos.Outgoing
 {
     public class TagDto
     {
         [Required]
         public string Name { get; }
 
-        public TagDto(string name)
+        public int? EntriesCount { get; }
+
+        public TagDto(string name, int? entriesCount)
         {
             Name = name;
+            EntriesCount = entriesCount;
         }
     }
 }

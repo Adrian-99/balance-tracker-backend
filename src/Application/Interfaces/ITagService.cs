@@ -1,4 +1,6 @@
-﻿using Domain.Entities;
+﻿using Application.Utilities;
+using Application.Utilities.Pagination;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,7 @@ namespace Application.Interfaces
     public interface ITagService
     {
         Task<List<Tag>> GetAllAsync(Guid userId);
+        Task<Page<Tag>> GetAllPagedAsync(Guid userId, Pageable pageable, TagFilter tagFilter);
         Task<Tag> CreateAsync(Tag tag);
     }
 }
