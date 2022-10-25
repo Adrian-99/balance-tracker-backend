@@ -46,10 +46,13 @@ namespace APITest.Tests.TagController
             Assert.IsTrue(responseContent.IsLastPage);
 
             Assert.AreEqual(3, responseContent.Data.Count);
+            Assert.NotNull(responseContent.Data[0].Id);
             Assert.AreEqual("secondTag", responseContent.Data[0].Name);
             Assert.AreEqual(1, responseContent.Data[0].EntriesCount);
+            Assert.NotNull(responseContent.Data[1].Id);
             Assert.AreEqual("Tag number 3", responseContent.Data[1].Name);
             Assert.AreEqual(3, responseContent.Data[1].EntriesCount);
+            Assert.NotNull(responseContent.Data[2].Id);
             Assert.AreEqual("tag1", responseContent.Data[2].Name);
             Assert.AreEqual(2, responseContent.Data[2].EntriesCount);
         }
@@ -70,6 +73,7 @@ namespace APITest.Tests.TagController
             Assert.IsFalse(responseContent.IsLastPage);
 
             Assert.AreEqual(1, responseContent.Data.Count);
+            Assert.NotNull(responseContent.Data[0].Id);
             Assert.AreEqual("Tag number 3", responseContent.Data[0].Name);
             Assert.AreEqual(3, responseContent.Data[0].EntriesCount);
         }
@@ -90,10 +94,13 @@ namespace APITest.Tests.TagController
             Assert.IsTrue(responseContent.IsLastPage);
 
             Assert.AreEqual(3, responseContent.Data.Count);
+            Assert.NotNull(responseContent.Data[0].Id);
             Assert.AreEqual("tag1", responseContent.Data[0].Name);
             Assert.AreEqual(2, responseContent.Data[0].EntriesCount);
+            Assert.NotNull(responseContent.Data[1].Id);
             Assert.AreEqual("Tag number 3", responseContent.Data[1].Name);
             Assert.AreEqual(3, responseContent.Data[1].EntriesCount);
+            Assert.NotNull(responseContent.Data[2].Id);
             Assert.AreEqual("secondTag", responseContent.Data[2].Name);
             Assert.AreEqual(1, responseContent.Data[2].EntriesCount);
         }
@@ -114,10 +121,13 @@ namespace APITest.Tests.TagController
             Assert.IsTrue(responseContent.IsLastPage);
 
             Assert.AreEqual(3, responseContent.Data.Count);
+            Assert.NotNull(responseContent.Data[0].Id);
             Assert.AreEqual("secondTag", responseContent.Data[0].Name);
             Assert.AreEqual(1, responseContent.Data[0].EntriesCount);
+            Assert.NotNull(responseContent.Data[1].Id);
             Assert.AreEqual("tag1", responseContent.Data[1].Name);
             Assert.AreEqual(2, responseContent.Data[1].EntriesCount);
+            Assert.NotNull(responseContent.Data[2].Id);
             Assert.AreEqual("Tag number 3", responseContent.Data[2].Name);
             Assert.AreEqual(3, responseContent.Data[2].EntriesCount);
         }
@@ -138,8 +148,10 @@ namespace APITest.Tests.TagController
             Assert.IsTrue(responseContent.IsLastPage);
 
             Assert.AreEqual(2, responseContent.Data.Count);
+            Assert.NotNull(responseContent.Data[0].Id);
             Assert.AreEqual("secondTag", responseContent.Data[0].Name);
             Assert.AreEqual(1, responseContent.Data[0].EntriesCount);
+            Assert.NotNull(responseContent.Data[1].Id);
             Assert.AreEqual("Tag number 3", responseContent.Data[1].Name);
             Assert.AreEqual(3, responseContent.Data[1].EntriesCount);
         }
@@ -181,6 +193,7 @@ namespace APITest.Tests.TagController
             Assert.IsTrue(responseContent.IsLastPage);
 
             Assert.AreEqual(1, responseContent.Data.Count);
+            Assert.NotNull(responseContent.Data[0].Id);
             Assert.AreEqual("tag of another user", responseContent.Data[0].Name);
             Assert.AreEqual(1, responseContent.Data[0].EntriesCount);
         }

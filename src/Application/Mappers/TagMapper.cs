@@ -13,7 +13,7 @@ namespace Application.Mappers
     {
         public static TagDto FromTagToTagDto(Tag tag)
         {
-            return new TagDto(tag.Name, tag.EntryTags?.Count);
+            return new TagDto(tag.Id, tag.Name, tag.EntryTags?.Count);
         }
 
         public static Tag FromEditTagDtoToTag(Guid userId, EditTagDto editTagDto)
