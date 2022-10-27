@@ -43,9 +43,7 @@ namespace APITest.Tests.EntryController
             var tags = new List<string>() { "tag1", "Tag number 3" };
             var entryDto = new EditEntryDto(DateTime.UtcNow, 54.35M, "Changed entry name", "New description of the entry", "costCategory1", tags);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL + entry.Id, tokens.AccessToken, entryDto);
-
-            await AssertSuccessfulActionAsync(response, entryDto);
+            await AssertSuccessfulActionAsync(entryDto);
             Assert.AreEqual(entryTagsCountBefore, databaseContext.EntryTags.Count());
         }
 
@@ -55,9 +53,7 @@ namespace APITest.Tests.EntryController
             var tags = new List<string>() { "tag1", "Tag number 3" };
             var entryDto = new EditEntryDto(DateTime.UtcNow, 54.35M, "Changed entry name", null, "costCategory1", tags);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL + entry.Id, tokens.AccessToken, entryDto);
-
-            await AssertSuccessfulActionAsync(response, entryDto);
+            await AssertSuccessfulActionAsync(entryDto);
             Assert.AreEqual(entryTagsCountBefore, databaseContext.EntryTags.Count());
         }
 
@@ -66,9 +62,7 @@ namespace APITest.Tests.EntryController
         {
             var entryDto = new EditEntryDto(DateTime.UtcNow, 54.35M, "Changed entry name", "New description of the entry", "costCategory1", new List<string>());
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL + entry.Id, tokens.AccessToken, entryDto);
-
-            await AssertSuccessfulActionAsync(response, entryDto);
+            await AssertSuccessfulActionAsync(entryDto);
             Assert.AreEqual(entryTagsCountBefore - 2, databaseContext.EntryTags.Count());
         }
 
@@ -78,9 +72,7 @@ namespace APITest.Tests.EntryController
             var tags = new List<string>() { "tag1", "secondTag" };
             var entryDto = new EditEntryDto(DateTime.UtcNow, 54.35M, "Changed entry name", "New description of the entry", "costCategory1", tags);
 
-            var response = await SendHttpRequestAsync(HttpMethod.Put, URL + entry.Id, tokens.AccessToken, entryDto);
-
-            await AssertSuccessfulActionAsync(response, entryDto);
+            await AssertSuccessfulActionAsync(entryDto);
             Assert.AreEqual(entryTagsCountBefore, databaseContext.EntryTags.Count());
         }
 
@@ -170,8 +162,9 @@ namespace APITest.Tests.EntryController
             await AssertUnsuccessfulActionAsync(response, HttpStatusCode.Unauthorized);
         }
 
-        private async Task AssertSuccessfulActionAsync(HttpResponseMessage response, EditEntryDto entryDto)
+        private async Task AssertSuccessfulActionAsync(EditEntryDto entryDto)
         {
+            var response = await SendHttpRequestAsync(HttpMethod.Put, URL + entry.Id, tokens.AccessToken, entryDto);
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<ApiResponse<string>>(response);

@@ -60,5 +60,7 @@ namespace Infrastructure.Repositories
             await databaseContext.SaveChangesAsync();
             return updatedEntity.Entity;
         }
+
+        public abstract Task<Entity> UpdateAsync(Entity oldEntity, Entity newEntity);
     }
 }

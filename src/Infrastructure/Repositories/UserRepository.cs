@@ -36,5 +36,22 @@ namespace Infrastructure.Repositories
             return users.Where(u => u.ResetPasswordCode != null && u.ResetPasswordCode.Equals(resetPasswordCode))
                 .FirstOrDefault();
         }
+
+        public override Task<User> UpdateAsync(User oldEntity, User newEntity)
+        {
+            oldEntity.Username = newEntity.Username;
+            oldEntity.LastUsernameChangeAt = newEntity.LastUsernameChangeAt;
+            oldEntity.Email = newEntity.Email;
+            oldEntity.IsEmailVerified = newEntity.IsEmailVerified;
+            oldEntity.PasswordHash = newEntity.PasswordHash;
+            oldEntity.PasswordSalt = newEntity.PasswordSalt;
+            oldEntity.FirstName = newEntity.FirstName;
+            oldEntity.LastName = newEntity.LastName;
+            oldEntity.EmailVerificationCode = newEntity.EmailVerificationCode;
+            oldEntity.EmailVerificationCodeCreatedAt = newEntity.EmailVerificationCodeCreatedAt;
+            oldEntity.ResetPasswordCode = newEntity.ResetPasswordCode;
+            oldEntity.ResetPasswordCodeCreatedAt = newEntity.ResetPasswordCodeCreatedAt;
+            return UpdateAsync(oldEntity);
+        }
     }
 }

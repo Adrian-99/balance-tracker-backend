@@ -59,7 +59,22 @@ namespace API.Controllers
             var user = await userService.GetAuthorizedUserAsync(HttpContext);
             var tag = TagMapper.FromEditTagDtoToTag(user.Id, tagDto);
             await tagService.CreateAsync(tag);
-            return Created("", ApiResponse<string>.Success("Tag successfully created", ""));
+            return Created("", ApiResponse<string>.Success("Tag successfully created", "success.tag.create"));
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(true)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponse<string>>> Edit([FromRoute] Guid id, [FromBody] EditTagDto tagDto)
+        {
+            var user = await userService.GetAuthorizedUserAsync(HttpContext);
+            var tag = TagMapper.FromEditTagDtoToTag(user.Id, tagDto);
+            await tagService.UpdateAsync(id, tag);
+            return Ok(ApiResponse<string>.Success("Tag successfully updated", "success.tag.edit"));
         }
     }
 }

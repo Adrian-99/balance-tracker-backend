@@ -29,5 +29,15 @@ namespace Infrastructure.Repositories
                     where category.Keyword.Equals(keyword)
                     select category).FirstOrDefaultAsync();
         }
+
+        public override Task<Category> UpdateAsync(Category oldEntity, Category newEntity)
+        {
+            oldEntity.OrderOnList = newEntity.OrderOnList;
+            oldEntity.Keyword = newEntity.Keyword;
+            oldEntity.IsIncome = newEntity.IsIncome;
+            oldEntity.Icon = newEntity.Icon;
+            oldEntity.IconColor = newEntity.IconColor;
+            return UpdateAsync(oldEntity);
+        }
     }
 }

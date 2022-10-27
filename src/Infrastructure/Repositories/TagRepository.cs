@@ -38,5 +38,12 @@ namespace Infrastructure.Repositories
             var userTags = await GetAllAsync(userId);
             return userTags.FirstOrDefault(t => t.Name.ToLower().Equals(nameToLower));
         }
+
+        public override Task<Tag> UpdateAsync(Tag oldEntity, Tag newEntity)
+        {
+            oldEntity.Name = newEntity.Name;
+            oldEntity.UserId = newEntity.UserId;
+            return UpdateAsync(oldEntity);
+        }
     }
 }

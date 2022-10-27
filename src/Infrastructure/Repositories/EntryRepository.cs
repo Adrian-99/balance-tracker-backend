@@ -32,5 +32,18 @@ namespace Infrastructure.Repositories
                     where entry.UserId.Equals(userId)
                     select entry).ToListAsync();
         }
+
+        public override Task<Entry> UpdateAsync(Entry oldEntity, Entry newEntity)
+        {
+            oldEntity.Date = newEntity.Date;
+            oldEntity.Value = newEntity.Value;
+            oldEntity.Name = newEntity.Name;
+            oldEntity.DescriptionContent = newEntity.DescriptionContent;
+            oldEntity.DescriptionKey = newEntity.DescriptionKey;
+            oldEntity.DescriptionIV = newEntity.DescriptionIV;
+            oldEntity.CategoryId = newEntity.CategoryId;
+            oldEntity.UserId = newEntity.UserId;
+            return UpdateAsync(oldEntity);
+        }
     }
 }

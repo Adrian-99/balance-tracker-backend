@@ -43,8 +43,23 @@ namespace Application.Services
             await ValidateAsync(tag);
             return await tagRepository.AddAsync(tag);
         }
+        public async Task<Tag> UpdateAsync(Guid id, Tag tag)
+        {
+            var currentTag = await tagRepository.GetByIdAsync(id, tag.UserId);
+            if (currentTag != null)
+            {
+                tag.Id = id;
+                await ValidateAsync(tag, !currentTag.Name.ToLower().Equals(tag.Name.ToLower()));
+                return await tagRepository.UpdateAsync(currentTag, tag);
+            }
+            else
+            {
+                throw new EntityNotFoundException("Tag", id.ToString());
+            }
 
-        private async Task ValidateAsync(Tag tag)
+        }
+
+        private async Task ValidateAsync(Tag tag, bool checkIfNameTaken = true)
         {
             if (tag.Name.Length > tagSettings.Name.MaxLength)
             {
@@ -53,11 +68,11 @@ namespace Application.Services
                     // TODO: Add translation key
                     );
             }
-            else if ((await tagRepository.GetByNameIgnoreCaseAsync(tag.UserId, tag.Name)) != null)
+            else if (checkIfNameTaken && (await tagRepository.GetByNameIgnoreCaseAsync(tag.UserId, tag.Name)) != null)
             {
                 throw new DataValidationException(
-                    $"Tag with name {tag.Name} already exists"
-                    // TODO: Translation key
+                    $"Tag with name {tag.Name} already exists",
+                    "error.tag.nameTaken"
                     );
             }
         }

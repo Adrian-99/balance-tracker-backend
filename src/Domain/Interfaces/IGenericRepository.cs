@@ -13,6 +13,7 @@ namespace Domain.Interfaces
         Task<Entity?> GetByIdAsync(PrimaryKey id);
         Task<Entity> AddAsync(Entity entity);
         Task<Entity> UpdateAsync(Entity entity);
+        Task<Entity> UpdateAsync(Entity oldEntity, Entity newEntity);
         Task DeleteAsync(Entity entity);
     }
 }
