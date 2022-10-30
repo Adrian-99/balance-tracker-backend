@@ -19,10 +19,25 @@ namespace Infrastructure.Repositories
             this.databaseContext = databaseContext;
         }
 
+        public async Task<bool> CheckIfExistsAsync(Guid entryId, Guid tagId)
+        {
+            var found = await (from entryTag in databaseContext.EntryTags
+                               where entryTag.EntryId.Equals(entryId) && entryTag.TagId.Equals(tagId)
+                               select entryTag).AsNoTracking().FirstOrDefaultAsync();
+            return found != null;
+        }
+
         public Task<List<EntryTag>> GetAllByEntryIdAsync(Guid entryId)
         {
             return (from entryTag in databaseContext.EntryTags
                     where entryTag.EntryId.Equals(entryId)
+                    select entryTag).ToListAsync();
+        }
+
+        public Task<List<EntryTag>> GetAllByTagIdAsync(Guid tagId)
+        {
+            return (from entryTag in databaseContext.EntryTags
+                    where entryTag.TagId.Equals(tagId)
                     select entryTag).ToListAsync();
         }
 
@@ -33,9 +48,9 @@ namespace Infrastructure.Repositories
             return addedEntryTag.Entity;
         }
 
-        public async Task DeleteAsync(EntryTag entryTag)
+        public async Task DeleteAsync(params EntryTag[] entryTags)
         {
-            databaseContext.EntryTags.Remove(entryTag);
+            databaseContext.EntryTags.RemoveRange(entryTags);
             await databaseContext.SaveChangesAsync();
         }
 

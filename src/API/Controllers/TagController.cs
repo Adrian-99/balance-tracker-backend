@@ -76,5 +76,19 @@ namespace API.Controllers
             await tagService.UpdateAsync(id, tag);
             return Ok(ApiResponse<string>.Success("Tag successfully updated", "success.tag.edit"));
         }
+
+        [HttpDelete("{id}")]
+        [Authorize(true)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponse<string>>> Delete([FromRoute] Guid id, [FromQuery] string? replacementTags)
+        {
+            var user = await userService.GetAuthorizedUserAsync(HttpContext);
+            await tagService.DeleteAsync(id, user.Id, replacementTags);
+            return Ok(ApiResponse<string>.Success("Tag successfully deleted", "success.tag.delete"));
+        }
     }
 }

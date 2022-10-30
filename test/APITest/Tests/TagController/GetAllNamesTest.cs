@@ -36,10 +36,11 @@ namespace APITest.Tests.TagController
             Assert.NotNull(responseContent);
             Assert.IsTrue(responseContent.Successful);
 
-            Assert.AreEqual(3, responseContent.Data.Count);
-            Assert.AreEqual("secondTag", responseContent.Data[0]);
-            Assert.AreEqual("Tag number 3", responseContent.Data[1]);
-            Assert.AreEqual("tag1", responseContent.Data[2]);
+            Assert.AreEqual(4, responseContent.Data.Count);
+            Assert.AreEqual("4th tag", responseContent.Data[0]);
+            Assert.AreEqual("secondTag", responseContent.Data[1]);
+            Assert.AreEqual("Tag number 3", responseContent.Data[2]);
+            Assert.AreEqual("tag1", responseContent.Data[3]);
         }
 
         [Test]

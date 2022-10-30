@@ -93,6 +93,11 @@ namespace APITest.Tests
                     Name = "Tag number 3",
                     UserId = user1.Id
                 });
+                databaseContext.Tags.Add(new Tag
+                {
+                    Name = "4th tag",
+                    UserId = user1.Id
+                });
 
                 databaseContext.Tags.Add(new Tag
                 {

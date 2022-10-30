@@ -60,7 +60,7 @@ namespace APITest.Tests.TagController
 
             var response = await SendHttpRequestAsync(HttpMethod.Put, URL + tag.Id, tokens.AccessToken, tagDto);
 
-            await AssertUnsuccessfulyActionAsync(response, HttpStatusCode.NotFound);
+            await AssertUnsuccessfulActionAsync(response, HttpStatusCode.NotFound);
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace APITest.Tests.TagController
 
             var response = await SendHttpRequestAsync(HttpMethod.Put, URL + tag.Id, tokens.AccessToken, tagDto);
 
-            await AssertUnsuccessfulyActionAsync(response, HttpStatusCode.BadRequest);
+            await AssertUnsuccessfulActionAsync(response, HttpStatusCode.BadRequest);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace APITest.Tests.TagController
 
             var response = await SendHttpRequestAsync(HttpMethod.Put, URL + tag.Id, tokens.AccessToken, tagDto);
 
-            await AssertUnsuccessfulyActionAsync(response, HttpStatusCode.Forbidden);
+            await AssertUnsuccessfulActionAsync(response, HttpStatusCode.Forbidden);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace APITest.Tests.TagController
 
             var response = await SendHttpRequestAsync(HttpMethod.Put, URL + tag.Id, "someTotallyWrongAccessToken", tagDto);
 
-            await AssertUnsuccessfulyActionAsync(response, HttpStatusCode.Unauthorized);
+            await AssertUnsuccessfulActionAsync(response, HttpStatusCode.Unauthorized);
         }
 
         private async Task AssertSuccessfulActionAsync(EditTagDto tagDto)
@@ -114,7 +114,7 @@ namespace APITest.Tests.TagController
             Assert.AreEqual(user.Id, editedTag.UserId);
         }
 
-        private async Task AssertUnsuccessfulyActionAsync(HttpResponseMessage response, HttpStatusCode expectedStatusCode)
+        private async Task AssertUnsuccessfulActionAsync(HttpResponseMessage response, HttpStatusCode expectedStatusCode)
         {
             Assert.AreEqual(expectedStatusCode, response.StatusCode);
 

@@ -15,5 +15,6 @@ namespace Application.Interfaces
         Task<Page<Tag>> GetAllPagedAsync(Guid userId, Pageable pageable, TagFilter tagFilter);
         Task<Tag> CreateAsync(Tag tag);
         Task<Tag> UpdateAsync(Guid id, Tag tag);
+        Task DeleteAsync(Guid tagId, Guid userId, string? replacementTags);
     }
 }

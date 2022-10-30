@@ -76,10 +76,7 @@ namespace Application.Services
                 }
                 if (entryTagsToDelete.Count > 0)
                 {
-                    foreach (var entryTag in entryTagsToDelete)
-                    {
-                        await entryTagRepository.DeleteAsync(entryTag);
-                    }
+                    await entryTagRepository.DeleteAsync(entryTagsToDelete.ToArray());
                 }
                 if (entryTagIdsToAdd.Count > 0)
                 {
@@ -93,10 +90,7 @@ namespace Application.Services
             {
                 if (entryTags.Count > 0)
                 {
-                    foreach (var entryTag in entryTags)
-                    {
-                        await entryTagRepository.DeleteAsync(entryTag);
-                    }
+                    await entryTagRepository.DeleteAsync(entryTags.ToArray());
                 }
             }
             return updatedEntry;

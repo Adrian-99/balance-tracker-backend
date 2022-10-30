@@ -9,9 +9,11 @@ namespace Domain.Interfaces
 {
     public interface IEntryTagRepository
     {
+        Task<bool> CheckIfExistsAsync(Guid entryId, Guid tagId);
         Task<List<EntryTag>> GetAllByEntryIdAsync(Guid entryId);
+        Task<List<EntryTag>> GetAllByTagIdAsync(Guid tagId);
         Task<EntryTag> AddAsync(EntryTag entryTag);
-        Task DeleteAsync(EntryTag entryTag);
+        Task DeleteAsync(params EntryTag[] entryTags);
         Task DeleteAllByEntryIdAsync(Guid entryId);
     }
 }

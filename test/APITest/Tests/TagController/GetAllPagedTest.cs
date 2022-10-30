@@ -42,19 +42,22 @@ namespace APITest.Tests.TagController
 
             Assert.AreEqual(1, responseContent.PageNumber);
             Assert.AreEqual(10, responseContent.PageSize);
-            Assert.AreEqual(3, responseContent.TotalCount);
+            Assert.AreEqual(4, responseContent.TotalCount);
             Assert.IsTrue(responseContent.IsLastPage);
 
-            Assert.AreEqual(3, responseContent.Data.Count);
+            Assert.AreEqual(4, responseContent.Data.Count);
             Assert.NotNull(responseContent.Data[0].Id);
-            Assert.AreEqual("secondTag", responseContent.Data[0].Name);
-            Assert.AreEqual(1, responseContent.Data[0].EntriesCount);
+            Assert.AreEqual("4th tag", responseContent.Data[0].Name);
+            Assert.AreEqual(0, responseContent.Data[0].EntriesCount);
             Assert.NotNull(responseContent.Data[1].Id);
-            Assert.AreEqual("Tag number 3", responseContent.Data[1].Name);
-            Assert.AreEqual(3, responseContent.Data[1].EntriesCount);
+            Assert.AreEqual("secondTag", responseContent.Data[1].Name);
+            Assert.AreEqual(1, responseContent.Data[1].EntriesCount);
             Assert.NotNull(responseContent.Data[2].Id);
-            Assert.AreEqual("tag1", responseContent.Data[2].Name);
-            Assert.AreEqual(2, responseContent.Data[2].EntriesCount);
+            Assert.AreEqual("Tag number 3", responseContent.Data[2].Name);
+            Assert.AreEqual(3, responseContent.Data[2].EntriesCount);
+            Assert.NotNull(responseContent.Data[3].Id);
+            Assert.AreEqual("tag1", responseContent.Data[3].Name);
+            Assert.AreEqual(2, responseContent.Data[3].EntriesCount);
         }
 
         [Test]
@@ -69,13 +72,13 @@ namespace APITest.Tests.TagController
 
             Assert.AreEqual(2, responseContent.PageNumber);
             Assert.AreEqual(1, responseContent.PageSize);
-            Assert.AreEqual(3, responseContent.TotalCount);
+            Assert.AreEqual(4, responseContent.TotalCount);
             Assert.IsFalse(responseContent.IsLastPage);
 
             Assert.AreEqual(1, responseContent.Data.Count);
             Assert.NotNull(responseContent.Data[0].Id);
-            Assert.AreEqual("Tag number 3", responseContent.Data[0].Name);
-            Assert.AreEqual(3, responseContent.Data[0].EntriesCount);
+            Assert.AreEqual("secondTag", responseContent.Data[0].Name);
+            Assert.AreEqual(1, responseContent.Data[0].EntriesCount);
         }
 
         [Test]
@@ -90,10 +93,10 @@ namespace APITest.Tests.TagController
 
             Assert.AreEqual(1, responseContent.PageNumber);
             Assert.AreEqual(10, responseContent.PageSize);
-            Assert.AreEqual(3, responseContent.TotalCount);
+            Assert.AreEqual(4, responseContent.TotalCount);
             Assert.IsTrue(responseContent.IsLastPage);
 
-            Assert.AreEqual(3, responseContent.Data.Count);
+            Assert.AreEqual(4, responseContent.Data.Count);
             Assert.NotNull(responseContent.Data[0].Id);
             Assert.AreEqual("tag1", responseContent.Data[0].Name);
             Assert.AreEqual(2, responseContent.Data[0].EntriesCount);
@@ -103,6 +106,9 @@ namespace APITest.Tests.TagController
             Assert.NotNull(responseContent.Data[2].Id);
             Assert.AreEqual("secondTag", responseContent.Data[2].Name);
             Assert.AreEqual(1, responseContent.Data[2].EntriesCount);
+            Assert.NotNull(responseContent.Data[3].Id);
+            Assert.AreEqual("4th tag", responseContent.Data[3].Name);
+            Assert.AreEqual(0, responseContent.Data[3].EntriesCount);
         }
 
         [Test]
@@ -117,19 +123,22 @@ namespace APITest.Tests.TagController
 
             Assert.AreEqual(1, responseContent.PageNumber);
             Assert.AreEqual(10, responseContent.PageSize);
-            Assert.AreEqual(3, responseContent.TotalCount);
+            Assert.AreEqual(4, responseContent.TotalCount);
             Assert.IsTrue(responseContent.IsLastPage);
 
-            Assert.AreEqual(3, responseContent.Data.Count);
+            Assert.AreEqual(4, responseContent.Data.Count);
             Assert.NotNull(responseContent.Data[0].Id);
-            Assert.AreEqual("secondTag", responseContent.Data[0].Name);
-            Assert.AreEqual(1, responseContent.Data[0].EntriesCount);
+            Assert.AreEqual("4th tag", responseContent.Data[0].Name);
+            Assert.AreEqual(0, responseContent.Data[0].EntriesCount);
             Assert.NotNull(responseContent.Data[1].Id);
-            Assert.AreEqual("tag1", responseContent.Data[1].Name);
-            Assert.AreEqual(2, responseContent.Data[1].EntriesCount);
+            Assert.AreEqual("secondTag", responseContent.Data[1].Name);
+            Assert.AreEqual(1, responseContent.Data[1].EntriesCount);
             Assert.NotNull(responseContent.Data[2].Id);
-            Assert.AreEqual("Tag number 3", responseContent.Data[2].Name);
-            Assert.AreEqual(3, responseContent.Data[2].EntriesCount);
+            Assert.AreEqual("tag1", responseContent.Data[2].Name);
+            Assert.AreEqual(2, responseContent.Data[2].EntriesCount);
+            Assert.NotNull(responseContent.Data[3].Id);
+            Assert.AreEqual("Tag number 3", responseContent.Data[3].Name);
+            Assert.AreEqual(3, responseContent.Data[3].EntriesCount);
         }
 
         [Test]
