@@ -21,6 +21,7 @@ namespace Application
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IEntryService, EntryService>();
             services.AddScoped<ITagService, TagService>();
+            services.AddScoped<IStatisticsService, StatisticsService>();
 
             services.AddScoped<IUserMapper, UserMapper>();
             services.AddScoped<IEntryMapper, EntryMapper>();
