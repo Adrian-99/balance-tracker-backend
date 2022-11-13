@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Application.Utilities.Statistics
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum GroupBy
     {
         TimePeriod, EntryType, Category, Tag

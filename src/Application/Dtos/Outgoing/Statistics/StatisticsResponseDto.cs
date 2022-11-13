@@ -13,6 +13,9 @@ namespace Application.Dtos.Outgoing.Statistics
         [Required]
         public int EntriesCount { get; }
 
+        [Required]
+        public List<SelectValue> SelectValues { get; }
+
         public DateTime? DateFromFilter { get; }
 
         public DateTime? DateToFilter { get; }
@@ -27,6 +30,7 @@ namespace Application.Dtos.Outgoing.Statistics
         public List<StatisticsRowDto> Rows { get; }
 
         public StatisticsResponseDto(int entriesCount,
+                                    List<SelectValue> selectValues,
                                      DateTime? dateFromFilter,
                                      DateTime? dateToFilter,
                                      EntryType? entryTypeFilter,
@@ -35,6 +39,7 @@ namespace Application.Dtos.Outgoing.Statistics
                                      List<StatisticsRowDto> rows)
         {
             EntriesCount = entriesCount;
+            SelectValues = selectValues;
             DateFromFilter = dateFromFilter;
             DateToFilter = dateToFilter;
             EntryTypeFilter = entryTypeFilter;

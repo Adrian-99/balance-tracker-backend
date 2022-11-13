@@ -47,6 +47,9 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(6, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> { 
+                SelectValue.Count, SelectValue.Min, SelectValue.Max, SelectValue.Sum, SelectValue.Average, SelectValue.Median
+            }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -83,6 +86,7 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(2, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> { SelectValue.Sum }, responseContent.Data.SelectValues);
             Assert.AreEqual(new DateTime(2022, 6, 25, 0, 0, 0, 0), responseContent.Data.DateFromFilter);
             Assert.AreEqual(new DateTime(2022, 7, 2, 23, 59, 59, 999).AddTicks(9999), responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -114,6 +118,9 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(4, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> {
+                SelectValue.Count, SelectValue.Min, SelectValue.Max, SelectValue.Sum, SelectValue.Average, SelectValue.Median
+            }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.AreEqual(EntryType.Cost, responseContent.Data.EntryTypeFilter);
@@ -150,6 +157,9 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(3, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> {
+                SelectValue.Min, SelectValue.Max, SelectValue.Sum, SelectValue.Median
+            }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -183,6 +193,7 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(3, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> { SelectValue.Min, SelectValue.Max }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -215,6 +226,9 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(6, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> {
+                SelectValue.Min, SelectValue.Max, SelectValue.Sum
+            }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -288,6 +302,7 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(6, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> { SelectValue.Count, SelectValue.Sum }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -329,6 +344,7 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(6, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> { SelectValue.Count, SelectValue.Sum }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -361,6 +377,9 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(6, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> {
+                SelectValue.Count, SelectValue.Min, SelectValue.Max, SelectValue.Sum, SelectValue.Average, SelectValue.Median
+            }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -410,6 +429,9 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(6, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> {
+                SelectValue.Count, SelectValue.Min, SelectValue.Max, SelectValue.Sum, SelectValue.Average, SelectValue.Median
+            }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -484,6 +506,7 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(6, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> { SelectValue.Count, SelectValue.Sum }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -544,6 +567,7 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(6, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> { SelectValue.Count, SelectValue.Sum }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -707,6 +731,7 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(6, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> { SelectValue.Count, SelectValue.Average }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
@@ -795,6 +820,7 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(4, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> { SelectValue.Median }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.AreEqual(EntryType.Cost, responseContent.Data.EntryTypeFilter);
@@ -844,6 +870,7 @@ namespace APITest.Tests.StatisticsController
             Assert.IsTrue(responseContent.Successful);
 
             Assert.AreEqual(0, responseContent.Data.EntriesCount);
+            Assert.AreEqual(new List<SelectValue> {  SelectValue.Median }, responseContent.Data.SelectValues);
             Assert.IsNull(responseContent.Data.DateFromFilter);
             Assert.IsNull(responseContent.Data.DateToFilter);
             Assert.AreEqual(EntryType.Income, responseContent.Data.EntryTypeFilter);

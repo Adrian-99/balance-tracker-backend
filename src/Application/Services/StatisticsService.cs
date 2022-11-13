@@ -31,6 +31,7 @@ namespace Application.Services
             var statisticsTopLevelRows = GroupAndSelect(filteredEntries, statisticsRequest, 0, statisticsRequest.EntryTypeFilter != null);
             return new StatisticsResponseDto(
                 filteredEntries.Count,
+                statisticsRequest.SelectValues,
                 statisticsRequest.DateRangeFilter != null ? statisticsRequest.DateRangeFilter.DateFrom.Date : null,
                 statisticsRequest.DateRangeFilter != null ? statisticsRequest.DateRangeFilter.DateTo.Date.AddDays(1).AddTicks(-1) : null,
                 statisticsRequest.EntryTypeFilter,
@@ -72,8 +73,8 @@ namespace Application.Services
         {
             if (statisticsRequest.DateRangeFilter != null)
             {
-                var dateFrom = statisticsRequest.DateRangeFilter.DateFrom.Date;
-                var dateTo = statisticsRequest.DateRangeFilter.DateTo.Date.AddDays(1).AddTicks(-1);
+                var dateFrom = statisticsRequest.DateRangeFilter.DateFrom.ToUniversalTime().Date;
+                var dateTo = statisticsRequest.DateRangeFilter.DateTo.ToUniversalTime().Date.AddDays(1).AddTicks(-1);
                 entries = entries.Where(
                     entry => entry.Date.CompareTo(dateFrom) >= 0 &&
                         entry.Date.CompareTo(dateTo) <= 0
@@ -167,7 +168,7 @@ namespace Application.Services
             {
                 var minEntryDate = entries.Select(entry => entry.Date).Min();
                 var maxEntryDate = entries.Select(entry => entry.Date).Max();
-                var periodStartDate = statisticsRequest.GroupByTimePeriodProperties.StartDate.Date;
+                var periodStartDate = statisticsRequest.GroupByTimePeriodProperties.StartDate.ToUniversalTime().Date;
                 while (periodStartDate.CompareTo(minEntryDate) > 0)
                 {
                     periodStartDate = FindNextPeriodBoundary(
