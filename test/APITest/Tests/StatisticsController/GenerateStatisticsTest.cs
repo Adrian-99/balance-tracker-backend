@@ -214,8 +214,8 @@ namespace APITest.Tests.StatisticsController
         [Test]
         public async Task GenerateStatistics_WithGroupBy7DaysPeriod()
         {
-            var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimePeriod },
-                new StatisticsGroupByTimePeriodDto(new DateTime(2022, 6, 1, 15, 55, 2), 7, TimePeriodUnit.Day),
+            var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimeInterval },
+                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 6, 1, 15, 55, 2), 7, TimePeriodUnit.Day),
                 new List<SelectValue> { SelectValue.Min, SelectValue.Max, SelectValue.Sum }, null);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, statisticsRequestDto);
@@ -290,8 +290,8 @@ namespace APITest.Tests.StatisticsController
         [Test]
         public async Task GenerateStatistics_WithGroupBy2MonthsPeriod()
         {
-            var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimePeriod },
-                new StatisticsGroupByTimePeriodDto(new DateTime(2022, 6, 1, 15, 55, 2), 2, TimePeriodUnit.Month),
+            var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimeInterval },
+                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 6, 1, 15, 55, 2), 2, TimePeriodUnit.Month),
                 new List<SelectValue> { SelectValue.Count, SelectValue.Sum }, null);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, statisticsRequestDto);
@@ -332,8 +332,8 @@ namespace APITest.Tests.StatisticsController
         [Test]
         public async Task GenerateStatistics_WithGroupBy1YearPeriod()
         {
-            var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimePeriod },
-                new StatisticsGroupByTimePeriodDto(new DateTime(2022, 1, 1, 15, 55, 2), 1, TimePeriodUnit.Year),
+            var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimeInterval },
+                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 1, 1, 15, 55, 2), 1, TimePeriodUnit.Year),
                 new List<SelectValue> { SelectValue.Count, SelectValue.Sum }, null);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, statisticsRequestDto);
@@ -555,8 +555,8 @@ namespace APITest.Tests.StatisticsController
         public async Task GenerateStatistics_WithMultipleGroupByAndSelectOnAllLevels()
         {
             var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null,
-                new List<GroupBy> { GroupBy.TimePeriod, GroupBy.Tag, GroupBy.EntryType },
-                new StatisticsGroupByTimePeriodDto(new DateTime(2022, 6, 1, 15, 55, 2), 2, TimePeriodUnit.Month),
+                new List<GroupBy> { GroupBy.TimeInterval, GroupBy.Tag, GroupBy.EntryType },
+                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 6, 1, 15, 55, 2), 2, TimePeriodUnit.Month),
                 new List<SelectValue> { SelectValue.Count, SelectValue.Sum }, true);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, statisticsRequestDto);
@@ -906,7 +906,7 @@ namespace APITest.Tests.StatisticsController
         [Test]
         public async Task GenerateStatistics_WithGroupByTimePeriodWithoutTimePeriodProperties()
         {
-            var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimePeriod },
+            var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimeInterval },
                 null, new List<SelectValue> { SelectValue.Sum }, null);
             await AssertUnsuccessfulActionAsync(statisticsRequestDto, HttpStatusCode.BadRequest);
         }
@@ -914,8 +914,8 @@ namespace APITest.Tests.StatisticsController
         [Test]
         public async Task GenerateStatistics_WithNegativeTimeIntervalValue()
         {
-            var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimePeriod },
-                new StatisticsGroupByTimePeriodDto(new DateTime(2022, 6, 1), -7, TimePeriodUnit.Day),
+            var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimeInterval },
+                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 6, 1), -7, TimePeriodUnit.Day),
                 new List<SelectValue> { SelectValue.Sum }, null);
             await AssertUnsuccessfulActionAsync(statisticsRequestDto, HttpStatusCode.BadRequest);
         }

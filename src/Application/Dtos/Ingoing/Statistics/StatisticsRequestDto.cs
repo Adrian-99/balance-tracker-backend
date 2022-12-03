@@ -20,7 +20,7 @@ namespace Application.Dtos.Ingoing.Statistics
 
         public List<GroupBy>? GroupBy { get; }
 
-        public StatisticsGroupByTimePeriodDto? GroupByTimePeriodProperties { get; }
+        public StatisticsGroupByTimeIntervalDto? GroupByTimeIntervalProperties { get; }
 
         [Required]
         public List<SelectValue> SelectValues { get; }
@@ -32,7 +32,7 @@ namespace Application.Dtos.Ingoing.Statistics
                                     List<string>? categoryFilter,
                                     List<string>? tagFilter,
                                     List<GroupBy>? groupBy,
-                                    StatisticsGroupByTimePeriodDto? groupByTimePeriodProperties,
+                                    StatisticsGroupByTimeIntervalDto? groupByTimeIntervalProperties,
                                     List<SelectValue> selectValues,
                                     bool? selectOnAllLevels)
         {
@@ -41,7 +41,7 @@ namespace Application.Dtos.Ingoing.Statistics
             CategoryFilter = categoryFilter;
             TagFilter = tagFilter;
             GroupBy = groupBy;
-            GroupByTimePeriodProperties = groupByTimePeriodProperties;
+            GroupByTimeIntervalProperties = groupByTimeIntervalProperties;
             SelectValues = selectValues;
             SelectOnAllLevels = selectOnAllLevels;
         }

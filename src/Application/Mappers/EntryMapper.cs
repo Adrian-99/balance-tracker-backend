@@ -27,7 +27,7 @@ namespace Application.Mappers
             return new EntryDto(
                 entry.Id,
                 entry.Date,
-                entry.Value,
+                entry.Category.IsIncome ? entry.Value : -entry.Value,
                 entry.Name,
                 EncryptionUtils.DecryptWithAES(entry.DescriptionContent, entry.DescriptionKey, entry.DescriptionIV),
                 entry.Category.Keyword,

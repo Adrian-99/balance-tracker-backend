@@ -55,11 +55,11 @@ namespace Application.Services
             {
                 throw new DataValidationException("Found duplicate values in groupBy");
             }
-            else if (statisticsRequest.GroupBy != null && statisticsRequest.GroupBy.Contains(GroupBy.TimePeriod) && statisticsRequest.GroupByTimePeriodProperties == null)
+            else if (statisticsRequest.GroupBy != null && statisticsRequest.GroupBy.Contains(GroupBy.TimeInterval) && statisticsRequest.GroupByTimeIntervalProperties == null)
             {
                 throw new DataValidationException("Missing required groupByTimePeriodProperties while groupBy contains timePeriod");
             }
-            else if (statisticsRequest.GroupByTimePeriodProperties != null && statisticsRequest.GroupByTimePeriodProperties.IntervalValue < 1)
+            else if (statisticsRequest.GroupByTimeIntervalProperties != null && statisticsRequest.GroupByTimeIntervalProperties.IntervalLength < 1)
             {
                 throw new DataValidationException("Incorrect value of groupByTimePeriodProperties.intervalValue - must not be lower than 1");
             }
@@ -112,7 +112,7 @@ namespace Application.Services
                 {
                     return statisticsRequest.GroupBy[groupByLevel] switch
                     {
-                        GroupBy.TimePeriod => GroupByTimePeriodAndSelect(entries, statisticsRequest, groupByLevel, dontNegateCostValues),
+                        GroupBy.TimeInterval => GroupByTimePeriodAndSelect(entries, statisticsRequest, groupByLevel, dontNegateCostValues),
                         GroupBy.EntryType => GroupByEntryTypeAndSelect(entries, statisticsRequest, groupByLevel),
                         GroupBy.Category => GroupByCategoryAndSelect(entries, statisticsRequest, groupByLevel),
                         GroupBy.Tag => GroupByTagAndSelect(entries, statisticsRequest, groupByLevel, dontNegateCostValues),
@@ -164,17 +164,17 @@ namespace Application.Services
                                                                   int groupByLevel,
                                                                   bool dontNegateCostValues)
         {
-            if (statisticsRequest.GroupByTimePeriodProperties != null)
+            if (statisticsRequest.GroupByTimeIntervalProperties != null)
             {
                 var minEntryDate = entries.Select(entry => entry.Date).Min();
                 var maxEntryDate = entries.Select(entry => entry.Date).Max();
-                var periodStartDate = statisticsRequest.GroupByTimePeriodProperties.StartDate.ToUniversalTime().Date;
+                var periodStartDate = statisticsRequest.GroupByTimeIntervalProperties.ReferenceDate.ToUniversalTime().Date;
                 while (periodStartDate.CompareTo(minEntryDate) > 0)
                 {
                     periodStartDate = FindNextPeriodBoundary(
                         periodStartDate,
-                        statisticsRequest.GroupByTimePeriodProperties.IntervalUnit,
-                        statisticsRequest.GroupByTimePeriodProperties.IntervalValue,
+                        statisticsRequest.GroupByTimeIntervalProperties.IntervalUnit,
+                        statisticsRequest.GroupByTimeIntervalProperties.IntervalLength,
                         true
                         );
                 }
@@ -185,8 +185,8 @@ namespace Application.Services
                 {
                     periodEndDate = FindNextPeriodBoundary(
                         periodEndDate,
-                        statisticsRequest.GroupByTimePeriodProperties.IntervalUnit,
-                        statisticsRequest.GroupByTimePeriodProperties.IntervalValue
+                        statisticsRequest.GroupByTimeIntervalProperties.IntervalUnit,
+                        statisticsRequest.GroupByTimeIntervalProperties.IntervalLength
                         );
 
                     var entriesInPeriod = entries.Where(
@@ -211,8 +211,8 @@ namespace Application.Services
 
                     periodStartDate = FindNextPeriodBoundary(
                         periodStartDate,
-                        statisticsRequest.GroupByTimePeriodProperties.IntervalUnit,
-                        statisticsRequest.GroupByTimePeriodProperties.IntervalValue
+                        statisticsRequest.GroupByTimeIntervalProperties.IntervalUnit,
+                        statisticsRequest.GroupByTimeIntervalProperties.IntervalLength
                         );
                 }
                 while (periodEndDate.CompareTo(maxEntryDate) < 0);

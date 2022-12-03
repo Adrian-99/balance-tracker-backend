@@ -21,8 +21,7 @@ namespace balance_tracker_backend.Controllers
         public UserController(IUserMapper userMapper,
             IUserService userService,
             IPasswordService passwordService,
-            IJwtService jwtService,
-            IConfiguration configuration)
+            IJwtService jwtService)
         {
             this.userMapper = userMapper;
             this.userService = userService;

@@ -27,8 +27,8 @@ namespace Application
             try
             {
                 var dataSettings = DataSettings.Get(configuration);
-                var desicedCategoriesJson = await File.ReadAllTextAsync(dataSettings.CategoriesListPath);
-                var desiredCategoriesList = JsonConvert.DeserializeObject<List<Category>>(desicedCategoriesJson);
+                var desiredCategoriesJson = await File.ReadAllTextAsync(dataSettings.CategoriesListPath);
+                var desiredCategoriesList = JsonConvert.DeserializeObject<List<Category>>(desiredCategoriesJson);
                 if (desiredCategoriesList != null)
                 {
                     for (int i = 0; i < desiredCategoriesList.Count; i++)

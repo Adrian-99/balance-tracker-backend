@@ -8,21 +8,21 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.Ingoing.Statistics
 {
-    public class StatisticsGroupByTimePeriodDto
+    public class StatisticsGroupByTimeIntervalDto
     {
         [Required]
-        public DateTime StartDate { get; }
+        public DateTime ReferenceDate { get; }
 
         [Required]
-        public int IntervalValue { get; }
+        public int IntervalLength { get; }
 
         [Required]
         public TimePeriodUnit IntervalUnit { get; }
 
-        public StatisticsGroupByTimePeriodDto(DateTime startDate, int intervalValue, TimePeriodUnit intervalUnit)
+        public StatisticsGroupByTimeIntervalDto(DateTime referenceDate, int intervalLength, TimePeriodUnit intervalUnit)
         {
-            StartDate = startDate;
-            IntervalValue = intervalValue;
+            ReferenceDate = referenceDate;
+            IntervalLength = intervalLength;
             IntervalUnit = intervalUnit;
         }
     }

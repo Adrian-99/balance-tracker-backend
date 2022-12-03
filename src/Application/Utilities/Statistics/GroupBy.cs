@@ -8,6 +8,6 @@ namespace Application.Utilities.Statistics
 {
     public enum GroupBy
     {
-        TimePeriod, EntryType, Category, Tag
+        TimeInterval, EntryType, Category, Tag
     }
 }

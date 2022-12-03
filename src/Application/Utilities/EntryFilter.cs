@@ -88,11 +88,19 @@ namespace Application.Utilities
             {
                 if (SortBy.StartsWith('-'))
                 {
-                    entries.Sort((entry1, entry2) => entry2.Value.CompareTo(entry1.Value));
+                    entries.Sort((entry1, entry2) => {
+                        var value1 = entry1.Category.IsIncome ? entry1.Value : -entry1.Value;
+                        var value2 = entry2.Category.IsIncome ? entry2.Value : -entry2.Value;
+                        return value2.CompareTo(value1);
+                        });
                 }
                 else
                 {
-                    entries.Sort((entry1, entry2) => entry1.Value.CompareTo(entry2.Value));
+                    entries.Sort((entry1, entry2) => {
+                        var value1 = entry1.Category.IsIncome ? entry1.Value : -entry1.Value;
+                        var value2 = entry2.Category.IsIncome ? entry2.Value : -entry2.Value;
+                        return value1.CompareTo(value2);
+                    });
                 }
             }
             else if (Utils.EndsWithIgnoreCase(SortBy, NAME))
