@@ -292,7 +292,7 @@ namespace APITest.Tests.EntryController
         [Test]
         public async Task GetAllPaged_WithDateRange()
         {
-            var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?dateFrom=2022-06-02&dateTo=2022-06-12", tokens.AccessToken);
+            var response = await SendHttpRequestAsync(HttpMethod.Get, $"{URL}?dateFrom=2022-06-02T00:00:00.000Z&dateTo=2022-06-12T23:59:59.999Z", tokens.AccessToken);
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             var responseContent = await GetResponseContentAsync<Page<EntryDto>>(response);

@@ -75,7 +75,7 @@ namespace APITest.Tests.StatisticsController
         public async Task GenerateStatistics_WithDateRangeFilter()
         {
             var statisticsRequestDto = new StatisticsRequestDto(
-                new StatisticsDateRangeFilterDto(new DateTime(2022, 6, 25, 12, 0, 0), new DateTime(2022, 7, 2, 12, 0, 0)),
+                new StatisticsDateRangeFilterDto(new DateTime(2022, 6, 25, 0, 0, 0), new DateTime(2022, 7, 2, 23, 59, 59)),
                 null, null, null, null, null, new List<SelectValue> { SelectValue.Sum }, null);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, statisticsRequestDto);
@@ -88,7 +88,7 @@ namespace APITest.Tests.StatisticsController
             Assert.AreEqual(2, responseContent.Data.EntriesCount);
             Assert.AreEqual(new List<SelectValue> { SelectValue.Sum }, responseContent.Data.SelectValues);
             Assert.AreEqual(new DateTime(2022, 6, 25, 0, 0, 0, 0), responseContent.Data.DateFromFilter);
-            Assert.AreEqual(new DateTime(2022, 7, 2, 23, 59, 59, 999).AddTicks(9999), responseContent.Data.DateToFilter);
+            Assert.AreEqual(new DateTime(2022, 7, 2, 23, 59, 59), responseContent.Data.DateToFilter);
             Assert.IsNull(responseContent.Data.EntryTypeFilter);
             Assert.IsNull(responseContent.Data.CategoryFilter);
             Assert.IsNull(responseContent.Data.TagFilter);
@@ -215,7 +215,7 @@ namespace APITest.Tests.StatisticsController
         public async Task GenerateStatistics_WithGroupBy7DaysPeriod()
         {
             var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimeInterval },
-                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 6, 1, 15, 55, 2), 7, TimePeriodUnit.Day),
+                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 6, 1), 7, TimePeriodUnit.Day),
                 new List<SelectValue> { SelectValue.Min, SelectValue.Max, SelectValue.Sum }, null);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, statisticsRequestDto);
@@ -291,7 +291,7 @@ namespace APITest.Tests.StatisticsController
         public async Task GenerateStatistics_WithGroupBy2MonthsPeriod()
         {
             var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimeInterval },
-                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 6, 1, 15, 55, 2), 2, TimePeriodUnit.Month),
+                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 6, 1), 2, TimePeriodUnit.Month),
                 new List<SelectValue> { SelectValue.Count, SelectValue.Sum }, null);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, statisticsRequestDto);
@@ -333,7 +333,7 @@ namespace APITest.Tests.StatisticsController
         public async Task GenerateStatistics_WithGroupBy1YearPeriod()
         {
             var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null, new List<GroupBy> { GroupBy.TimeInterval },
-                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 1, 1, 15, 55, 2), 1, TimePeriodUnit.Year),
+                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 1, 1), 1, TimePeriodUnit.Year),
                 new List<SelectValue> { SelectValue.Count, SelectValue.Sum }, null);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, statisticsRequestDto);
@@ -351,7 +351,7 @@ namespace APITest.Tests.StatisticsController
             Assert.IsNull(responseContent.Data.CategoryFilter);
             Assert.IsNull(responseContent.Data.TagFilter);
             Assert.AreEqual(1, responseContent.Data.Rows.Count);
-            Assert.AreEqual(new DateTime(2022, 1, 1, 0, 0, 0, 0), responseContent.Data.Rows[0].DateFrom);
+            Assert.AreEqual(new DateTime(2022, 1, 1), responseContent.Data.Rows[0].DateFrom);
             Assert.AreEqual(new DateTime(2022, 12, 31, 23, 59, 59, 999).AddTicks(9999), responseContent.Data.Rows[0].DateTo);
             Assert.IsNull(responseContent.Data.Rows[0].EntryType);
             Assert.IsNull(responseContent.Data.Rows[0].CategoryKeyword);
@@ -556,7 +556,7 @@ namespace APITest.Tests.StatisticsController
         {
             var statisticsRequestDto = new StatisticsRequestDto(null, null, null, null,
                 new List<GroupBy> { GroupBy.TimeInterval, GroupBy.Tag, GroupBy.EntryType },
-                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 6, 1, 15, 55, 2), 2, TimePeriodUnit.Month),
+                new StatisticsGroupByTimeIntervalDto(new DateTime(2022, 6, 1), 2, TimePeriodUnit.Month),
                 new List<SelectValue> { SelectValue.Count, SelectValue.Sum }, true);
 
             var response = await SendHttpRequestAsync(HttpMethod.Post, URL, tokens.AccessToken, statisticsRequestDto);

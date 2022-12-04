@@ -47,7 +47,7 @@ namespace Application.Mappers
                     out descriptionIV);
                 
                 var entry = new Entry();
-                entry.Date = editEntryDto.Date;
+                entry.Date = editEntryDto.Date.ToUniversalTime();
                 entry.Value = editEntryDto.Value;
                 entry.Name = editEntryDto.Name;
                 entry.DescriptionContent = descriptionContent;

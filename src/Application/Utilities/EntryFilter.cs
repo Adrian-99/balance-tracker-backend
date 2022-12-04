@@ -35,14 +35,6 @@ namespace Application.Utilities
             {
                 throw new DataValidationException("Invalid sortBy value");
             }
-            if (DateFrom != null)
-            {
-                DateFrom = ((DateTime)DateFrom).Date;
-            }
-            if (DateTo != null)
-            {
-                DateTo = ((DateTime)DateTo).Date.AddDays(1).AddTicks(-1);
-            }
             if (DateFrom != null && DateTo != null && ((DateTime)DateFrom).CompareTo(DateTo) > 0)
             {
                 throw new DataValidationException("Incorrect date range - dateTo must not be before dateFrom");

@@ -32,8 +32,8 @@ namespace Application.Services
             return new StatisticsResponseDto(
                 filteredEntries.Count,
                 statisticsRequest.SelectValues,
-                statisticsRequest.DateRangeFilter != null ? statisticsRequest.DateRangeFilter.DateFrom.Date : null,
-                statisticsRequest.DateRangeFilter != null ? statisticsRequest.DateRangeFilter.DateTo.Date.AddDays(1).AddTicks(-1) : null,
+                statisticsRequest.DateRangeFilter != null ? statisticsRequest.DateRangeFilter.DateFrom : null,
+                statisticsRequest.DateRangeFilter != null ? statisticsRequest.DateRangeFilter.DateTo : null,
                 statisticsRequest.EntryTypeFilter,
                 statisticsRequest.CategoryFilter,
                 statisticsRequest.TagFilter,
@@ -73,11 +73,9 @@ namespace Application.Services
         {
             if (statisticsRequest.DateRangeFilter != null)
             {
-                var dateFrom = statisticsRequest.DateRangeFilter.DateFrom.ToUniversalTime().Date;
-                var dateTo = statisticsRequest.DateRangeFilter.DateTo.ToUniversalTime().Date.AddDays(1).AddTicks(-1);
                 entries = entries.Where(
-                    entry => entry.Date.CompareTo(dateFrom) >= 0 &&
-                        entry.Date.CompareTo(dateTo) <= 0
+                    entry => entry.Date.CompareTo(statisticsRequest.DateRangeFilter.DateFrom) >= 0 &&
+                        entry.Date.CompareTo(statisticsRequest.DateRangeFilter.DateTo) <= 0
                     ).ToList();
             }
             if (statisticsRequest.EntryTypeFilter != null)
@@ -112,7 +110,7 @@ namespace Application.Services
                 {
                     return statisticsRequest.GroupBy[groupByLevel] switch
                     {
-                        GroupBy.TimeInterval => GroupByTimePeriodAndSelect(entries, statisticsRequest, groupByLevel, dontNegateCostValues),
+                        GroupBy.TimeInterval => GroupByTimeIntervalAndSelect(entries, statisticsRequest, groupByLevel, dontNegateCostValues),
                         GroupBy.EntryType => GroupByEntryTypeAndSelect(entries, statisticsRequest, groupByLevel),
                         GroupBy.Category => GroupByCategoryAndSelect(entries, statisticsRequest, groupByLevel),
                         GroupBy.Tag => GroupByTagAndSelect(entries, statisticsRequest, groupByLevel, dontNegateCostValues),
@@ -147,36 +145,36 @@ namespace Application.Services
 
         private DateTime FindNextPeriodBoundary(DateTime currentDate,
                                                 TimePeriodUnit periodUnit,
-                                                int periodValue,
+                                                int periodLength,
                                                 bool goBackwards = false)
         {
             return periodUnit switch
             {
-                TimePeriodUnit.Day => currentDate.AddDays(!goBackwards ? periodValue : -periodValue),
-                TimePeriodUnit.Month => currentDate.AddMonths(!goBackwards ? periodValue : -periodValue),
-                TimePeriodUnit.Year => currentDate.AddYears(!goBackwards ? periodValue : -periodValue),
+                TimePeriodUnit.Day => currentDate.AddDays(!goBackwards ? periodLength : -periodLength),
+                TimePeriodUnit.Month => currentDate.AddMonths(!goBackwards ? periodLength : -periodLength),
+                TimePeriodUnit.Year => currentDate.AddYears(!goBackwards ? periodLength : -periodLength),
                 _ => throw new ArgumentException("Unknown value of periodUnit")
             };
         }
 
-        private List<StatisticsRowDto> GroupByTimePeriodAndSelect(List<Entry> entries,
-                                                                  StatisticsRequestDto statisticsRequest,
-                                                                  int groupByLevel,
-                                                                  bool dontNegateCostValues)
+        private List<StatisticsRowDto> GroupByTimeIntervalAndSelect(List<Entry> entries,
+                                                                    StatisticsRequestDto statisticsRequest,
+                                                                    int groupByLevel,
+                                                                    bool dontNegateCostValues)
         {
             if (statisticsRequest.GroupByTimeIntervalProperties != null)
             {
                 var minEntryDate = entries.Select(entry => entry.Date).Min();
                 var maxEntryDate = entries.Select(entry => entry.Date).Max();
-                var periodStartDate = statisticsRequest.GroupByTimeIntervalProperties.ReferenceDate.ToUniversalTime().Date;
+                var periodStartDate = statisticsRequest.GroupByTimeIntervalProperties.ReferenceDate;
                 while (periodStartDate.CompareTo(minEntryDate) > 0)
                 {
                     periodStartDate = FindNextPeriodBoundary(
-                        periodStartDate,
+                        periodStartDate.ToLocalTime(),
                         statisticsRequest.GroupByTimeIntervalProperties.IntervalUnit,
                         statisticsRequest.GroupByTimeIntervalProperties.IntervalLength,
                         true
-                        );
+                        ).ToUniversalTime();
                 }
 
                 var statisticsRows = new List<StatisticsRowDto>();
@@ -184,10 +182,10 @@ namespace Application.Services
                 do
                 {
                     periodEndDate = FindNextPeriodBoundary(
-                        periodEndDate,
+                        periodEndDate.ToLocalTime(),
                         statisticsRequest.GroupByTimeIntervalProperties.IntervalUnit,
                         statisticsRequest.GroupByTimeIntervalProperties.IntervalLength
-                        );
+                        ).ToUniversalTime();
 
                     var entriesInPeriod = entries.Where(
                         entry => entry.Date.CompareTo(periodStartDate) >= 0 &&
@@ -210,10 +208,10 @@ namespace Application.Services
                     }
 
                     periodStartDate = FindNextPeriodBoundary(
-                        periodStartDate,
+                        periodStartDate.ToLocalTime(),
                         statisticsRequest.GroupByTimeIntervalProperties.IntervalUnit,
                         statisticsRequest.GroupByTimeIntervalProperties.IntervalLength
-                        );
+                        ).ToUniversalTime();
                 }
                 while (periodEndDate.CompareTo(maxEntryDate) < 0);
 
