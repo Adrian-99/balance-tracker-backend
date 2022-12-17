@@ -178,14 +178,15 @@ namespace Application.Services
                 }
 
                 var statisticsRows = new List<StatisticsRowDto>();
-                var periodEndDate = periodStartDate.AddTicks(-1);
+                DateTime periodEndDate, nextPeriodStartDate;
                 do
                 {
-                    periodEndDate = FindNextPeriodBoundary(
-                        periodEndDate.ToLocalTime(),
+                    nextPeriodStartDate = FindNextPeriodBoundary(
+                        periodStartDate.ToLocalTime(),
                         statisticsRequest.GroupByTimeIntervalProperties.IntervalUnit,
                         statisticsRequest.GroupByTimeIntervalProperties.IntervalLength
                         ).ToUniversalTime();
+                    periodEndDate = nextPeriodStartDate.AddTicks(-1);
 
                     var entriesInPeriod = entries.Where(
                         entry => entry.Date.CompareTo(periodStartDate) >= 0 &&
@@ -207,11 +208,7 @@ namespace Application.Services
                             ));
                     }
 
-                    periodStartDate = FindNextPeriodBoundary(
-                        periodStartDate.ToLocalTime(),
-                        statisticsRequest.GroupByTimeIntervalProperties.IntervalUnit,
-                        statisticsRequest.GroupByTimeIntervalProperties.IntervalLength
-                        ).ToUniversalTime();
+                    periodStartDate = nextPeriodStartDate;
                 }
                 while (periodEndDate.CompareTo(maxEntryDate) < 0);
 
